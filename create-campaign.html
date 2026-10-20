@@ -6,16 +6,23 @@
   <title>Create a Campaign – HopeForUs</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    .cover-upload{border:2px dashed var(--border);border-radius:16px;min-height:200px;display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:pointer;background:var(--bg);overflow:hidden;position:relative;transition:border-color .2s,background .2s}
-    .cover-upload:hover,.cover-upload.drag{border-color:var(--primary);background:var(--primary-light)}
-    .cover-upload img,.cover-upload video{width:100%;height:220px;object-fit:cover;display:block}
-    .cover-upload .hint{text-align:center;padding:24px;color:var(--text-muted)}
-    .cover-upload .hint strong{color:var(--text);display:block;margin-bottom:6px}
+    .cover-upload{border:2px dashed #d1d5db;border-radius:16px;min-height:220px;display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:pointer;background:#fafafa;overflow:hidden;position:relative;transition:border-color .2s,background .2s}
+    .cover-upload:hover,.cover-upload.drag{border-color:#02a95c;background:#e6f7ef}
+    .cover-upload.required-error{border-color:#dc2626;background:#fef2f2}
+    .cover-upload img,.cover-upload video{width:100%;height:240px;object-fit:cover;display:block}
+    .cover-upload .hint{text-align:center;padding:28px 20px;color:#6b7280}
+    .cover-upload .hint strong{color:#1a1a1a;display:block;margin-bottom:8px;font-size:1.05rem}
+    .cover-upload .req{display:inline-block;background:#fef3c7;color:#92400e;font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:6px;margin-top:10px}
     .media-extra{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-top:12px}
-    .media-extra .item{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+    .media-extra .item{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb}
     .media-extra .item img,.media-extra .item video{width:100%;height:100%;object-fit:cover}
     .media-extra .item button{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:none;background:rgba(0,0,0,.65);color:#fff;cursor:pointer;font-size:12px}
     .auth-gate{text-align:center;padding:40px 20px}
+    .field-error{color:#dc2626;font-size:.85rem;font-weight:600;margin-top:8px;display:none}
+    .field-error.show{display:block}
+    .steps-hint{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;font-size:.8rem;color:#6b7280}
+    .steps-hint span{background:#f3f4f6;padding:6px 12px;border-radius:999px;font-weight:600}
+    .steps-hint span.on{background:#e6f7ef;color:#016b3a}
   </style>
 </head>
 <body>
@@ -29,35 +36,40 @@
     </div>
   </header>
   <section class="dashboard-header">
-    <div class="container"><h1>Create a campaign</h1><p>Add photos or a video, set a goal, and publish in minutes</p></div>
+    <div class="container">
+      <h1>Create a campaign</h1>
+      <p>A cover photo or video is required — you can add more photos later as updates</p>
+    </div>
   </section>
   <section class="section">
     <div class="container">
-      <div id="gateBox" class="auth-gate" style="display:none;">
+      <div id="gateBox" class="auth-gate" style="display:none">
         <p style="margin-bottom:16px;color:var(--text-muted)">Sign in to create a campaign.</p>
         <a href="login.html" class="btn btn-primary">Log in</a>
         <a href="signup.html" class="btn btn-outline" style="margin-left:8px">Sign up</a>
       </div>
       <div class="form-card" id="formWrap" style="max-width:640px">
+        <div class="steps-hint"><span class="on">1. Cover media</span><span>2. Details</span><span>3. Publish</span></div>
         <form id="createForm">
-          <h2>Cover photo or video</h2>
+          <h2>Cover photo or video <span style="color:#dc2626">*</span></h2>
+          <p style="font-size:.9rem;color:#6b7280;margin-bottom:12px">Required. Clear photos with people perform best. Add more images anytime after publishing.</p>
           <div class="cover-upload" id="coverZone">
-            <div class="hint" id="coverHint"><strong>Add a cover photo or video</strong>Drag & drop or click · JPG, PNG, MP4</div>
+            <div class="hint"><strong>Add your cover photo or video</strong>Drag & drop or click · JPG, PNG, MP4<div class="req">Required to publish</div></div>
             <input type="file" id="coverInput" accept="image/*,video/*" hidden>
           </div>
-          <p class="form-hint" style="margin-top:8px;margin-bottom:20px">A strong cover image raises more.</p>
-          <div class="form-group">
-            <label>More photos / videos (optional)</label>
+          <p class="field-error" id="coverError">Please add a cover photo or video before publishing.</p>
+          <div class="form-group" style="margin-top:20px">
+            <label>More photos (optional now — add more later as updates)</label>
             <input type="file" id="extraInput" accept="image/*,video/*" multiple>
             <div class="media-extra" id="extraGrid"></div>
           </div>
-          <h2 style="margin-top:8px">Campaign details</h2>
-          <div class="form-group"><label for="title">Campaign title</label><input type="text" id="title" placeholder="e.g. Help me cover surgery costs" required maxlength="120"></div>
+          <h2 style="margin-top:12px">Campaign details</h2>
+          <div class="form-group"><label for="title">Campaign title <span style="color:#dc2626">*</span></label><input type="text" id="title" placeholder="e.g. Help me cover surgery costs" required maxlength="120"></div>
           <div class="form-row">
-            <div class="form-group"><label for="goal">Fundraising goal ($)</label><input type="number" id="goal" placeholder="5000" min="1" required></div>
-            <div class="form-group"><label for="code">Campaign code</label><input type="text" id="code" placeholder="e.g. JOHNSURGERY" required maxlength="24" style="text-transform:uppercase"><p class="form-hint">Supporters use this code when donating</p></div>
+            <div class="form-group"><label for="goal">Fundraising goal ($) <span style="color:#dc2626">*</span></label><input type="number" id="goal" placeholder="5000" min="1" required></div>
+            <div class="form-group"><label for="code">Campaign code <span style="color:#dc2626">*</span></label><input type="text" id="code" placeholder="e.g. JOHNSURGERY" required maxlength="24" style="text-transform:uppercase"><p class="form-hint">Supporters use this when donating</p></div>
           </div>
-          <div class="form-group"><label for="story">Your story</label><textarea id="story" placeholder="Explain why you're fundraising..." required rows="6"></textarea></div>
+          <div class="form-group"><label for="story">Your story <span style="color:#dc2626">*</span></label><textarea id="story" placeholder="Explain why you're fundraising..." required rows="6"></textarea></div>
           <div class="form-group"><label for="category">Category</label>
             <select id="category">
               <option value="medical">Medical</option><option value="emergency">Emergency</option>
@@ -78,62 +90,27 @@
   <script>
     var user=JSON.parse(localStorage.getItem('hopeforus_user')||'null');
     if(!user){document.getElementById('gateBox').style.display='block';document.getElementById('formWrap').style.display='none';}
-    var coverData=null, extraMedia=[];
-    function readFileAsDataURL(file,maxBytes,cb){
-      if(file.size>maxBytes){alert('File too large. Photos max 3.5MB, videos max 8MB.');return;}
-      var r=new FileReader();r.onload=function(e){cb(e.target.result,file.type);};r.readAsDataURL(file);
-    }
+    var coverData=null,extraMedia=[];
+    function readFileAsDataURL(file,maxBytes,cb){if(file.size>maxBytes){alert('File too large. Photos max 3.5MB, videos max 8MB.');return;}var r=new FileReader();r.onload=function(e){cb(e.target.result,file.type);};r.readAsDataURL(file);}
     var coverZone=document.getElementById('coverZone'),coverInput=document.getElementById('coverInput');
     coverZone.addEventListener('click',function(){coverInput.click();});
     coverZone.addEventListener('dragover',function(e){e.preventDefault();coverZone.classList.add('drag');});
     coverZone.addEventListener('dragleave',function(){coverZone.classList.remove('drag');});
     coverZone.addEventListener('drop',function(e){e.preventDefault();coverZone.classList.remove('drag');if(e.dataTransfer.files[0])setCover(e.dataTransfer.files[0]);});
     coverInput.addEventListener('change',function(){if(coverInput.files[0])setCover(coverInput.files[0]);});
-    function setCover(file){
-      var max=file.type.indexOf('video')===0?8*1024*1024:3.5*1024*1024;
-      readFileAsDataURL(file,max,function(dataUrl,type){
-        coverData={type:type,dataUrl:dataUrl};coverZone.innerHTML='';
-        if(type.indexOf('video')===0){var v=document.createElement('video');v.src=dataUrl;v.controls=true;v.muted=true;coverZone.appendChild(v);}
-        else{var img=document.createElement('img');img.src=dataUrl;img.alt='Cover';coverZone.appendChild(img);}
-      });
-    }
-    document.getElementById('extraInput').addEventListener('change',function(){
-      Array.prototype.forEach.call(this.files,function(file){
-        var max=file.type.indexOf('video')===0?8*1024*1024:3.5*1024*1024;
-        readFileAsDataURL(file,max,function(dataUrl,type){extraMedia.push({type:type,dataUrl:dataUrl});renderExtra();});
-      });this.value='';
-    });
-    function renderExtra(){
-      var grid=document.getElementById('extraGrid');grid.innerHTML='';
-      extraMedia.forEach(function(m,i){
-        var div=document.createElement('div');div.className='item';
-        if(m.type.indexOf('video')===0)div.innerHTML='<video src="'+m.dataUrl+'" muted></video><button type="button" data-i="'+i+'">&times;</button>';
-        else div.innerHTML='<img src="'+m.dataUrl+'" alt=""><button type="button" data-i="'+i+'">&times;</button>';
-        grid.appendChild(div);
-      });
-      grid.querySelectorAll('button').forEach(function(btn){btn.onclick=function(){extraMedia.splice(+btn.dataset.i,1);renderExtra();};});
-    }
-    document.getElementById('createForm').addEventListener('submit',function(e){
-      e.preventDefault();if(!user)return;
-      var title=document.getElementById('title').value.trim();
-      var goal=parseInt(document.getElementById('goal').value,10);
-      var code=document.getElementById('code').value.trim().toUpperCase().replace(/\s+/g,'');
-      var story=document.getElementById('story').value.trim();
-      var category=document.getElementById('category').value;
-      var social=document.getElementById('social').value.trim();
+    function setCover(file){var max=file.type.indexOf('video')===0?8*1024*1024:3.5*1024*1024;readFileAsDataURL(file,max,function(dataUrl,type){coverData={type:type,dataUrl:dataUrl};coverZone.classList.remove('required-error');document.getElementById('coverError').classList.remove('show');coverZone.innerHTML='';if(type.indexOf('video')===0){var v=document.createElement('video');v.src=dataUrl;v.controls=true;v.muted=true;coverZone.appendChild(v);}else{var img=document.createElement('img');img.src=dataUrl;img.alt='Cover';coverZone.appendChild(img);}var change=document.createElement('div');change.style.cssText='position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.7);color:#fff;padding:6px 14px;border-radius:999px;font-size:.8rem;font-weight:600;pointer-events:none;';change.textContent='Tap to change';coverZone.appendChild(change);});}
+    document.getElementById('extraInput').addEventListener('change',function(){Array.prototype.forEach.call(this.files,function(file){var max=file.type.indexOf('video')===0?8*1024*1024:3.5*1024*1024;readFileAsDataURL(file,max,function(dataUrl,type){extraMedia.push({type:type,dataUrl:dataUrl});renderExtra();});});this.value='';});
+    function renderExtra(){var grid=document.getElementById('extraGrid');grid.innerHTML='';extraMedia.forEach(function(m,i){var div=document.createElement('div');div.className='item';if(m.type.indexOf('video')===0)div.innerHTML='<video src="'+m.dataUrl+'" muted></video><button type="button" data-i="'+i+'">&times;</button>';else div.innerHTML='<img src="'+m.dataUrl+'" alt=""><button type="button" data-i="'+i+'">&times;</button>';grid.appendChild(div);});grid.querySelectorAll('button').forEach(function(btn){btn.onclick=function(){extraMedia.splice(+btn.dataset.i,1);renderExtra();};});}
+    document.getElementById('createForm').addEventListener('submit',function(e){e.preventDefault();if(!user)return;
+      if(!coverData||!coverData.dataUrl){coverZone.classList.add('required-error');document.getElementById('coverError').classList.add('show');coverZone.scrollIntoView({behavior:'smooth',block:'center'});return;}
+      var title=document.getElementById('title').value.trim(),goal=parseInt(document.getElementById('goal').value,10),code=document.getElementById('code').value.trim().toUpperCase().replace(/\s+/g,''),story=document.getElementById('story').value.trim(),category=document.getElementById('category').value,social=document.getElementById('social').value.trim();
       if(!title||!goal||!code||!story)return;
       var id='c_'+Date.now();
-      var campaign={id:id,title:title,goal:goal,raised:0,code:code,story:story,category:category,social:social||'',cover:coverData,media:extraMedia.slice(0,6),organizer:user.name||'Organizer',createdAt:new Date().toISOString(),ownerEmail:user.email||''};
+      var campaign={id:id,title:title,goal:goal,raised:0,code:code,story:story,category:category,social:social||'',cover:coverData,media:extraMedia.slice(0,6),updates:[],organizer:user.name||'Organizer',createdAt:new Date().toISOString(),ownerEmail:user.email||''};
       var list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]');list.unshift(campaign);
-      try{localStorage.setItem('hopeforus_campaigns',JSON.stringify(list));}
-      catch(err){
-        campaign.media=[];if(coverData&&coverData.dataUrl&&coverData.dataUrl.length>500000)campaign.cover=null;
-        list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]');list.unshift(campaign);
-        try{localStorage.setItem('hopeforus_campaigns',JSON.stringify(list));}
-        catch(e2){var m=document.getElementById('createMsg');m.className='auth-message error';m.style.display='block';m.textContent='Storage full. Use smaller photos.';return;}
-      }
+      try{localStorage.setItem('hopeforus_campaigns',JSON.stringify(list));}catch(err){campaign.media=[];if(coverData.dataUrl.length>800000){var m=document.getElementById('createMsg');m.className='auth-message error';m.style.display='block';m.textContent='Photo too large. Use a smaller image.';return;}list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]');list.unshift(campaign);try{localStorage.setItem('hopeforus_campaigns',JSON.stringify(list));}catch(e2){var m=document.getElementById('createMsg');m.className='auth-message error';m.style.display='block';m.textContent='Storage full. Use a smaller cover photo.';return;}}
       var msg=document.getElementById('createMsg');msg.style.display='block';msg.className='auth-message success';msg.textContent='Campaign published! Opening it now…';
-      setTimeout(function(){window.location.href='campaign.html?id='+encodeURIComponent(id);},800);
+      setTimeout(function(){window.location.href='campaign.html?id='+encodeURIComponent(id);},700);
     });
   </script>
 </body>
