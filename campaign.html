@@ -8,7 +8,7 @@
 <style>
 :root{--lime:#d4f54a;--dark:#0c3d30;--g:#02a95c;--black:#1a1a1a;--muted:#5c5c5c}
 body{margin:0;background:#fff;font-family:Inter,-apple-system,sans-serif}
-.top{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-bottom:1px solid #eee;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.top{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.95);border-bottom:1px solid #eee;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
 .top a.logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--black);font-weight:800;font-size:1.1rem}
 .top .mark{width:28px;height:28px;background:var(--g);border-radius:8px;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
 .top .signup{background:var(--g);color:#fff;border-radius:999px;padding:8px 14px;text-decoration:none;font-weight:600;font-size:.9rem}
@@ -22,7 +22,7 @@ body{margin:0;background:#fff;font-family:Inter,-apple-system,sans-serif}
 .gallery .dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px}
 .gallery .dots span{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.45)}
 .gallery .dots span.on{background:#fff}
-.gallery .nav-btn{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,.92);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.12);font-size:1.2rem}
+.gallery .nav-btn{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,.92);cursor:pointer;font-size:1.2rem}
 .gallery .nav-btn.prev{left:10px}.gallery .nav-btn.next{right:10px}
 .thumbs{display:flex;gap:8px;overflow-x:auto;margin-top:10px;padding-bottom:4px}
 .thumbs button{flex:0 0 64px;height:48px;border-radius:10px;overflow:hidden;border:2px solid transparent;padding:0;cursor:pointer;background:#eee}
@@ -111,6 +111,7 @@ body{margin:0;background:#fff;font-family:Inter,-apple-system,sans-serif}
 </div>
 </div>
 </div>
+<script src="camp-auth.js"></script>
 <script>
 function getId(){return new URLSearchParams(location.search).get('id')||''}
 function getList(){try{return JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){return[]}}
@@ -118,7 +119,7 @@ function saveList(list){localStorage.setItem('hopeforus_campaigns',JSON.stringif
 function findC(id){var list=getList();for(var i=0;i<list.length;i++)if(list[i].id===id)return{c:list[i],list:list};return null}
 function pct(r,g){return g?Math.min(100,Math.round(r/g*100)):0}
 function dash(p){return 150.8-(150.8*p/100)}
-function esc(s){return String(s||'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"')}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function fmt(iso){try{return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}catch(e){return''}}
 var id=getId(),found=findC(id),user=JSON.parse(localStorage.getItem('hopeforus_user')||'null'),updatePhoto=null,gIdx=0,gItems=[];
 if(!found){document.getElementById('page').innerHTML='<p style="padding:40px 0">Campaign not found. <a href="index.html">Home</a></p>'}else{render(found)}
@@ -144,14 +145,14 @@ thumbs='<div class="thumbs" id="thumbs">'+gItems.map(function(m,i){var inn=(m.ty
 var storyFull=esc(c.story||'').replace(/\n/g,'</p><p>');
 var updates=c.updates||[];
 var uHtml=updates.length?updates.slice().reverse().map(function(u){var m='';if(u.photo&&u.photo.dataUrl)m=(u.photo.type&&u.photo.type.indexOf('video')===0)?'<video src="'+u.photo.dataUrl+'" controls style="max-width:100%;max-height:240px;border-radius:12px;margin-top:10px"></video>':'<img src="'+u.photo.dataUrl+'" style="max-width:100%;max-height:240px;border-radius:12px;margin-top:10px">';return '<div class="upd"><div class="dt">'+esc(fmt(u.date))+'</div><div>'+esc(u.text)+'</div>'+m+'</div>'}).join(''):'<p style="color:#888;font-size:.9rem">No updates yet.</p>';
-var postBox=isOwner?'<div class="ubox"><strong style="display:block;margin-bottom:8px">Post an update</strong><textarea id="updateText" placeholder="Share news or thank donors…"></textarea><div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center"><label style="cursor:pointer;font-weight:600;font-size:.85rem;color:#02a95c">+ Photo / video<input type="file" id="updatePhotoInput" accept="image/*,video/*" hidden></label><button type="button" id="postUpdateBtn" style="padding:8px 14px;border-radius:999px;border:none;background:#0c3d30;color:#c8f0a8;font-weight:700;cursor:pointer;font-family:inherit">Share update</button></div><div id="updatePhotoPreview"></div></div>':'';
+var postBox=isOwner?'<div class="ubox"><strong style="display:block;margin-bottom:8px">Post an update</strong><textarea id="updateText" placeholder="Write an update…"></textarea><div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center"><label style="cursor:pointer;font-weight:600;font-size:.85rem;color:#02a95c">+ Photo / video<input type="file" id="updatePhotoInput" accept="image/*,video/*" hidden></label><button type="button" id="postUpdateBtn" style="padding:8px 14px;border-radius:999px;border:none;background:#0c3d30;color:#c8f0a8;font-weight:700;cursor:pointer;font-family:inherit">Share update</button></div><div id="updatePhotoPreview"></div></div>':'';
 var donorsHtml='';
 if(raised>0&&realDonors.length){
 donorsHtml='<div style="font-weight:700;color:#7c3aed;margin:16px 0 8px">'+realDonors.length+' recent donations</div>'+realDonors.map(function(d){return '<div class="drow"><div class="dav">'+(d.name||'A').charAt(0)+'</div><div><strong>'+esc(d.name||'Anonymous')+'</strong><div style="font-size:.8rem;color:#5c5c5c">$'+(d.amount||0)+'</div></div></div>'}).join('');
 }else if(raised>0){
-donorsHtml='<p class="empty-donors">Donations are coming in — thank you!</p>';
+donorsHtml='<p class="empty-donors">Donations coming in!</p>';
 }else{
-donorsHtml='<p class="empty-donors">No donations yet — be the first to support this campaign.</p>';
+donorsHtml='<p class="empty-donors">No donations yet.</p>';
 }
 var ownerBar='';
 if(isOwner){
