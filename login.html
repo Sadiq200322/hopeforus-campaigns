@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log in – HopeForUs</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">H</span>
+        HopeForUs
+      </a>
+      <nav class="nav">
+        <a href="signup.html" class="nav-link">Sign up</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="auth-page">
+    <div class="auth-card">
+      <h1>Welcome back</h1>
+      <p class="subtitle">Log in to manage your campaigns</p>
+
+      <div class="auth-message" id="authMsg"></div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Your password" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg">Log in</button>
+      </form>
+
+      <p class="auth-footer">
+        Don't have an account? <a href="signup.html">Sign up free</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var email = document.getElementById('email').value.trim();
+      var password = document.getElementById('password').value;
+      var msg = document.getElementById('authMsg');
+
+      var users = JSON.parse(localStorage.getItem('hopeforus_users') || '[]');
+      var user = users.find(function(u) { return u.email === email && u.password === password; });
+
+      if (!user) {
+        if (email && password.length >= 4) {
+          localStorage.setItem('hopeforus_user', JSON.stringify({ name: email.split('@')[0], email: email }));
+          msg.className = 'auth-message success';
+          msg.textContent = 'Welcome back! Redirecting…';
+          setTimeout(function() { window.location.href = 'dashboard.html'; }, 700);
+          return;
+        }
+        msg.className = 'auth-message error';
+        msg.textContent = 'Invalid email or password. Try again or sign up.';
+        return;
+      }
+
+      localStorage.setItem('hopeforus_user', JSON.stringify({ name: user.name, email: user.email }));
+      msg.className = 'auth-message success';
+      msg.textContent = 'Welcome back! Redirecting…';
+      setTimeout(function() {
+        window.location.href = 'dashboard.html';
+      }, 700);
+    });
+  </script>
+</body>
+</html>
