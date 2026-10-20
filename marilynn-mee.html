@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rally for Marilynn Mee – HopeForUs</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo"><span class="logo-icon">H</span> HopeForUs</a>
+      <nav class="nav">
+        <a href="index.html" class="nav-link hide-mobile">Campaigns</a>
+        <a href="login.html" class="nav-link">Log in</a>
+        <a href="signup.html" class="btn btn-primary btn-sm">Sign up</a>
+      </nav>
+    </div>
+  </header>
+  <div class="container campaign-page">
+    <h1 class="campaign-title-top">Rally for Marilynn Mee: Milwaukee Rock Icon–Animal Advocate</h1>
+    <div class="campaign-layout">
+      <div class="campaign-main">
+        <div class="campaign-media"><div class="placeholder-hero" style="background:linear-gradient(135deg,#1e3a5f,#0f172a);">Marilynn Mee</div></div>
+        <div class="organizer-row">
+          <div class="organizer-avatar">M</div>
+          <div class="organizer-info"><strong>Marilynn M Supporters Friends-Family</strong><span>Organizer · Milwaukee, WI · Medical</span><div class="badge-protected">Donation protected</div></div>
+        </div>
+        <div class="story-section">
+          <h2>Rally for Marilynn Mee</h2>
+          <p>For decades, <strong>Marilynn Mee</strong> has been the powerhouse voice of Milwaukee rock radio. From launching <strong>Lazer 103 (WLZR)</strong> to her years on <strong>WKLH</strong>, Marilynn has always been a force of nature.</p>
+          <p>She founded the <strong>MPD K9 Foundation</strong> and volunteered for animal rescue causes across the region. Right now she is fighting terminal cancer — and needs our community's backup.</p>
+          <p>Funds help with out-of-pocket medical treatments, specialized care, and daily living costs so Marilynn can focus on care, not bills.</p>
+        </div>
+        <div class="updates-section">
+          <h2>Recent Updates</h2>
+          <div class="update-item"><div class="update-date">Oct 18, 2026</div><div class="update-text">Thank you to everyone who has donated and shared.</div></div>
+          <div class="update-item"><div class="update-date">Oct 16, 2026</div><div class="update-text">Campaign launched by friends and family. Please share far and wide.</div></div>
+        </div>
+      </div>
+      <aside class="support-card">
+        <div class="raised-row">
+          <div class="progress-circle">
+            <svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="28" cy="28" r="24" fill="none" stroke="#02a95c" stroke-width="5" stroke-dasharray="150.8" stroke-dashoffset="143.3" stroke-linecap="round"/></svg>
+            <span class="pct">5%</span>
+          </div>
+          <div><div class="raised-amount">$5,049</div><div class="raised-goal">raised of $100,000 goal</div></div>
+        </div>
+        <div class="donation-count">73 donations</div>
+        <button type="button" class="btn btn-primary btn-block btn-lg" id="donateBtn">Donate now</button>
+        <button type="button" class="btn btn-dark btn-block" id="shareToggle">Share</button>
+        <div class="share-panel" id="sharePanel">
+          <h4>Share this campaign</h4>
+          <div class="copy-link-row"><input type="text" id="campaignLink" readonly><button type="button" class="btn btn-outline btn-sm" id="copyBtn">Copy link</button></div>
+          <div class="copy-toast" id="copyToast">Link copied!</div>
+        </div>
+        <div class="donations-list">
+          <h4>Recent donations</h4>
+          <div class="donation-item"><div class="donation-avatar">M</div><div class="donation-info"><div class="name">Mary Rode</div><div class="meta">Recent</div></div><div class="donation-amount">$100</div></div>
+          <div class="donation-item"><div class="donation-avatar">S</div><div class="donation-info"><div class="name">Steve Palec</div><div class="meta">Top donation</div></div><div class="donation-amount">$500</div></div>
+          <div class="donation-item"><div class="donation-avatar">K</div><div class="donation-info"><div class="name">Karen Richie</div><div class="meta">7 hrs ago</div></div><div class="donation-amount">$100</div></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <div class="modal-overlay" id="donateModal">
+    <div class="modal">
+      <button class="modal-close" id="modalClose">&times;</button>
+      <h3>Donate to Marilynn Mee</h3>
+      <div class="code-box"><div class="label">Campaign code</div><div class="code">MARILYNN</div></div>
+      <a href="https://kickbot.com/tips/HopeForUs" target="_blank" class="btn btn-primary btn-block btn-lg" rel="noopener">Continue to donate</a>
+    </div>
+  </div>
+  <footer class="site-footer"><div class="container"><div class="footer-bottom" style="border:none;margin:0;padding:0;"><p>&copy; 2026 HopeForUs</p></div></div></footer>
+  <script>
+    (function(){
+      var link=window.location.href.split('?')[0];
+      document.getElementById('campaignLink').value=link;
+      document.getElementById('shareToggle').onclick=function(){document.getElementById('sharePanel').classList.toggle('open');};
+      document.getElementById('copyBtn').onclick=function(){navigator.clipboard.writeText(link).then(function(){var t=document.getElementById('copyToast');t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2000);});};
+      var modal=document.getElementById('donateModal');
+      document.getElementById('donateBtn').onclick=function(){modal.classList.add('open');};
+      document.getElementById('modalClose').onclick=function(){modal.classList.remove('open');};
+      modal.onclick=function(e){if(e.target===modal)modal.classList.remove('open');};
+    })();
+  </script>
+</body>
+</html>
