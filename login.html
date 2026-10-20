@@ -47,13 +47,10 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
   var msg = document.getElementById('msg');
   var users = JSON.parse(localStorage.getItem('hopeforus_users') || '[]');
   var found = users.find(function(u) { return u.email === email && u.password === pass; });
-  if (!found && pass.length >= 4) {
-    found = { name: email.split('@')[0], email: email };
-  }
   if (!found) {
     msg.className = 'auth-message error';
     msg.style.display = 'block';
-    msg.textContent = 'Check your email or password.';
+    msg.textContent = 'Check your email or password. Need an account? Sign up.';
     return;
   }
   localStorage.setItem('hopeforus_user', JSON.stringify({ name: found.name, email: found.email }));
