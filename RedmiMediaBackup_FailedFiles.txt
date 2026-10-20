@@ -1,3 +1,0 @@
-﻿
-=== Redmi Media Backup - Failed Files Log ===
-/system/bin/sh: syntax error: unexpected '('
