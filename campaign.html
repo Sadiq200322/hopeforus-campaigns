@@ -2,89 +2,169 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Campaign – HopeForUs</title>
 <link rel="stylesheet" href="style.css">
 <style>
-.media-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:16px}
-.media-gallery img,.media-gallery video{width:100%;height:120px;object-fit:cover;border-radius:10px}
-.social-link{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:.9rem}
-.update-box{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:18px;margin-top:20px}
-.update-box h3{font-size:1.05rem;font-weight:700;margin-bottom:12px}
-.update-box textarea{width:100%;min-height:90px;padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;font-family:inherit;font-size:.95rem;resize:vertical;box-sizing:border-box}
-.update-box textarea:focus{outline:none;border-color:#02a95c}
-.update-preview{max-width:200px;max-height:140px;border-radius:10px;margin-top:10px;object-fit:cover}
-.update-item{padding:16px 0;border-bottom:1px solid #e5e7eb}
-.update-item:last-child{border-bottom:none}
-.update-date{font-size:.8rem;color:#6b7280;font-weight:600;margin-bottom:6px}
-.update-text{font-size:.95rem;color:#374151;line-height:1.55}
-.update-item img,.update-item video{max-width:100%;max-height:280px;border-radius:12px;margin-top:12px}
+:root{--lime:#d4f54a;--dark:#0c3d30;--g:#02a95c;--black:#1a1a1a;--muted:#5c5c5c}
+body{margin:0;background:#fff;font-family:Inter,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif}
+.top{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid #eee;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.top a.logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--black);font-weight:800;font-size:1.1rem}
+.top .mark{width:28px;height:28px;background:var(--g);border-radius:8px;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.top .signup{background:var(--g);color:#fff;border-radius:999px;padding:8px 14px;text-decoration:none;font-weight:600;font-size:.9rem}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 100px}
+.title{font-size:clamp(1.5rem,4vw,2rem);font-weight:800;letter-spacing:-.03em;color:var(--black);line-height:1.2;margin:0 0 20px}
+.grid{display:grid;grid-template-columns:1fr;gap:24px;align-items:start}
+@media(min-width:900px){.grid{grid-template-columns:1fr 340px;gap:32px}.sticky{position:sticky;top:72px}}
+.gallery{position:relative;border-radius:16px;overflow:hidden;background:#e8e8e8;aspect-ratio:16/10}
+.gallery img,.gallery video{width:100%;height:100%;object-fit:cover;display:block}
+.gallery .ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;padding:24px;text-align:center}
+.org-row{display:flex;align-items:center;gap:12px;margin-top:16px;padding-bottom:14px;border-bottom:1px solid #eee}
+.av{width:40px;height:40px;border-radius:50%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;font-weight:700;color:#555;flex-shrink:0}
+.org-name{font-weight:700;font-size:.95rem}
+.badge{display:inline-flex;align-items:center;gap:6px;background:#e8f4fc;color:#1a6a9a;font-size:.8rem;font-weight:600;padding:6px 12px;border-radius:8px;margin:14px 0 18px}
+.story{color:var(--black);font-size:1rem;line-height:1.65}
+.story p{margin:0 0 14px}
+.story.collapsed{max-height:180px;overflow:hidden;position:relative}
+.story.collapsed:after{content:'';position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(transparent,#fff)}
+.read-more{background:none;border:none;color:var(--g);font-weight:700;font-size:.95rem;cursor:pointer;padding:0;margin:8px 0 20px;font-family:inherit}
+.mid{display:flex;gap:12px;margin:8px 0 28px;flex-wrap:wrap}
+.mid button{flex:1;min-width:120px;padding:14px 20px;border-radius:999px;font-weight:700;font-size:.95rem;font-family:inherit;cursor:pointer;border:1.5px solid #d1d5db;background:#fff;color:var(--black)}
+.sec{font-size:1.15rem;font-weight:800;color:var(--black);margin:28px 0 14px}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+.raised-row{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.ring{position:relative;width:56px;height:56px;flex-shrink:0}
+.ring svg{transform:rotate(-90deg)}
+.ring .pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800}
+.amt{font-size:1.5rem;font-weight:800;color:var(--black);letter-spacing:-.02em;line-height:1.15}
+.goal{font-size:.9rem;color:var(--muted)}
+.count{font-size:.85rem;color:var(--muted);margin-top:2px}
+.btn-d{display:block;width:100%;padding:16px;background:var(--lime);color:#1a1a1a;border:none;border-radius:999px;font-weight:800;font-size:1.05rem;font-family:inherit;cursor:pointer;margin-bottom:10px}
+.btn-s{display:block;width:100%;padding:16px;background:var(--dark);color:#c8f0a8;border:none;border-radius:999px;font-weight:800;font-size:1.05rem;font-family:inherit;cursor:pointer}
+.donors-h{display:flex;align-items:center;gap:8px;margin:20px 0 12px;font-size:.95rem;font-weight:700;color:#7c3aed}
+.drow{display:flex;align-items:center;gap:12px;padding:10px 0}
+.dav{width:36px;height:36px;border-radius:50%;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#6b7280;flex-shrink:0}
+.dname{font-weight:600;font-size:.9rem}
+.dmeta{font-size:.8rem;color:var(--muted)}
+.share-p{display:none;margin-top:14px;padding-top:14px;border-top:1px solid #eee}
+.share-p.open{display:block}
+.copy-r{display:flex;gap:8px}
+.copy-r input{flex:1;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:.85rem}
+.copy-r button{padding:10px 14px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;font-weight:600;cursor:pointer;font-family:inherit;font-size:.85rem}
+.toast{font-size:.8rem;color:var(--g);font-weight:600;margin-top:8px;opacity:0}
+.toast.show{opacity:1}
+.share-s{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.share-s a{flex:1;min-width:70px;text-align:center;padding:10px;border-radius:10px;border:1px solid #e5e7eb;text-decoration:none;color:var(--black);font-size:.8rem;font-weight:600}
+.mbar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:40;background:#fff;border-top:1px solid #eee;padding:12px 16px;gap:10px;box-shadow:0 -4px 20px rgba(0,0,0,.08)}
+.mbar button{flex:1;padding:14px;border-radius:999px;border:none;font-weight:800;font-size:1rem;font-family:inherit;cursor:pointer}
+.mbar .md{background:var(--lime);color:#1a1a1a}
+.mbar .ms{background:var(--dark);color:#c8f0a8}
+@media(max-width:899px){.mbar{display:flex}.card .btn-d,.card .btn-s{display:none}}
+.modal-o{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.45);align-items:center;justify-content:center;padding:16px}
+.modal-o.open{display:flex}
+.modal{background:#fff;border-radius:16px;padding:28px 24px;max-width:400px;width:100%;position:relative}
+.modal-x{position:absolute;top:12px;right:14px;border:none;background:none;font-size:1.5rem;cursor:pointer;color:#666}
+.modal h3{margin:0 0 10px;font-size:1.2rem;font-weight:800}
+.modal p{color:var(--muted);font-size:.95rem;margin:0 0 16px}
+.cb{background:#f3f4f6;border-radius:12px;padding:14px;text-align:center;margin-bottom:16px}
+.cb .l{font-size:.75rem;color:var(--muted);font-weight:600;margin-bottom:4px}
+.cb .c{font-size:1.25rem;font-weight:800;letter-spacing:.05em}
+.upd{padding:16px 0;border-bottom:1px solid #eee}
+.upd .dt{font-size:.8rem;color:var(--muted);font-weight:600;margin-bottom:6px}
+.ubox{background:#f9fafb;border:1px solid #e5e7eb;border-radius:14px;padding:16px;margin-bottom:16px}
+.ubox textarea{width:100%;min-height:80px;padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;font-family:inherit;font-size:.95rem;box-sizing:border-box}
 </style>
 </head>
 <body>
-<header class="site-header">
-<div class="container header-inner">
-<a href="index.html" class="logo"><span class="logo-icon">H</span> HopeForUs</a>
-<nav class="nav">
-<a href="index.html" class="nav-link hide-mobile">Campaigns</a>
-<a href="login.html" class="nav-link">Log in</a>
-<a href="signup.html" class="btn btn-primary btn-sm">Sign up</a>
-</nav>
-</div>
+<header class="top">
+<a href="index.html" class="logo"><span class="mark">H</span> HopeForUs</a>
+<a href="signup.html" class="signup">Sign up</a>
 </header>
-<div class="container campaign-page" id="page"><p style="color:var(--text-muted);padding:40px 0">Loading…</p></div>
-<div class="modal-overlay" id="donateModal">
+<div class="wrap" id="page"><p style="color:#888;padding:40px 0">Loading…</p></div>
+<div class="mbar" id="mbar" style="display:none">
+<button type="button" class="md" id="mDonate">Donate now</button>
+<button type="button" class="ms" id="mShare">Share</button>
+</div>
+<div class="modal-o" id="donateModal">
 <div class="modal">
-<button class="modal-close" id="modalClose">&times;</button>
+<button class="modal-x" id="modalClose">&times;</button>
 <h3 id="modalTitle">Donate</h3>
-<p>Include the campaign code when you donate:</p>
-<div class="code-box"><div class="label">Campaign code</div><div class="code" id="modalCode">—</div></div>
-<a href="https://kickbot.com/tips/HopeForUs" target="_blank" class="btn btn-primary btn-block btn-lg" rel="noopener">Continue to donate</a>
+<p>Include this campaign code when you donate:</p>
+<div class="cb"><div class="l">Campaign code</div><div class="c" id="modalCode">—</div></div>
+<a href="https://kickbot.com/tips/HopeForUs" target="_blank" rel="noopener" class="btn-d" style="text-decoration:none;text-align:center;box-sizing:border-box">Continue to donate</a>
 </div>
 </div>
-<footer class="site-footer"><div class="container"><div class="footer-bottom" style="border:none;margin:0;padding:0"><p>&copy; 2026 HopeForUs</p></div></div></footer>
 <script>
 function getId(){return new URLSearchParams(location.search).get('id')||''}
 function getList(){try{return JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){return[]}}
 function saveList(list){localStorage.setItem('hopeforus_campaigns',JSON.stringify(list))}
-function findCampaign(id){var list=getList();for(var i=0;i<list.length;i++)if(list[i].id===id)return{c:list[i],i:i,list:list};return null}
+function findC(id){var list=getList();for(var i=0;i<list.length;i++)if(list[i].id===id)return{c:list[i],list:list};return null}
 function pct(r,g){return g?Math.min(100,Math.round(r/g*100)):0}
-function dashOffset(p){return 150.8-(150.8*p/100)}
-function escapeHtml(s){return String(s||'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"')}
-function fmtDate(iso){try{return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}catch(e){return iso||''}}
-var id=getId(),found=findCampaign(id),page=document.getElementById('page');
-var user=JSON.parse(localStorage.getItem('hopeforus_user')||'null'),updatePhoto=null;
-if(!found){page.innerHTML='<p style="padding:40px 0">Campaign not found. <a href="index.html">Back to home</a></p>';}else{render(found);}
+function dash(p){return 150.8-(150.8*p/100)}
+function esc(s){return String(s||'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"')}
+function fmt(iso){try{return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}catch(e){return''}}
+var DEMO=[{name:'Anonymous',amount:50,tag:'Recent donation',h:1},{name:'Anonymous',amount:200,tag:'Top donation',h:1},{name:'Sam K.',amount:25,tag:'2 hrs',h:0},{name:'Jordan L.',amount:75,tag:'5 hrs',h:0},{name:'Anonymous',amount:20,tag:'1 day',h:1}];
+var id=getId(),found=findC(id),user=JSON.parse(localStorage.getItem('hopeforus_user')||'null'),updatePhoto=null,gIdx=0,gItems=[];
+if(!found){document.getElementById('page').innerHTML='<p style="padding:40px 0">Campaign not found. <a href="index.html">Back to home</a></p>'}else{render(found)}
+function openDonate(){document.getElementById('donateModal').classList.add('open')}
+function openShare(){var p=document.getElementById('sharePanel');if(p){p.classList.add('open');p.scrollIntoView({behavior:'smooth',block:'nearest'})}}
 function render(found){
 var c=found.c;document.title=c.title+' – HopeForUs';var p=pct(c.raised||0,c.goal);
 var isOwner=user&&(user.email===c.ownerEmail||user.name===c.organizer);
-var coverHtml='';
-if(c.cover&&c.cover.dataUrl){if(c.cover.type&&c.cover.type.indexOf('video')===0)coverHtml='<video src="'+c.cover.dataUrl+'" controls style="width:100%;max-height:400px;border-radius:16px"></video>';else coverHtml='<img src="'+c.cover.dataUrl+'" alt="" style="width:100%;height:400px;object-fit:cover;border-radius:16px">';}
-else if(c.image)coverHtml='<img src="'+c.image+'" alt="" style="width:100%;height:400px;object-fit:cover;border-radius:16px">';
-else coverHtml='<div class="placeholder-hero" style="background:linear-gradient(135deg,#02a95c,#016b3a)">'+escapeHtml((c.title||'').slice(0,40))+'</div>';
-var gallery='';if(c.media&&c.media.length){gallery='<div class="media-gallery">'+c.media.map(function(m){return(m.type&&m.type.indexOf('video')===0)?'<video src="'+m.dataUrl+'" controls muted></video>':'<img src="'+m.dataUrl+'" alt="">'}).join('')+'</div>';}
-var social=c.social?'<a class="social-link" href="'+escapeHtml(c.social)+'" target="_blank" rel="noopener">Linked social →</a>':'';
-var updates=c.updates||[];var updatesHtml='';
-if(updates.length){updatesHtml=updates.slice().reverse().map(function(u){var media='';if(u.photo&&u.photo.dataUrl){if(u.photo.type&&u.photo.type.indexOf('video')===0)media='<video src="'+u.photo.dataUrl+'" controls style="max-width:100%;max-height:280px;border-radius:12px;margin-top:12px"></video>';else media='<img src="'+u.photo.dataUrl+'" alt="" style="max-width:100%;max-height:280px;border-radius:12px;margin-top:12px">';}return '<div class="update-item"><div class="update-date">'+escapeHtml(fmtDate(u.date))+'</div><div class="update-text">'+escapeHtml(u.text)+'</div>'+media+'</div>';}).join('');}
-else updatesHtml='<p style="color:#6b7280;font-size:.9rem">No updates yet.</p>';
+var raised=c.raised||0,dCount=c.donorsCount||Math.max(3,Math.floor(raised/40)||0);
+gItems=[];if(c.cover&&c.cover.dataUrl)gItems.push(c.cover);else if(c.image)gItems.push({type:'image',dataUrl:c.image});if(c.media)c.media.forEach(function(m){gItems.push(m)});
+var cover='';if(gItems.length){var g=gItems[gIdx]||gItems[0];if(g.type&&g.type.indexOf('video')===0)cover='<video src="'+g.dataUrl+'" controls playsinline style="width:100%;height:100%;object-fit:cover"></video>';else cover='<img src="'+g.dataUrl+'" alt="">'}else cover='<div class="ph" style="background:linear-gradient(135deg,#02a95c,#016b3a)">'+esc((c.title||'').slice(0,48))+'</div>';
+var storyFull=esc(c.story||'').replace(/\n/g,'</p><p>');
+var updates=c.updates||[];
+var uHtml=updates.length?updates.slice().reverse().map(function(u){var m='';if(u.photo&&u.photo.dataUrl){if(u.photo.type&&u.photo.type.indexOf('video')===0)m='<video src="'+u.photo.dataUrl+'" controls style="max-width:100%;max-height:260px;border-radius:12px;margin-top:12px"></video>';else m='<img src="'+u.photo.dataUrl+'" style="max-width:100%;max-height:260px;border-radius:12px;margin-top:12px">'}return '<div class="upd"><div class="dt">'+esc(fmt(u.date))+'</div><div>'+esc(u.text)+'</div>'+m+'</div>'}).join(''):'<p style="color:#888;font-size:.9rem">No updates yet.</p>';
 var postBox='';
-if(isOwner){postBox='<div class="update-box"><h3>Post an update</h3><p style="font-size:.85rem;color:#6b7280;margin-bottom:10px">Add a photo or video with your update anytime.</p><textarea id="updateText" placeholder="Share news, thank donors, or show progress…"></textarea><div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><label class="btn btn-outline btn-sm" style="cursor:pointer;margin:0">Add photo / video<input type="file" id="updatePhotoInput" accept="image/*,video/*" hidden></label><button type="button" class="btn btn-primary btn-sm" id="postUpdateBtn">Share update</button></div><div id="updatePhotoPreview"></div><p id="updateMsg" style="display:none;margin-top:10px;font-size:.85rem;font-weight:600"></p></div>';}
-page.innerHTML='<h1 class="campaign-title-top">'+escapeHtml(c.title)+'</h1><div class="campaign-layout"><div class="campaign-main"><div class="campaign-media">'+coverHtml+'</div><div class="organizer-row"><div class="organizer-avatar">'+(c.organizer||'O').charAt(0).toUpperCase()+'</div><div class="organizer-info"><strong>'+escapeHtml(c.organizer||'Organizer')+'</strong><span>Organizer · '+escapeHtml(c.category||'')+'</span><div class="badge-protected">Donation protected</div>'+social+'</div></div><div class="story-section"><h2>Story</h2><p>'+escapeHtml(c.story).replace(/\n/g,'</p><p>')+'</p>'+gallery+'</div><div class="updates-section" style="margin-top:32px"><h2>Updates</h2>'+postBox+'<div id="updatesList">'+updatesHtml+'</div></div></div><aside class="support-card"><div class="raised-row"><div class="progress-circle"><svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="28" cy="28" r="24" fill="none" stroke="#02a95c" stroke-width="5" stroke-dasharray="150.8" stroke-dashoffset="'+dashOffset(p)+'" stroke-linecap="round"/></svg><span class="pct">'+p+'%</span></div><div><div class="raised-amount">$'+(c.raised||0).toLocaleString()+'</div><div class="raised-goal">raised of $'+Number(c.goal).toLocaleString()+' goal</div></div></div><div class="donation-count">Campaign</div><button type="button" class="btn btn-primary btn-block btn-lg" id="donateBtn">Donate now</button><button type="button" class="btn btn-dark btn-block" id="shareToggle">Share</button><div class="share-panel" id="sharePanel"><h4>Share this campaign</h4><div class="copy-link-row"><input type="text" id="campaignLink" readonly><button type="button" class="btn btn-outline btn-sm" id="copyBtn">Copy link</button></div><div class="copy-toast" id="copyToast">Link copied!</div></div></aside></div>';
+if(isOwner){postBox='<div class="ubox"><strong style="display:block;margin-bottom:10px">Post an update</strong><textarea id="updateText" placeholder="Share news or thank donors…"></textarea><div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center"><label style="cursor:pointer;font-weight:600;font-size:.85rem;color:#02a95c">+ Photo / video<input type="file" id="updatePhotoInput" accept="image/*,video/*" hidden></label><button type="button" id="postUpdateBtn" style="padding:8px 16px;border-radius:999px;border:none;background:#0c3d30;color:#c8f0a8;font-weight:700;cursor:pointer;font-family:inherit">Share update</button></div><div id="updatePhotoPreview"></div></div>'}
+var donorsHtml=DEMO.map(function(d){var av=d.h?'<div class="dav">♥</div>':'<div class="dav">'+d.name.charAt(0)+'</div>';return '<div class="drow">'+av+'<div><div class="dname">'+esc(d.name)+'</div><div class="dmeta"><strong>$'+d.amount+'</strong> · '+esc(d.tag)+'</div></div></div>'}).join('');
+var social=c.social?'<a href="'+esc(c.social)+'" target="_blank" rel="noopener" style="font-size:.85rem;color:#02a95c;font-weight:600;display:inline-block;margin-top:6px">Social profile →</a>':'';
+var link=location.href.split('#')[0];
+var fb='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(link);
+var tw='https://twitter.com/intent/tweet?url='+encodeURIComponent(link)+'&text='+encodeURIComponent(c.title);
+var wa='https://wa.me/?text='+encodeURIComponent(c.title+' '+link);
+document.getElementById('page').innerHTML=
+'<h1 class="title">'+esc(c.title)+'</h1><div class="grid"><div>'+
+'<div class="gallery" id="gallery">'+cover+'</div>'+
+'<div class="org-row"><div class="av">'+(c.organizer||'O').charAt(0).toUpperCase()+'</div><div class="org-name">'+esc(c.organizer||'Organizer')+'</div></div>'+
+'<div class="badge"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z"/></svg> Donation protected</div>'+
+'<div class="story collapsed" id="storyBlock"><p>'+storyFull+'</p></div>'+
+'<button type="button" class="read-more" id="readMore">Read more</button>'+
+'<div class="mid"><button type="button" id="midDonate">Donate</button><button type="button" id="midShare">Share</button></div>'+
+'<div class="sec">Organizer</div>'+
+'<div style="display:flex;align-items:center;gap:14px;padding:8px 0"><div class="av" style="width:48px;height:48px">'+(c.organizer||'O').charAt(0).toUpperCase()+'</div><div><div class="org-name">'+esc(c.organizer||'Organizer')+'</div><div style="font-size:.85rem;color:#5c5c5c">Organizer'+(c.category?' · '+esc(c.category):'')+'</div>'+social+'</div></div>'+
+'<div class="sec">Updates</div>'+postBox+uHtml+
+'</div><aside class="sticky"><div class="card">'+
+'<div class="raised-row"><div class="ring"><svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="28" cy="28" r="24" fill="none" stroke="#02a95c" stroke-width="5" stroke-dasharray="150.8" stroke-dashoffset="'+dash(p)+'" stroke-linecap="round"/></svg><span class="pct">'+p+'%</span></div>'+
+'<div><div class="amt">$'+Number(raised).toLocaleString()+' raised</div><div class="goal">of $'+Number(c.goal).toLocaleString()+'</div><div class="count">'+dCount+' donations</div></div></div>'+
+'<button type="button" class="btn-d" id="sideDonate">Donate now</button>'+
+'<button type="button" class="btn-s" id="sideShare">Share</button>'+
+'<div class="share-p" id="sharePanel"><h4 style="font-size:.9rem;font-weight:700;margin:0 0 10px">Share this campaign</h4>'+
+'<div class="copy-r"><input type="text" id="campaignLink" readonly value="'+esc(link)+'"><button type="button" id="copyBtn">Copy</button></div>'+
+'<div class="toast" id="copyToast">Link copied!</div>'+
+'<div class="share-s"><a href="'+fb+'" target="_blank" rel="noopener">Facebook</a><a href="'+tw+'" target="_blank" rel="noopener">X</a><a href="'+wa+'" target="_blank" rel="noopener">WhatsApp</a><a href="mailto:?subject='+encodeURIComponent(c.title)+'&body='+encodeURIComponent(link)+'">Email</a></div></div>'+
+'<div class="donors-h"><span style="width:28px;height:28px;border-radius:50%;background:#f3e8ff;display:flex;align-items:center;justify-content:center">↗</span> '+dCount+' recent donations</div>'+
+donorsHtml+
+'</div></aside></div>';
 document.getElementById('modalTitle').textContent='Donate to '+c.title;
 document.getElementById('modalCode').textContent=c.code||'—';
-var link=location.href.split('#')[0];document.getElementById('campaignLink').value=link;
-document.getElementById('shareToggle').onclick=function(){document.getElementById('sharePanel').classList.toggle('open')};
+var mb=document.getElementById('mbar');mb.style.display=window.innerWidth<900?'flex':'none';
+['sideDonate','midDonate','mDonate'].forEach(function(x){var el=document.getElementById(x);if(el)el.onclick=openDonate});
+['sideShare','midShare','mShare'].forEach(function(x){var el=document.getElementById(x);if(el)el.onclick=openShare});
+document.getElementById('modalClose').onclick=function(){document.getElementById('donateModal').classList.remove('open')};
+document.getElementById('donateModal').onclick=function(e){if(e.target===this)this.classList.remove('open')};
 document.getElementById('copyBtn').onclick=function(){navigator.clipboard.writeText(link).then(function(){var t=document.getElementById('copyToast');t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2000)})};
-var modal=document.getElementById('donateModal');
-document.getElementById('donateBtn').onclick=function(){modal.classList.add('open')};
-document.getElementById('modalClose').onclick=function(){modal.classList.remove('open')};
-modal.onclick=function(e){if(e.target===modal)modal.classList.remove('open')};
+document.getElementById('readMore').onclick=function(){document.getElementById('storyBlock').classList.remove('collapsed');this.style.display='none'};
 if(isOwner){
-var photoInput=document.getElementById('updatePhotoInput');
-photoInput.onchange=function(){var file=photoInput.files[0];if(!file)return;var max=file.type.indexOf('video')===0?8*1024*1024:3.5*1024*1024;if(file.size>max){alert('File too large.');return}var reader=new FileReader();reader.onload=function(e){updatePhoto={type:file.type,dataUrl:e.target.result};var prev=document.getElementById('updatePhotoPreview');if(file.type.indexOf('video')===0)prev.innerHTML='<video class="update-preview" src="'+e.target.result+'" controls muted></video>';else prev.innerHTML='<img class="update-preview" src="'+e.target.result+'" alt="">'};reader.readAsDataURL(file)};
-document.getElementById('postUpdateBtn').onclick=function(){var text=document.getElementById('updateText').value.trim();if(!text){document.getElementById('updateMsg').style.display='block';document.getElementById('updateMsg').style.color='#dc2626';document.getElementById('updateMsg').textContent='Write a short update first.';return}var f=findCampaign(id);if(!f)return;if(!f.c.updates)f.c.updates=[];f.c.updates.push({text:text,date:new Date().toISOString(),photo:updatePhoto});try{saveList(f.list)}catch(err){f.c.updates[f.c.updates.length-1].photo=null;try{saveList(f.list)}catch(e2){document.getElementById('updateMsg').style.display='block';document.getElementById('updateMsg').style.color='#dc2626';document.getElementById('updateMsg').textContent='Could not save (photo may be too large).';return}}updatePhoto=null;render(findCampaign(id))}
+var pi=document.getElementById('updatePhotoInput');
+if(pi)pi.onchange=function(){var f=pi.files[0];if(!f)return;var max=f.type.indexOf('video')===0?8*1024*1024:3.5*1024*1024;if(f.size>max){alert('File too large');return}var r=new FileReader();r.onload=function(e){updatePhoto={type:f.type,dataUrl:e.target.result};document.getElementById('updatePhotoPreview').innerHTML=f.type.indexOf('video')===0?'<video src="'+e.target.result+'" controls muted style="max-width:180px;max-height:120px;border-radius:10px;margin-top:8px"></video>':'<img src="'+e.target.result+'" style="max-width:180px;max-height:120px;border-radius:10px;margin-top:8px">'};r.readAsDataURL(f)};
+var pb=document.getElementById('postUpdateBtn');
+if(pb)pb.onclick=function(){var text=document.getElementById('updateText').value.trim();if(!text)return;var f=findC(id);if(!f)return;if(!f.c.updates)f.c.updates=[];f.c.updates.push({text:text,date:new Date().toISOString(),photo:updatePhoto});try{saveList(f.list)}catch(err){f.c.updates[f.c.updates.length-1].photo=null;try{saveList(f.list)}catch(e2){alert('Could not save');return}}updatePhoto=null;render(findC(id))}
 }
 }
+window.addEventListener('resize',function(){var mb=document.getElementById('mbar');if(mb)mb.style.display=window.innerWidth<900?'flex':'none'});
 </script>
 </body>
 </html>
