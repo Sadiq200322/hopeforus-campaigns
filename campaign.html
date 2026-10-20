@@ -1,78 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Campaign – HopeForUs</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    .media-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:16px}
-    .media-gallery img,.media-gallery video{width:100%;height:120px;object-fit:cover;border-radius:10px}
-    .social-link{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:0.9rem}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campaign – HopeForUs</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.media-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:16px}
+.media-gallery img,.media-gallery video{width:100%;height:120px;object-fit:cover;border-radius:10px}
+.social-link{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:.9rem}
+.update-box{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:18px;margin-top:20px}
+.update-box h3{font-size:1.05rem;font-weight:700;margin-bottom:12px}
+.update-box textarea{width:100%;min-height:90px;padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;font-family:inherit;font-size:.95rem;resize:vertical;box-sizing:border-box}
+.update-box textarea:focus{outline:none;border-color:#02a95c}
+.update-preview{max-width:200px;max-height:140px;border-radius:10px;margin-top:10px;object-fit:cover}
+.update-item{padding:16px 0;border-bottom:1px solid #e5e7eb}
+.update-item:last-child{border-bottom:none}
+.update-date{font-size:.8rem;color:#6b7280;font-weight:600;margin-bottom:6px}
+.update-text{font-size:.95rem;color:#374151;line-height:1.55}
+.update-item img,.update-item video{max-width:100%;max-height:280px;border-radius:12px;margin-top:12px}
+</style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="index.html" class="logo"><span class="logo-icon">H</span> HopeForUs</a>
-      <nav class="nav">
-        <a href="index.html" class="nav-link hide-mobile">Campaigns</a>
-        <a href="login.html" class="nav-link">Log in</a>
-        <a href="signup.html" class="btn btn-primary btn-sm">Sign up</a>
-      </nav>
-    </div>
-  </header>
-  <div class="container campaign-page" id="page"><p style="color:var(--text-muted);padding:40px 0">Loading campaign…</p></div>
-  <div class="modal-overlay" id="donateModal">
-    <div class="modal">
-      <button class="modal-close" id="modalClose">&times;</button>
-      <h3 id="modalTitle">Donate</h3>
-      <p>Support is processed securely. Include the campaign code when you donate:</p>
-      <div class="code-box"><div class="label">Campaign code</div><div class="code" id="modalCode">—</div></div>
-      <a href="https://kickbot.com/tips/HopeForUs" target="_blank" class="btn btn-primary btn-block btn-lg" rel="noopener">Continue to donate</a>
-    </div>
-  </div>
-  <footer class="site-footer"><div class="container"><div class="footer-bottom" style="border:none;margin:0;padding:0"><p>&copy; 2026 HopeForUs</p></div></div></footer>
-  <script>
-    function getId(){return new URLSearchParams(window.location.search).get('id')||'';}
-    function findCampaign(id){var list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]');for(var i=0;i<list.length;i++)if(list[i].id===id)return list[i];return null;}
-    function pct(raised,goal){if(!goal)return 0;return Math.min(100,Math.round((raised/goal)*100));}
-    function dashOffset(p){var c=150.8;return c-(c*p/100);}
-    function escapeHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-    var id=getId(),c=findCampaign(id),page=document.getElementById('page');
-    if(!c){page.innerHTML='<p style="padding:40px 0">Campaign not found. <a href="index.html">Back to home</a></p>';}
-    else{
-      document.title=c.title+' – HopeForUs';
-      var p=pct(c.raised||0,c.goal);
-      var coverHtml='';
-      if(c.cover&&c.cover.dataUrl){
-        if(c.cover.type&&c.cover.type.indexOf('video')===0)coverHtml='<video src="'+c.cover.dataUrl+'" controls style="width:100%;max-height:400px;border-radius:16px"></video>';
-        else coverHtml='<img src="'+c.cover.dataUrl+'" alt="" style="width:100%;height:400px;object-fit:cover;border-radius:16px">';
-      } else if(c.image){
-        coverHtml='<img src="'+c.image+'" alt="" style="width:100%;height:400px;object-fit:cover;border-radius:16px">';
-      } else {
-        coverHtml='<div class="placeholder-hero" style="background:linear-gradient(135deg,#02a95c,#016b3a)">'+(c.title||'Campaign').slice(0,40)+'</div>';
-      }
-      var gallery='';
-      if(c.media&&c.media.length){
-        gallery='<div class="media-gallery">'+c.media.map(function(m){
-          if(m.type&&m.type.indexOf('video')===0)return '<video src="'+m.dataUrl+'" controls muted></video>';
-          return '<img src="'+m.dataUrl+'" alt="">';
-        }).join('')+'</div>';
-      }
-      var social=c.social?'<a class="social-link" href="'+c.social+'" target="_blank" rel="noopener">Linked social profile →</a>':'';
-      page.innerHTML='<h1 class="campaign-title-top">'+escapeHtml(c.title)+'</h1><div class="campaign-layout"><div class="campaign-main"><div class="campaign-media">'+coverHtml+'</div><div class="organizer-row"><div class="organizer-avatar">'+(c.organizer||'O').charAt(0).toUpperCase()+'</div><div class="organizer-info"><strong>'+escapeHtml(c.organizer||'Organizer')+'</strong><span>Organizer · '+escapeHtml(c.category||'')+'</span><div class="badge-protected">Donation protected</div>'+social+'</div></div><div class="story-section"><h2>Story</h2><p>'+escapeHtml(c.story).replace(/\n/g,'</p><p>')+'</p>'+gallery+'</div></div><aside class="support-card"><div class="raised-row"><div class="progress-circle"><svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="28" cy="28" r="24" fill="none" stroke="#02a95c" stroke-width="5" stroke-dasharray="150.8" stroke-dashoffset="'+dashOffset(p)+'" stroke-linecap="round"/></svg><span class="pct">'+p+'%</span></div><div><div class="raised-amount">$'+(c.raised||0).toLocaleString()+'</div><div class="raised-goal">raised of $'+Number(c.goal).toLocaleString()+' goal</div></div></div><div class="donation-count">Campaign</div><button type="button" class="btn btn-primary btn-block btn-lg" id="donateBtn">Donate now</button><button type="button" class="btn btn-dark btn-block" id="shareToggle">Share</button><div class="share-panel" id="sharePanel"><h4>Share this campaign</h4><div class="copy-link-row"><input type="text" id="campaignLink" readonly><button type="button" class="btn btn-outline btn-sm" id="copyBtn">Copy link</button></div><div class="copy-toast" id="copyToast">Link copied!</div></div></aside></div>';
-      document.getElementById('modalTitle').textContent='Donate to '+c.title;
-      document.getElementById('modalCode').textContent=c.code||'—';
-      var link=window.location.href.split('#')[0];
-      document.getElementById('campaignLink').value=link;
-      document.getElementById('shareToggle').onclick=function(){document.getElementById('sharePanel').classList.toggle('open');};
-      document.getElementById('copyBtn').onclick=function(){navigator.clipboard.writeText(link).then(function(){var t=document.getElementById('copyToast');t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2000);});};
-      var modal=document.getElementById('donateModal');
-      document.getElementById('donateBtn').onclick=function(){modal.classList.add('open');};
-      document.getElementById('modalClose').onclick=function(){modal.classList.remove('open');};
-      modal.onclick=function(e){if(e.target===modal)modal.classList.remove('open');};
-    }
-  </script>
+<header class="site-header">
+<div class="container header-inner">
+<a href="index.html" class="logo"><span class="logo-icon">H</span> HopeForUs</a>
+<nav class="nav">
+<a href="index.html" class="nav-link hide-mobile">Campaigns</a>
+<a href="login.html" class="nav-link">Log in</a>
+<a href="signup.html" class="btn btn-primary btn-sm">Sign up</a>
+</nav>
+</div>
+</header>
+<div class="container campaign-page" id="page"><p style="color:var(--text-muted);padding:40px 0">Loading…</p></div>
+<div class="modal-overlay" id="donateModal">
+<div class="modal">
+<button class="modal-close" id="modalClose">&times;</button>
+<h3 id="modalTitle">Donate</h3>
+<p>Include the campaign code when you donate:</p>
+<div class="code-box"><div class="label">Campaign code</div><div class="code" id="modalCode">—</div></div>
+<a href="https://kickbot.com/tips/HopeForUs" target="_blank" class="btn btn-primary btn-block btn-lg" rel="noopener">Continue to donate</a>
+</div>
+</div>
+<footer class="site-footer"><div class="container"><div class="footer-bottom" style="border:none;margin:0;padding:0"><p>&copy; 2026 HopeForUs</p></div></div></footer>
+<script>
+function getId(){return new URLSearchParams(location.search).get('id')||''}
+function getList(){try{return JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){return[]}}
+function saveList(list){localStorage.setItem('hopeforus_campaigns',JSON.stringify(list))}
+function findCampaign(id){var list=getList();for(var i=0;i<list.length;i++)if(list[i].id===id)return{c:list[i],i:i,list:list};return null}
+function pct(r,g){return g?Math.min(100,Math.round(r/g*100)):0}
+function dashOffset(p){return 150.8-(150.8*p/100)}
+function escapeHtml(s){return String(s||'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"')}
+function fmtDate(iso){try{return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}catch(e){return iso||''}}
+var id=getId(),found=findCampaign(id),page=document.getElementById('page');
+var user=JSON.parse(localStorage.getItem('hopeforus_user')||'null'),updatePhoto=null;
+if(!found){page.innerHTML='<p style="padding:40px 0">Campaign not found. <a href="index.html">Back to home</a></p>';}else{render(found);}
+function render(found){
+var c=found.c;document.title=c.title+' – HopeForUs';var p=pct(c.raised||0,c.goal);
+var isOwner=user&&(user.email===c.ownerEmail||user.name===c.organizer);
+var coverHtml='';
+if(c.cover&&c.cover.dataUrl){if(c.cover.type&&c.cover.type.indexOf('video')===0)coverHtml='<video src="'+c.cover.dataUrl+'" controls style="width:100%;max-height:400px;border-radius:16px"></video>';else coverHtml='<img src="'+c.cover.dataUrl+'" alt="" style="width:100%;height:400px;object-fit:cover;border-radius:16px">';}
+else if(c.image)coverHtml='<img src="'+c.image+'" alt="" style="width:100%;height:400px;object-fit:cover;border-radius:16px">';
+else coverHtml='<div class="placeholder-hero" style="background:linear-gradient(135deg,#02a95c,#016b3a)">'+escapeHtml((c.title||'').slice(0,40))+'</div>';
+var gallery='';if(c.media&&c.media.length){gallery='<div class="media-gallery">'+c.media.map(function(m){return(m.type&&m.type.indexOf('video')===0)?'<video src="'+m.dataUrl+'" controls muted></video>':'<img src="'+m.dataUrl+'" alt="">'}).join('')+'</div>';}
+var social=c.social?'<a class="social-link" href="'+escapeHtml(c.social)+'" target="_blank" rel="noopener">Linked social →</a>':'';
+var updates=c.updates||[];var updatesHtml='';
+if(updates.length){updatesHtml=updates.slice().reverse().map(function(u){var media='';if(u.photo&&u.photo.dataUrl){if(u.photo.type&&u.photo.type.indexOf('video')===0)media='<video src="'+u.photo.dataUrl+'" controls style="max-width:100%;max-height:280px;border-radius:12px;margin-top:12px"></video>';else media='<img src="'+u.photo.dataUrl+'" alt="" style="max-width:100%;max-height:280px;border-radius:12px;margin-top:12px">';}return '<div class="update-item"><div class="update-date">'+escapeHtml(fmtDate(u.date))+'</div><div class="update-text">'+escapeHtml(u.text)+'</div>'+media+'</div>';}).join('');}
+else updatesHtml='<p style="color:#6b7280;font-size:.9rem">No updates yet.</p>';
+var postBox='';
+if(isOwner){postBox='<div class="update-box"><h3>Post an update</h3><p style="font-size:.85rem;color:#6b7280;margin-bottom:10px">Add a photo or video with your update anytime.</p><textarea id="updateText" placeholder="Share news, thank donors, or show progress…"></textarea><div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><label class="btn btn-outline btn-sm" style="cursor:pointer;margin:0">Add photo / video<input type="file" id="updatePhotoInput" accept="image/*,video/*" hidden></label><button type="button" class="btn btn-primary btn-sm" id="postUpdateBtn">Share update</button></div><div id="updatePhotoPreview"></div><p id="updateMsg" style="display:none;margin-top:10px;font-size:.85rem;font-weight:600"></p></div>';}
+page.innerHTML='<h1 class="campaign-title-top">'+escapeHtml(c.title)+'</h1><div class="campaign-layout"><div class="campaign-main"><div class="campaign-media">'+coverHtml+'</div><div class="organizer-row"><div class="organizer-avatar">'+(c.organizer||'O').charAt(0).toUpperCase()+'</div><div class="organizer-info"><strong>'+escapeHtml(c.organizer||'Organizer')+'</strong><span>Organizer · '+escapeHtml(c.category||'')+'</span><div class="badge-protected">Donation protected</div>'+social+'</div></div><div class="story-section"><h2>Story</h2><p>'+escapeHtml(c.story).replace(/\n/g,'</p><p>')+'</p>'+gallery+'</div><div class="updates-section" style="margin-top:32px"><h2>Updates</h2>'+postBox+'<div id="updatesList">'+updatesHtml+'</div></div></div><aside class="support-card"><div class="raised-row"><div class="progress-circle"><svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="28" cy="28" r="24" fill="none" stroke="#02a95c" stroke-width="5" stroke-dasharray="150.8" stroke-dashoffset="'+dashOffset(p)+'" stroke-linecap="round"/></svg><span class="pct">'+p+'%</span></div><div><div class="raised-amount">$'+(c.raised||0).toLocaleString()+'</div><div class="raised-goal">raised of $'+Number(c.goal).toLocaleString()+' goal</div></div></div><div class="donation-count">Campaign</div><button type="button" class="btn btn-primary btn-block btn-lg" id="donateBtn">Donate now</button><button type="button" class="btn btn-dark btn-block" id="shareToggle">Share</button><div class="share-panel" id="sharePanel"><h4>Share this campaign</h4><div class="copy-link-row"><input type="text" id="campaignLink" readonly><button type="button" class="btn btn-outline btn-sm" id="copyBtn">Copy link</button></div><div class="copy-toast" id="copyToast">Link copied!</div></div></aside></div>';
+document.getElementById('modalTitle').textContent='Donate to '+c.title;
+document.getElementById('modalCode').textContent=c.code||'—';
+var link=location.href.split('#')[0];document.getElementById('campaignLink').value=link;
+document.getElementById('shareToggle').onclick=function(){document.getElementById('sharePanel').classList.toggle('open')};
+document.getElementById('copyBtn').onclick=function(){navigator.clipboard.writeText(link).then(function(){var t=document.getElementById('copyToast');t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2000)})};
+var modal=document.getElementById('donateModal');
+document.getElementById('donateBtn').onclick=function(){modal.classList.add('open')};
+document.getElementById('modalClose').onclick=function(){modal.classList.remove('open')};
+modal.onclick=function(e){if(e.target===modal)modal.classList.remove('open')};
+if(isOwner){
+var photoInput=document.getElementById('updatePhotoInput');
+photoInput.onchange=function(){var file=photoInput.files[0];if(!file)return;var max=file.type.indexOf('video')===0?8*1024*1024:3.5*1024*1024;if(file.size>max){alert('File too large.');return}var reader=new FileReader();reader.onload=function(e){updatePhoto={type:file.type,dataUrl:e.target.result};var prev=document.getElementById('updatePhotoPreview');if(file.type.indexOf('video')===0)prev.innerHTML='<video class="update-preview" src="'+e.target.result+'" controls muted></video>';else prev.innerHTML='<img class="update-preview" src="'+e.target.result+'" alt="">'};reader.readAsDataURL(file)};
+document.getElementById('postUpdateBtn').onclick=function(){var text=document.getElementById('updateText').value.trim();if(!text){document.getElementById('updateMsg').style.display='block';document.getElementById('updateMsg').style.color='#dc2626';document.getElementById('updateMsg').textContent='Write a short update first.';return}var f=findCampaign(id);if(!f)return;if(!f.c.updates)f.c.updates=[];f.c.updates.push({text:text,date:new Date().toISOString(),photo:updatePhoto});try{saveList(f.list)}catch(err){f.c.updates[f.c.updates.length-1].photo=null;try{saveList(f.list)}catch(e2){document.getElementById('updateMsg').style.display='block';document.getElementById('updateMsg').style.color='#dc2626';document.getElementById('updateMsg').textContent='Could not save (photo may be too large).';return}}updatePhoto=null;render(findCampaign(id))}
+}
+}
+</script>
 </body>
 </html>
