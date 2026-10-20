@@ -1,78 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HopeForUs Campaigns</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HopeForUs – Support people you care about</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>HopeForUs Campaigns</h1>
-            <p>Support specific team members or causes</p>
-            <p class="subtitle">All donations processed through KickBot for HopeForUs</p>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">H</span>
+        HopeForUs
+      </a>
+      <nav class="nav">
+        <a href="index.html#campaigns" class="nav-link hide-mobile">Campaigns</a>
+        <a href="login.html" class="nav-link">Log in</a>
+        <a href="signup.html" class="btn btn-primary btn-sm">Sign up</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Support people you care about</h1>
+      <p>Create a campaign in minutes or help someone reach their goal. Simple, transparent, and direct.</p>
+      <div class="hero-actions">
+        <a href="create-campaign.html" class="btn btn-primary btn-lg">Start a Campaign</a>
+        <a href="#campaigns" class="btn btn-outline btn-lg">Browse Campaigns</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="campaigns">
+    <div class="container">
+      <h2 class="section-title">Active Campaigns</h2>
+      <div class="campaigns-grid">
+
+        <a href="marilynn-mee.html" class="campaign-card">
+          <div class="campaign-card-image">
+            <div class="placeholder-img" style="background: linear-gradient(135deg, #1e3a5f, #0f172a);">Marilynn Mee</div>
+          </div>
+          <div class="campaign-card-body">
+            <h3 class="campaign-card-title">Rally for Marilynn Mee: Milwaukee Rock Icon–Animal Advocate</h3>
+            <p class="campaign-card-desc">Help cover critical cancer care and daily living expenses for Milwaukee radio legend and animal advocate Marilynn Mee.</p>
+            <div class="progress-wrap">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 5%;"></div>
+              </div>
+              <div class="progress-meta">
+                <span><strong>$5,049</strong> raised</span>
+                <span>$100,000 goal</span>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <a href="johns-surgery.html" class="campaign-card">
+          <div class="campaign-card-image">
+            <div class="placeholder-img" style="background: linear-gradient(135deg, #3498db, #2980b9);">John's Surgery</div>
+          </div>
+          <div class="campaign-card-body">
+            <h3 class="campaign-card-title">John's Surgery Fund</h3>
+            <p class="campaign-card-desc">Help John cover medical expenses from his unexpected surgery including medications, physical therapy, and recovery costs.</p>
+            <div class="progress-wrap">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 47%;"></div>
+              </div>
+              <div class="progress-meta">
+                <span><strong>$2,350</strong> raised</span>
+                <span>$5,000 goal</span>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <a href="team-beta.html" class="campaign-card">
+          <div class="campaign-card-image">
+            <div class="placeholder-img" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">Team Beta</div>
+          </div>
+          <div class="campaign-card-body">
+            <h3 class="campaign-card-title">Team Beta Travel Fund</h3>
+            <p class="campaign-card-desc">Support Team Beta's travel to the national competition including transportation, accommodation, and competition fees.</p>
+            <div class="progress-wrap">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 65%;"></div>
+              </div>
+              <div class="progress-meta">
+                <span><strong>$1,300</strong> raised</span>
+                <span>$2,000 goal</span>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <a href="maria-fund.html" class="campaign-card">
+          <div class="campaign-card-image">
+            <div class="placeholder-img" style="background: linear-gradient(135deg, #e67e22, #d35400);">Maria's Fund</div>
+          </div>
+          <div class="campaign-card-body">
+            <h3 class="campaign-card-title">Maria's Emergency Fund</h3>
+            <p class="campaign-card-desc">Assist Maria with unexpected home repairs after storm damage including roof repair, water extraction, and essential replacements.</p>
+            <div class="progress-wrap">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 23%;"></div>
+              </div>
+              <div class="progress-meta">
+                <span><strong>$1,150</strong> raised</span>
+                <span>$5,000 goal</span>
+              </div>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background: white; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <div class="container">
+      <h2 class="section-title" style="text-align: center;">How it works</h2>
+      <div class="how-grid">
+        <div class="how-card">
+          <div class="step">1</div>
+          <h3>Create a campaign</h3>
+          <p>Sign up free and set a goal, story, and campaign code in under a minute.</p>
         </div>
-    </header>
-
-    <main class="container">
-        <section class="campaigns">
-            <!-- Campaign Cards -->
-            <a href="johns-surgery.html" class="campaign-card">
-                <div class="campaign-image">
-                    <div class="image-overlay">John's Surgery</div>
-                </div>
-                <div class="campaign-info">
-                    <h2>John's Surgery Fundraiser</h2>
-                    <p>Help John cover medical expenses from his unexpected surgery</p>
-                    <div class="progress-container">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 47%"></div>
-                        </div>
-                        <div class="progress-text">$2,350 of $5,000</div>
-                    </div>
-                </div>
-            </a>
-
-            <a href="team-beta.html" class="campaign-card">
-                <div class="campaign-image">
-                    <div class="image-overlay">Team Beta</div>
-                </div>
-                <div class="campaign-info">
-                    <h2>Team Beta Travel Fund</h2>
-                    <p>Support Team Beta's travel to the national competition</p>
-                    <div class="progress-container">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 65%"></div>
-                        </div>
-                        <div class="progress-text">$1,300 of $2,000</div>
-                    </div>
-                </div>
-            </a>
-
-            <a href="maria-fund.html" class="campaign-card">
-                <div class="campaign-image">
-                    <div class="image-overlay">Maria's Fund</div>
-                </div>
-                <div class="campaign-info">
-                    <h2>Maria's Emergency Fund</h2>
-                    <p>Assist Maria with unexpected home repairs after storm damage</p>
-                    <div class="progress-container">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 23%"></div>
-                        </div>
-                        <div class="progress-text">$1,150 of $5,000</div>
-                    </div>
-                </div>
-            </a>
-        </section>
-    </main>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2026 HopeForUs. All donations go to KickBot for HopeForUs</p>
-            <p>Visit <a href="https://kickbot.com/tips/HopeForUs" target="_blank">kickbot.com/tips/HopeForUs</a> to donate</p>
+        <div class="how-card">
+          <div class="step">2</div>
+          <h3>Share your link</h3>
+          <p>Copy your campaign link and share it with friends, family, and your community.</p>
         </div>
-    </footer>
+        <div class="how-card">
+          <div class="step">3</div>
+          <h3>Track progress</h3>
+          <p>Watch donations come in and post updates so everyone stays informed.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <h3>HopeForUs</h3>
+          <p>Community support for people in need</p>
+        </div>
+        <div class="footer-links">
+          <p>Simple, transparent fundraising</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 HopeForUs. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
