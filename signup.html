@@ -1,84 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign up – HopeForUs</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sign up – HopeForUs</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="index.html" class="logo">
-        <span class="logo-icon">H</span>
-        HopeForUs
-      </a>
-      <nav class="nav">
-        <a href="login.html" class="nav-link">Log in</a>
-      </nav>
-    </div>
-  </header>
-
-  <div class="auth-page">
-    <div class="auth-card">
-      <h1>Create your account</h1>
-      <p class="subtitle">Start a campaign or support others in minutes</p>
-
-      <div class="auth-message" id="authMsg"></div>
-
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo"><span class="logo-icon">H</span> HopeForUs</a>
+    <nav class="nav">
+      <a href="login.html" class="nav-link">Log in</a>
+    </nav>
+  </div>
+</header>
+<main class="auth-page">
+  <div class="auth-card fade-up">
+    <div class="form-card">
+      <h1>Join HopeForUs</h1>
+      <p class="sub">Create an account to start fundraising</p>
+      <div id="msg" class="auth-message" style="display:none"></div>
       <form id="signupForm">
         <div class="form-group">
           <label for="name">Full name</label>
-          <input type="text" id="name" name="name" placeholder="Jane Doe" required autocomplete="name">
+          <input type="text" id="name" placeholder="Your name" required autocomplete="name">
         </div>
         <div class="form-group">
           <label for="email">Email</label>
-          <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email">
+          <input type="email" id="email" placeholder="you@email.com" required autocomplete="email">
         </div>
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" name="password" placeholder="At least 8 characters" required minlength="8" autocomplete="new-password">
+          <input type="password" id="password" placeholder="At least 4 characters" required minlength="4" autocomplete="new-password">
         </div>
-        <button type="submit" class="btn btn-primary btn-block btn-lg">Sign up free</button>
+        <button type="submit" class="btn btn-primary btn-block btn-lg">Create account</button>
       </form>
-
-      <p class="auth-footer">
-        Already have an account? <a href="login.html">Log in</a>
-      </p>
+      <p class="auth-footer">Already have an account? <a href="login.html">Log in</a></p>
     </div>
   </div>
-
-  <script>
-    document.getElementById('signupForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      var name = document.getElementById('name').value.trim();
-      var email = document.getElementById('email').value.trim();
-      var password = document.getElementById('password').value;
-      var msg = document.getElementById('authMsg');
-
-      if (password.length < 8) {
-        msg.className = 'auth-message error';
-        msg.textContent = 'Password must be at least 8 characters.';
-        return;
-      }
-
-      var users = JSON.parse(localStorage.getItem('hopeforus_users') || '[]');
-      if (users.find(function(u) { return u.email === email; })) {
-        msg.className = 'auth-message error';
-        msg.textContent = 'An account with this email already exists.';
-        return;
-      }
-
-      users.push({ name: name, email: email, password: password });
-      localStorage.setItem('hopeforus_users', JSON.stringify(users));
-      localStorage.setItem('hopeforus_user', JSON.stringify({ name: name, email: email }));
-
-      msg.className = 'auth-message success';
-      msg.textContent = 'Account created! Redirecting to your dashboard…';
-      setTimeout(function() {
-        window.location.href = 'dashboard.html';
-      }, 900);
-    });
-  </script>
+</main>
+<script>
+document.getElementById('signupForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var name = document.getElementById('name').value.trim();
+  var email = document.getElementById('email').value.trim().toLowerCase();
+  var pass = document.getElementById('password').value;
+  var msg = document.getElementById('msg');
+  var users = JSON.parse(localStorage.getItem('hopeforus_users') || '[]');
+  if (users.some(function(u) { return u.email === email; })) {
+    msg.className = 'auth-message error';
+    msg.style.display = 'block';
+    msg.textContent = 'That email is already registered. Try logging in.';
+    return;
+  }
+  users.push({ name: name, email: email, password: pass });
+  localStorage.setItem('hopeforus_users', JSON.stringify(users));
+  localStorage.setItem('hopeforus_user', JSON.stringify({ name: name, email: email }));
+  msg.className = 'auth-message success';
+  msg.style.display = 'block';
+  msg.textContent = 'Account created! Opening your dashboard…';
+  setTimeout(function() { location.href = 'dashboard.html'; }, 600);
+});
+</script>
 </body>
 </html>
