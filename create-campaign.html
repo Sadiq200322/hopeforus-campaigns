@@ -67,6 +67,7 @@
           <div class="form-group"><label for="title">Campaign title <span style="color:#dc2626">*</span></label><input type="text" id="title" placeholder="e.g. Help me cover surgery costs" required maxlength="120"></div>
           <div class="form-row">
             <div class="form-group"><label for="goal">Fundraising goal ($) <span style="color:#dc2626">*</span></label><input type="number" id="goal" placeholder="5000" min="1" required></div>
+            <div class="form-group"><label for="startRaised">Starting balance ($)</label><input type="number" id="startRaised" placeholder="0" min="0" value="0"><p class="form-hint">Optional — money already raised offline</p></div>
             <div class="form-group"><label for="code">Campaign code <span style="color:#dc2626">*</span></label><input type="text" id="code" placeholder="e.g. JOHNSURGERY" required maxlength="24" style="text-transform:uppercase"><p class="form-hint">Supporters use this when donating</p></div>
           </div>
           <div class="form-group"><label for="story">Your story <span style="color:#dc2626">*</span></label><textarea id="story" placeholder="Explain why you're fundraising..." required rows="6"></textarea></div>
@@ -106,7 +107,7 @@
       var title=document.getElementById('title').value.trim(),goal=parseInt(document.getElementById('goal').value,10),code=document.getElementById('code').value.trim().toUpperCase().replace(/\s+/g,''),story=document.getElementById('story').value.trim(),category=document.getElementById('category').value,social=document.getElementById('social').value.trim();
       if(!title||!goal||!code||!story)return;
       var id='c_'+Date.now();
-      var campaign={id:id,title:title,goal:goal,raised:0,code:code,story:story,category:category,social:social||'',cover:coverData,media:extraMedia.slice(0,6),updates:[],organizer:user.name||'Organizer',createdAt:new Date().toISOString(),ownerEmail:user.email||''};
+      var campaign={id:id,title:title,goal:goal,raised:parseInt(document.getElementById('startRaised').value,10)||0,code:code,story:story,category:category,social:social||'',cover:coverData,media:extraMedia.slice(0,6),updates:[],organizer:user.name||'Organizer',createdAt:new Date().toISOString(),ownerEmail:user.email||''};
       var list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]');list.unshift(campaign);
       try{localStorage.setItem('hopeforus_campaigns',JSON.stringify(list));}catch(err){campaign.media=[];if(coverData.dataUrl.length>800000){var m=document.getElementById('createMsg');m.className='auth-message error';m.style.display='block';m.textContent='Photo too large. Use a smaller image.';return;}list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]');list.unshift(campaign);try{localStorage.setItem('hopeforus_campaigns',JSON.stringify(list));}catch(e2){var m=document.getElementById('createMsg');m.className='auth-message error';m.style.display='block';m.textContent='Storage full. Use a smaller cover photo.';return;}}
       var msg=document.getElementById('createMsg');msg.style.display='block';msg.className='auth-message success';msg.textContent='Campaign published! Opening it now…';
