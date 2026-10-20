@@ -1,268 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard – HopeForUs</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    .dash-tabs { display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:24px; flex-wrap:wrap; }
-    .dash-tab { padding:12px 18px; font-weight:600; font-size:0.9rem; color:var(--text-muted); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; font-family:inherit; }
-    .dash-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
-    .dash-panel { display:none; }
-    .dash-panel.active { display:block; animation:fadeUp 0.3s ease; }
-    .media-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; margin-top:12px; }
-    .media-item { position:relative; border-radius:12px; overflow:hidden; aspect-ratio:1; background:#e5e7eb; border:1px solid var(--border); }
-    .media-item img, .media-item video { width:100%; height:100%; object-fit:cover; }
-    .media-item .remove { position:absolute; top:6px; right:6px; width:28px; height:28px; border-radius:50%; background:rgba(0,0,0,0.6); color:#fff; border:none; cursor:pointer; font-size:14px; }
-    .upload-zone { border:2px dashed var(--border); border-radius:12px; padding:28px; text-align:center; cursor:pointer; transition:all 0.2s; background:var(--bg); }
-    .upload-zone:hover, .upload-zone.drag { border-color:var(--primary); background:var(--primary-light); }
-    .social-row { display:flex; gap:10px; align-items:center; margin-bottom:12px; }
-    .social-row input { flex:1; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-family:inherit; width:100%; }
-    .social-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:var(--bg); font-size:0.75rem; font-weight:700; color:var(--text-muted); flex-shrink:0; }
-    .chat-layout { display:grid; grid-template-columns:240px 1fr; gap:0; border:1px solid var(--border); border-radius:16px; overflow:hidden; min-height:420px; background:#fff; }
-    .chat-list { border-right:1px solid var(--border); background:var(--bg); overflow-y:auto; max-height:480px; }
-    .chat-person { padding:14px 16px; cursor:pointer; border-bottom:1px solid var(--border); }
-    .chat-person:hover, .chat-person.active { background:#fff; }
-    .chat-person .name { font-weight:600; font-size:0.9rem; }
-    .chat-person .preview { font-size:0.78rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .chat-main { display:flex; flex-direction:column; }
-    .chat-header { padding:14px 18px; border-bottom:1px solid var(--border); font-weight:600; }
-    .chat-messages { flex:1; padding:16px; overflow-y:auto; max-height:320px; background:#fafafa; }
-    .msg { max-width:80%; margin-bottom:12px; padding:10px 14px; border-radius:14px; font-size:0.9rem; line-height:1.45; }
-    .msg.them { background:#fff; border:1px solid var(--border); border-bottom-left-radius:4px; }
-    .msg.me { background:var(--primary); color:#fff; margin-left:auto; border-bottom-right-radius:4px; }
-    .msg .time { font-size:0.7rem; opacity:0.7; margin-top:4px; }
-    .chat-input-row { display:flex; gap:8px; padding:12px; border-top:1px solid var(--border); }
-    .chat-input-row input { flex:1; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-family:inherit; }
-    .donor-table { width:100%; border-collapse:collapse; font-size:0.9rem; }
-    .donor-table th { text-align:left; padding:10px 12px; border-bottom:2px solid var(--border); color:var(--text-muted); font-weight:600; font-size:0.8rem; }
-    .donor-table td { padding:12px; border-bottom:1px solid var(--border); }
-    .badge-email { font-size:0.75rem; background:var(--primary-light); color:var(--primary-darker); padding:2px 8px; border-radius:4px; }
-    @media (max-width:700px) {
-      .chat-layout { grid-template-columns:1fr; }
-      .chat-list { max-height:160px; display:flex; overflow-x:auto; border-right:none; border-bottom:1px solid var(--border); }
-      .chat-person { min-width:140px; border-bottom:none; border-right:1px solid var(--border); }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Dashboard – HopeForUs</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.dash-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-top:12px}
+.media-grid .item{aspect-ratio:1;border-radius:12px;overflow:hidden;border:1px solid var(--border);position:relative;background:#f3f4f6}
+.media-grid .item img,.media-grid .item video{width:100%;height:100%;object-fit:cover}
+.chat-thread{border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;background:#fff}
+.chat-thread .who{font-weight:700;font-size:.9rem}
+.chat-thread .meta{font-size:.8rem;color:var(--muted)}
+.chat-bubble{background:#f3f4f6;padding:10px 12px;border-radius:12px;margin-top:8px;font-size:.9rem}
+.chat-input-row{display:flex;gap:8px;margin-top:10px}
+.chat-input-row input{flex:1;padding:12px;border:1.5px solid var(--border);border-radius:12px}
+.donor-table{width:100%;border-collapse:collapse;font-size:.9rem}
+.donor-table th,.donor-table td{text-align:left;padding:12px 8px;border-bottom:1px solid #eee}
+.donor-table th{font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.social-field{display:flex;gap:8px;margin-bottom:10px;align-items:center}
+.social-field span{width:90px;font-size:.85rem;font-weight:600;color:var(--muted)}
+.social-field input{flex:1;padding:12px;border:1.5px solid var(--border);border-radius:12px}
+</style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="index.html" class="logo"><span class="logo-icon">H</span> HopeForUs</a>
-      <nav class="nav">
-        <a href="create-campaign.html" class="btn btn-primary btn-sm">New campaign</a>
-        <a href="index.html" class="nav-link">Home</a>
-        <a href="#" class="nav-link" id="logoutBtn">Log out</a>
-      </nav>
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo"><span class="logo-icon">H</span> HopeForUs</a>
+    <nav class="nav">
+      <a href="create-campaign.html" class="btn btn-primary btn-sm">New campaign</a>
+      <a href="index.html" class="nav-link hide-mobile">Home</a>
+      <button type="button" class="btn btn-ghost btn-sm" id="logoutBtn">Log out</button>
+    </nav>
+  </div>
+</header>
+<section class="dashboard-header">
+  <div class="container">
+    <h1>Your dashboard</h1>
+    <p id="welcome">Manage media, donors, and messages</p>
+    <div class="dash-actions">
+      <a href="create-campaign.html" class="btn btn-lime">Start a campaign</a>
+      <a href="index.html" class="btn btn-outline">Browse campaigns</a>
     </div>
-  </header>
-
-  <section class="dashboard-header">
-    <div class="container">
-      <h1>Your dashboard</h1>
-      <p id="welcomeText">Manage campaigns, media, donors and messages</p>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="label">Total raised</div><div class="value" id="statRaised">$0</div></div>
+      <div class="stat-card"><div class="label">Active campaigns</div><div class="value" id="statCampaigns">0</div></div>
+      <div class="stat-card"><div class="label">Supporters</div><div class="value" id="statSupporters">0</div></div>
+      <div class="stat-card"><div class="label">Unread messages</div><div class="value">3</div></div>
     </div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <div class="stats-row">
-        <div class="stat-card"><div class="label">Total raised</div><div class="value">$4,800</div></div>
-        <div class="stat-card"><div class="label">Active campaigns</div><div class="value">2</div></div>
-        <div class="stat-card"><div class="label">Supporters</div><div class="value">47</div></div>
-        <div class="stat-card"><div class="label">Unread messages</div><div class="value">3</div></div>
-      </div>
-
-      <div class="dash-tabs">
-        <button type="button" class="dash-tab active" data-tab="campaigns">Campaigns</button>
-        <button type="button" class="dash-tab" data-tab="media">Photos and Videos</button>
-        <button type="button" class="dash-tab" data-tab="social">Social links</button>
-        <button type="button" class="dash-tab" data-tab="donors">Donors and emails</button>
-        <button type="button" class="dash-tab" data-tab="chat">Chat</button>
-      </div>
-
-      <div class="dash-panel active" id="panel-campaigns">
-        <h2 class="section-title">Your campaigns</h2>
-        <div class="campaigns-grid">
-          <a href="johns-surgery.html" class="campaign-card">
-            <div class="campaign-card-image" style="background:linear-gradient(135deg,#3498db,#2980b9);"><div class="placeholder-img">John's Surgery</div></div>
-            <div class="campaign-card-body">
-              <h3 class="campaign-card-title">John's Surgery Fund</h3>
-              <p class="campaign-card-desc">Code: JOHNSURGERY</p>
-              <div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" style="width:47%;"></div></div>
-              <div class="progress-meta"><span><strong>$2,350</strong> raised</span><span>$5,000 goal</span></div></div>
-            </div>
-          </a>
-          <a href="team-beta.html" class="campaign-card">
-            <div class="campaign-card-image" style="background:linear-gradient(135deg,#9b59b6,#8e44ad);"><div class="placeholder-img">Team Beta</div></div>
-            <div class="campaign-card-body">
-              <h3 class="campaign-card-title">Team Beta Travel Fund</h3>
-              <p class="campaign-card-desc">Code: TEAMBETA</p>
-              <div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" style="width:65%;"></div></div>
-              <div class="progress-meta"><span><strong>$1,300</strong> raised</span><span>$2,000 goal</span></div></div>
-            </div>
-          </a>
-        </div>
-        <div style="margin-top:28px;text-align:center;"><a href="create-campaign.html" class="btn btn-outline btn-lg">+ Create another campaign</a></div>
-      </div>
-
-      <div class="dash-panel" id="panel-media">
-        <h2 class="section-title">Photos and videos</h2>
-        <p style="color:var(--text-muted);margin-bottom:16px;font-size:0.95rem;">Add images or videos to your campaigns. Demo stores previews on this device.</p>
-        <div class="upload-zone" id="uploadZone">
-          <p style="font-weight:600;margin-bottom:6px;">Drop photos or videos here</p>
-          <p style="font-size:0.85rem;color:var(--text-muted);">or click to choose - JPG, PNG, MP4, WebM</p>
-          <input type="file" id="mediaInput" accept="image/*,video/*" multiple hidden>
-        </div>
-        <div class="media-grid" id="mediaGrid"></div>
-      </div>
-
-      <div class="dash-panel" id="panel-social">
-        <h2 class="section-title">Link social media</h2>
-        <p style="color:var(--text-muted);margin-bottom:18px;font-size:0.95rem;">Connect profiles so supporters can follow updates.</p>
-        <div class="form-card" style="max-width:520px;margin:0;">
-          <div class="social-row"><div class="social-icon">X</div><input type="url" id="socialX" placeholder="https://x.com/yourhandle"></div>
-          <div class="social-row"><div class="social-icon">FB</div><input type="url" id="socialFb" placeholder="https://facebook.com/yourpage"></div>
-          <div class="social-row"><div class="social-icon">IG</div><input type="url" id="socialIg" placeholder="https://instagram.com/yourhandle"></div>
-          <div class="social-row"><div class="social-icon">TT</div><input type="url" id="socialTt" placeholder="https://tiktok.com/@yourhandle"></div>
-          <div class="social-row"><div class="social-icon">YT</div><input type="url" id="socialYt" placeholder="https://youtube.com/@yourchannel"></div>
-          <button type="button" class="btn btn-primary" id="saveSocial" style="margin-top:8px;">Save social links</button>
-          <p id="socialSaved" style="display:none;color:var(--primary);font-weight:600;margin-top:10px;font-size:0.9rem;">Saved!</p>
-        </div>
-      </div>
-
-      <div class="dash-panel" id="panel-donors">
-        <h2 class="section-title">Donors and emails</h2>
-        <p style="color:var(--text-muted);margin-bottom:16px;font-size:0.95rem;">Supporters who shared contact info. Export for thank-yous.</p>
-        <div style="overflow-x:auto;background:#fff;border:1px solid var(--border);border-radius:12px;">
-          <table class="donor-table">
-            <thead><tr><th>Name</th><th>Email</th><th>Amount</th><th>Campaign</th><th>Date</th></tr></thead>
-            <tbody id="donorBody">
-              <tr><td>Mary Rode</td><td><span class="badge-email">mary.rode@email.com</span></td><td>$100</td><td>Marilynn Mee</td><td>Oct 18</td></tr>
-              <tr><td>Steve Palec</td><td><span class="badge-email">steve.p@email.com</span></td><td>$500</td><td>Marilynn Mee</td><td>Oct 17</td></tr>
-              <tr><td>Karen Richie</td><td><span class="badge-email">karen.r@email.com</span></td><td>$100</td><td>John's Surgery</td><td>Oct 17</td></tr>
-              <tr><td>Katie Mevis</td><td><span class="badge-email">katie.m@email.com</span></td><td>$100</td><td>Team Beta</td><td>Oct 16</td></tr>
-              <tr><td>Anonymous</td><td><span style="color:var(--text-muted);">Hidden</span></td><td>$50</td><td>Maria's Fund</td><td>Oct 15</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <button type="button" class="btn btn-outline" id="exportEmails" style="margin-top:16px;">Export emails (CSV)</button>
-      </div>
-
-      <div class="dash-panel" id="panel-chat">
-        <h2 class="section-title">Chat with donors</h2>
-        <p style="color:var(--text-muted);margin-bottom:16px;font-size:0.95rem;">Message supporters who opted in. Demo chat on this device.</p>
-        <div class="chat-layout">
-          <div class="chat-list" id="chatList">
-            <div class="chat-person active" data-id="0"><div class="name">Mary Rode</div><div class="preview">Thank you for the update!</div></div>
-            <div class="chat-person" data-id="1"><div class="name">Steve Palec</div><div class="preview">How is recovery going?</div></div>
-            <div class="chat-person" data-id="2"><div class="name">Karen Richie</div><div class="preview">Praying for the family</div></div>
-          </div>
-          <div class="chat-main">
-            <div class="chat-header" id="chatHeader">Mary Rode</div>
-            <div class="chat-messages" id="chatMessages"></div>
-            <div class="chat-input-row">
-              <input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off">
-              <button type="button" class="btn btn-primary btn-sm" id="chatSend">Send</button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab active" data-tab="campaigns">Campaigns</button>
+      <button type="button" class="tab" data-tab="media">Photos & videos</button>
+      <button type="button" class="tab" data-tab="social">Social links</button>
+      <button type="button" class="tab" data-tab="donors">Donors & emails</button>
+      <button type="button" class="tab" data-tab="chat">Chat</button>
     </div>
-  </section>
-
-  <footer class="site-footer"><div class="container"><div class="footer-bottom" style="border:none;margin:0;padding:0;"><p>&copy; 2026 HopeForUs</p></div></div></footer>
-
-  <script>
-    var user = JSON.parse(localStorage.getItem('hopeforus_user') || 'null');
-    if (user && user.name) document.getElementById('welcomeText').textContent = 'Welcome, ' + user.name + ' — manage media, donors and messages';
-    document.getElementById('logoutBtn').addEventListener('click', function(e) {
-      e.preventDefault(); localStorage.removeItem('hopeforus_user'); window.location.href = 'index.html';
-    });
-    document.querySelectorAll('.dash-tab').forEach(function(tab) {
-      tab.addEventListener('click', function() {
-        document.querySelectorAll('.dash-tab').forEach(function(t){t.classList.remove('active');});
-        document.querySelectorAll('.dash-panel').forEach(function(p){p.classList.remove('active');});
-        tab.classList.add('active');
-        document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
-      });
-    });
-    var mediaInput = document.getElementById('mediaInput');
-    var uploadZone = document.getElementById('uploadZone');
-    var mediaGrid = document.getElementById('mediaGrid');
-    var mediaItems = [];
-    function renderMedia() {
-      mediaGrid.innerHTML = '';
-      mediaItems.forEach(function(item, i) {
-        var div = document.createElement('div');
-        div.className = 'media-item';
-        if (item.type.indexOf('video') === 0)
-          div.innerHTML = '<video src="'+item.url+'" muted></video><button type="button" class="remove" data-i="'+i+'">&times;</button>';
-        else
-          div.innerHTML = '<img src="'+item.url+'" alt=""><button type="button" class="remove" data-i="'+i+'">&times;</button>';
-        mediaGrid.appendChild(div);
-      });
-      mediaGrid.querySelectorAll('.remove').forEach(function(btn) {
-        btn.addEventListener('click', function(){ mediaItems.splice(+btn.dataset.i,1); renderMedia(); });
-      });
-    }
-    uploadZone.addEventListener('click', function(){ mediaInput.click(); });
-    uploadZone.addEventListener('dragover', function(e){ e.preventDefault(); uploadZone.classList.add('drag'); });
-    uploadZone.addEventListener('dragleave', function(){ uploadZone.classList.remove('drag'); });
-    uploadZone.addEventListener('drop', function(e){ e.preventDefault(); uploadZone.classList.remove('drag'); handleFiles(e.dataTransfer.files); });
-    mediaInput.addEventListener('change', function(){ handleFiles(mediaInput.files); });
-    function handleFiles(files) {
-      Array.prototype.forEach.call(files, function(file) {
-        mediaItems.push({ type: file.type, name: file.name, url: URL.createObjectURL(file) });
-      });
-      renderMedia();
-    }
-    var socialKeys = ['socialX','socialFb','socialIg','socialTt','socialYt'];
-    socialKeys.forEach(function(k){ var s=localStorage.getItem('hopeforus_'+k); if(s) document.getElementById(k).value=s; });
-    document.getElementById('saveSocial').addEventListener('click', function() {
-      socialKeys.forEach(function(k){ localStorage.setItem('hopeforus_'+k, document.getElementById(k).value.trim()); });
-      var el=document.getElementById('socialSaved'); el.style.display='block'; setTimeout(function(){el.style.display='none';},2000);
-    });
-    document.getElementById('exportEmails').addEventListener('click', function() {
-      var rows=[['Name','Email','Amount','Campaign','Date']];
-      document.querySelectorAll('#donorBody tr').forEach(function(tr){
-        var c=tr.querySelectorAll('td');
-        rows.push([c[0].textContent.trim(),c[1].textContent.trim(),c[2].textContent.trim(),c[3].textContent.trim(),c[4].textContent.trim()]);
-      });
-      var csv=rows.map(function(r){return r.map(function(x){return '"'+x.replace(/"/g,'""')+'"';}).join(',');}).join('\n');
-      var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='hopeforus-donors.csv'; a.click();
-    });
-    var chats=[
-      [{me:false,text:'Thank you for the update on the surgery!',time:'10:12'},{me:true,text:'Glad you saw it — John is recovering well.',time:'10:15'},{me:false,text:'Sending more support this week.',time:'10:18'}],
-      [{me:false,text:'How is recovery going?',time:'Yesterday'},{me:true,text:'Slow but steady. Thanks for checking in.',time:'Yesterday'}],
-      [{me:false,text:'Praying for the family every day.',time:'Mon'}]
-    ];
-    var names=['Mary Rode','Steve Palec','Karen Richie'];
-    var activeChat=0;
-    function renderChat(){
-      document.getElementById('chatHeader').textContent=names[activeChat];
-      var box=document.getElementById('chatMessages'); box.innerHTML='';
-      chats[activeChat].forEach(function(m){
-        var d=document.createElement('div'); d.className='msg '+(m.me?'me':'them');
-        d.innerHTML=m.text+'<div class="time">'+m.time+'</div>'; box.appendChild(d);
-      });
-      box.scrollTop=box.scrollHeight;
-    }
-    renderChat();
-    document.querySelectorAll('.chat-person').forEach(function(el){
-      el.addEventListener('click', function(){
-        document.querySelectorAll('.chat-person').forEach(function(p){p.classList.remove('active');});
-        el.classList.add('active'); activeChat=+el.dataset.id; renderChat();
-      });
-    });
-    function sendMsg(){
-      var input=document.getElementById('chatInput'); var text=input.value.trim(); if(!text) return;
-      var now=new Date(); var t=now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
-      chats[activeChat].push({me:true,text:text,time:t}); input.value=''; renderChat();
-    }
-    document.getElementById('chatSend').addEventListener('click', sendMsg);
-    document.getElementById('chatInput').addEventListener('keydown', function(e){ if(e.key==='Enter') sendMsg(); });
-  </script>
+    <div class="tab-panel active" id="panel-campaigns">
+      <h2 style="font-size:1.15rem;font-weight:800;margin:0 0 16px">Your campaigns</h2>
+      <div class="campaigns-grid" id="myCampaigns"></div>
+      <p id="noCampaigns" class="empty-state" style="display:none">No campaigns yet. <a href="create-campaign.html">Create your first one</a></p>
+    </div>
+    <div class="tab-panel" id="panel-media">
+      <h2 style="font-size:1.15rem;font-weight:800;margin:0 0 8px">Photos & videos</h2>
+      <p style="color:var(--muted);font-size:.9rem;margin:0 0 16px">Add media to your latest campaign anytime.</p>
+      <input type="file" id="mediaInput" accept="image/*,video/*" multiple>
+      <div class="media-grid" id="mediaGrid"></div>
+    </div>
+    <div class="tab-panel" id="panel-social">
+      <h2 style="font-size:1.15rem;font-weight:800;margin:0 0 8px">Social links</h2>
+      <div class="social-field"><span>Instagram</span><input type="url" id="socIg" placeholder="https://instagram.com/you"></div>
+      <div class="social-field"><span>Facebook</span><input type="url" id="socFb" placeholder="https://facebook.com/you"></div>
+      <div class="social-field"><span>X / Twitter</span><input type="url" id="socX" placeholder="https://x.com/you"></div>
+      <div class="social-field"><span>TikTok</span><input type="url" id="socTt" placeholder="https://tiktok.com/@you"></div>
+      <button type="button" class="btn btn-primary mt-2" id="saveSocial">Save links</button>
+      <p id="socialMsg" style="display:none;margin-top:10px;font-weight:600;color:var(--g)"></p>
+    </div>
+    <div class="tab-panel" id="panel-donors">
+      <h2 style="font-size:1.15rem;font-weight:800;margin:0 0 8px">Donors & emails</h2>
+      <button type="button" class="btn btn-outline btn-sm mb-2" id="exportCsv">Download emails (CSV)</button>
+      <div style="overflow-x:auto"><table class="donor-table"><thead><tr><th>Name</th><th>Email</th><th>Amount</th><th>When</th></tr></thead><tbody id="donorBody"></tbody></table></div>
+    </div>
+    <div class="tab-panel" id="panel-chat">
+      <h2 style="font-size:1.15rem;font-weight:800;margin:0 0 8px">Chat with donors</h2>
+      <div id="chatList"></div>
+    </div>
+  </div>
+</section>
+<footer class="site-footer"><p><a href="index.html">Home</a> · <a href="create-campaign.html">New campaign</a></p><p style="margin-top:8px">&copy; 2026 HopeForUs</p></footer>
+<script>
+var user=JSON.parse(localStorage.getItem('hopeforus_user')||'null');
+if(!user)location.href='login.html';
+document.getElementById('welcome').textContent='Welcome, '+(user.name||'friend')+' — manage media, donors and messages';
+document.getElementById('logoutBtn').onclick=function(){localStorage.removeItem('hopeforus_user');location.href='index.html'};
+function campaigns(){try{return JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){return[]}}
+function myCamps(){return campaigns().filter(function(c){return c.ownerEmail===user.email||c.organizer===user.name})}
+function saveCamps(list){localStorage.setItem('hopeforus_campaigns',JSON.stringify(list))}
+(function(){var mine=myCamps();var raised=mine.reduce(function(s,c){return s+(c.raised||0)},0);document.getElementById('statRaised').textContent='$'+raised.toLocaleString();document.getElementById('statCampaigns').textContent=String(mine.length);document.getElementById('statSupporters').textContent=String(mine.length?47:0)})();
+document.querySelectorAll('.tab').forEach(function(tab){tab.onclick=function(){document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});tab.classList.add('active');document.getElementById('panel-'+tab.dataset.tab).classList.add('active')}});
+var activeId=(myCamps()[0]||{}).id;
+function renderCampaigns(){var mine=myCamps();var grid=document.getElementById('myCampaigns');var empty=document.getElementById('noCampaigns');if(!mine.length){grid.innerHTML='';empty.style.display='block';return}empty.style.display='none';grid.innerHTML=mine.map(function(c){var p=c.goal?Math.min(100,Math.round((c.raised||0)/c.goal*100)):0;var img='';if(c.cover&&c.cover.dataUrl&&(!c.cover.type||c.cover.type.indexOf('video')!==0))img='<img src="'+c.cover.dataUrl+'" alt="">';else if(c.image)img='<img src="'+c.image+'" alt="">';else img='<div style="width:100%;height:100%;background:linear-gradient(135deg,#02a95c,#016b3a);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;padding:12px;text-align:center">'+(c.title||'').slice(0,30)+'</div>';return '<a class="campaign-card" href="campaign.html?id='+encodeURIComponent(c.id)+'"><div class="campaign-card-image">'+img+'</div><div class="campaign-card-body"><h3 class="campaign-card-title">'+(c.title||'')+'</h3><div class="progress-bar"><div class="progress-fill" style="width:'+p+'%"></div></div><div class="progress-meta"><span><strong>$'+(c.raised||0).toLocaleString()+'</strong> raised</span><span>$'+Number(c.goal).toLocaleString()+'</span></div></div></a>'}).join('')}
+renderCampaigns();
+document.getElementById('mediaInput').onchange=function(){var files=this.files;if(!files.length)return;if(!activeId){alert('Create a campaign first.');return}var list=campaigns();var camp=list.find(function(c){return c.id===activeId});if(!camp)return;if(!camp.media)camp.media=[];var left=files.length;Array.prototype.forEach.call(files,function(file){var max=file.type.indexOf('video')===0?8*1024*1024:3.5*1024*1024;if(file.size>max){left--;return}var r=new FileReader();r.onload=function(e){camp.media.push({type:file.type,dataUrl:e.target.result});left--;if(left<=0){try{saveCamps(list)}catch(err){alert('Storage full')}renderMedia()}};r.readAsDataURL(file)});this.value=''};
+function renderMedia(){var camp=campaigns().find(function(c){return c.id===activeId});var grid=document.getElementById('mediaGrid');if(!camp||!camp.media||!camp.media.length){grid.innerHTML='';return}grid.innerHTML=camp.media.map(function(m){return(m.type&&m.type.indexOf('video')===0)?'<div class="item"><video src="'+m.dataUrl+'" muted></video></div>':'<div class="item"><img src="'+m.dataUrl+'" alt=""></div>'}).join('')}
+renderMedia();
+document.getElementById('saveSocial').onclick=function(){var list=campaigns();var camp=list.find(function(c){return c.id===activeId})||list.find(function(c){return c.ownerEmail===user.email});if(!camp){alert('Create a campaign first.');return}camp.socialLinks={ig:document.getElementById('socIg').value.trim(),fb:document.getElementById('socFb').value.trim(),x:document.getElementById('socX').value.trim(),tt:document.getElementById('socTt').value.trim()};var main=camp.socialLinks.ig||camp.socialLinks.fb||camp.socialLinks.x||'';if(main)camp.social=main;saveCamps(list);var m=document.getElementById('socialMsg');m.style.display='block';m.textContent='Links saved to your campaign.'};
+var DONORS=[{name:'Alex Rivera',email:'alex.r@example.com',amount:50,when:'2 hrs ago'},{name:'Sam Chen',email:'sam.chen@example.com',amount:100,when:'5 hrs ago'},{name:'Jordan Lee',email:'j.lee@example.com',amount:25,when:'1 day ago'},{name:'Anonymous',email:'hidden@hopeforus.app',amount:75,when:'2 days ago'},{name:'Taylor Kim',email:'taylor.k@example.com',amount:200,when:'3 days ago'}];
+document.getElementById('donorBody').innerHTML=DONORS.map(function(d){return '<tr><td>'+d.name+'</td><td>'+d.email+'</td><td>$'+d.amount+'</td><td>'+d.when+'</td></tr>'}).join('');
+document.getElementById('exportCsv').onclick=function(){var csv='Name,Email,Amount,When\n'+DONORS.map(function(d){return '"'+d.name+'","'+d.email+'",'+d.amount+',"'+d.when+'"'}).join('\n');var a=document.createElement('a');a.href='data:text/csv,'+encodeURIComponent(csv);a.download='hopeforus-donors.csv';a.click()};
+var THREADS=[{who:'Alex Rivera',meta:'$50 · 2 hrs ago',msg:'Wishing you a fast recovery!'},{who:'Sam Chen',meta:'$100 · 5 hrs ago',msg:'Happy to help. Keep us posted.'},{who:'Taylor Kim',meta:'$200 · 3 days ago',msg:'You are not alone.'}];
+var chatList=document.getElementById('chatList');
+chatList.innerHTML=THREADS.map(function(t,i){return '<div class="chat-thread"><div class="who">'+t.who+'</div><div class="meta">'+t.meta+'</div><div class="chat-bubble">'+t.msg+'</div><div class="chat-input-row"><input type="text" placeholder="Reply…" data-reply="'+i+'"><button type="button" class="btn btn-primary btn-sm" data-send="'+i+'">Send</button></div></div>'}).join('');
+chatList.addEventListener('click',function(e){if(!e.target.matches('[data-send]'))return;var i=e.target.getAttribute('data-send');var input=chatList.querySelector('[data-reply="'+i+'"]');var text=(input.value||'').trim();if(!text)return;var bubble=document.createElement('div');bubble.className='chat-bubble';bubble.style.background='#e6f7ef';bubble.style.marginTop='6px';bubble.textContent='You: '+text;e.target.closest('.chat-thread').insertBefore(bubble,e.target.closest('.chat-input-row'));input.value=''});
+</script>
 </body>
 </html>
