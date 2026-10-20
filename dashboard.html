@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard – HopeForUs</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">H</span>
+        HopeForUs
+      </a>
+      <nav class="nav">
+        <a href="create-campaign.html" class="btn btn-primary btn-sm">New campaign</a>
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="#" class="nav-link" id="logoutBtn">Log out</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="dashboard-header">
+    <div class="container">
+      <h1>Your dashboard</h1>
+      <p id="welcomeText">Track progress and manage your campaigns</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="label">Total raised</div>
+          <div class="value">$4,800</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Active campaigns</div>
+          <div class="value">2</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Supporters</div>
+          <div class="value">47</div>
+        </div>
+      </div>
+
+      <h2 class="section-title">Your campaigns</h2>
+
+      <div class="campaigns-grid">
+        <a href="johns-surgery.html" class="campaign-card">
+          <div class="campaign-card-image" style="background: linear-gradient(135deg, #3498db, #2980b9);">
+            <div class="placeholder-img">John's Surgery</div>
+          </div>
+          <div class="campaign-card-body">
+            <h3 class="campaign-card-title">John's Surgery Fund</h3>
+            <p class="campaign-card-desc">Code: JOHNSURGERY</p>
+            <div class="progress-wrap">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 47%;"></div>
+              </div>
+              <div class="progress-meta">
+                <span><strong>$2,350</strong> raised</span>
+                <span>$5,000 goal</span>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <a href="team-beta.html" class="campaign-card">
+          <div class="campaign-card-image" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+            <div class="placeholder-img">Team Beta</div>
+          </div>
+          <div class="campaign-card-body">
+            <h3 class="campaign-card-title">Team Beta Travel Fund</h3>
+            <p class="campaign-card-desc">Code: TEAMBETA</p>
+            <div class="progress-wrap">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 65%;"></div>
+              </div>
+              <div class="progress-meta">
+                <span><strong>$1,300</strong> raised</span>
+                <span>$2,000 goal</span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div style="margin-top: 36px; text-align: center;">
+        <a href="create-campaign.html" class="btn btn-outline btn-lg">+ Create another campaign</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border: none; margin: 0; padding: 0;">
+        <p>&copy; 2026 HopeForUs</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    var user = JSON.parse(localStorage.getItem('hopeforus_user') || 'null');
+    if (user && user.name) {
+      document.getElementById('welcomeText').textContent = 'Welcome back, ' + user.name + '. Track progress and manage your campaigns.';
+    }
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      localStorage.removeItem('hopeforus_user');
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create a Campaign – HopeForUs</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">H</span>
+        HopeForUs
+      </a>
+      <nav class="nav">
+        <a href="dashboard.html" class="nav-link hide-mobile">Dashboard</a>
+        <a href="index.html" class="nav-link">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="dashboard-header">
+    <div class="container">
+      <h1>Create a campaign</h1>
+      <p>Set a goal, tell your story, and start receiving support</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="form-card">
+        <form id="createForm">
+          <h2>Campaign details</h2>
+
+          <div class="form-group">
+            <label for="title">Campaign title</label>
+            <input type="text" id="title" name="title" placeholder="e.g. Help me cover surgery costs" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="goal">Fundraising goal ($)</label>
+              <input type="number" id="goal" name="goal" placeholder="5000" min="1" required>
+            </div>
+            <div class="form-group">
+              <label for="code">Campaign code</label>
+              <input type="text" id="code" name="code" placeholder="e.g. JOHNSURGERY" required>
+              <p class="form-hint">A short unique code supporters can reference</p>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="story">Your story</label>
+            <textarea id="story" name="story" placeholder="Explain why you're fundraising and how the money will help..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="category">Category</label>
+            <select id="category" name="category">
+              <option value="medical">Medical</option>
+              <option value="emergency">Emergency</option>
+              <option value="travel">Travel / Education</option>
+              <option value="community">Community</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div id="createMsg" class="auth-message" style="display:none;"></div>
+
+          <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 8px;">Publish campaign</button>
+          <a href="dashboard.html" class="btn btn-ghost" style="margin-left: 8px;">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border: none; margin: 0; padding: 0;">
+        <p>&copy; 2026 HopeForUs</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('createForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var msg = document.getElementById('createMsg');
+      msg.style.display = 'block';
+      msg.className = 'auth-message success';
+      msg.textContent = 'Campaign published! Redirecting to your dashboard…';
+      setTimeout(function() {
+        window.location.href = 'dashboard.html';
+      }, 1000);
+    });
+  </script>
+</body>
+</html>
