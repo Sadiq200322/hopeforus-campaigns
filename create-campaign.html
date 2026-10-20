@@ -5,94 +5,135 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create a Campaign – HopeForUs</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .cover-upload{border:2px dashed var(--border);border-radius:16px;min-height:200px;display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:pointer;background:var(--bg);overflow:hidden;position:relative;transition:border-color .2s,background .2s}
+    .cover-upload:hover,.cover-upload.drag{border-color:var(--primary);background:var(--primary-light)}
+    .cover-upload img,.cover-upload video{width:100%;height:220px;object-fit:cover;display:block}
+    .cover-upload .hint{text-align:center;padding:24px;color:var(--text-muted)}
+    .cover-upload .hint strong{color:var(--text);display:block;margin-bottom:6px}
+    .media-extra{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-top:12px}
+    .media-extra .item{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+    .media-extra .item img,.media-extra .item video{width:100%;height:100%;object-fit:cover}
+    .media-extra .item button{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:none;background:rgba(0,0,0,.65);color:#fff;cursor:pointer;font-size:12px}
+    .auth-gate{text-align:center;padding:40px 20px}
+  </style>
 </head>
 <body>
   <header class="site-header">
     <div class="container header-inner">
-      <a href="index.html" class="logo">
-        <span class="logo-icon">H</span>
-        HopeForUs
-      </a>
+      <a href="index.html" class="logo"><span class="logo-icon">H</span> HopeForUs</a>
       <nav class="nav">
         <a href="dashboard.html" class="nav-link hide-mobile">Dashboard</a>
         <a href="index.html" class="nav-link">Home</a>
       </nav>
     </div>
   </header>
-
   <section class="dashboard-header">
-    <div class="container">
-      <h1>Create a campaign</h1>
-      <p>Set a goal, tell your story, and start receiving support</p>
-    </div>
+    <div class="container"><h1>Create a campaign</h1><p>Add photos or a video, set a goal, and publish in minutes</p></div>
   </section>
-
   <section class="section">
     <div class="container">
-      <div class="form-card">
+      <div id="gateBox" class="auth-gate" style="display:none;">
+        <p style="margin-bottom:16px;color:var(--text-muted)">Sign in to create a campaign.</p>
+        <a href="login.html" class="btn btn-primary">Log in</a>
+        <a href="signup.html" class="btn btn-outline" style="margin-left:8px">Sign up</a>
+      </div>
+      <div class="form-card" id="formWrap" style="max-width:640px">
         <form id="createForm">
-          <h2>Campaign details</h2>
-
-          <div class="form-group">
-            <label for="title">Campaign title</label>
-            <input type="text" id="title" name="title" placeholder="e.g. Help me cover surgery costs" required>
+          <h2>Cover photo or video</h2>
+          <div class="cover-upload" id="coverZone">
+            <div class="hint" id="coverHint"><strong>Add a cover photo or video</strong>Drag & drop or click · JPG, PNG, MP4</div>
+            <input type="file" id="coverInput" accept="image/*,video/*" hidden>
           </div>
-
+          <p class="form-hint" style="margin-top:8px;margin-bottom:20px">A strong cover image raises more.</p>
+          <div class="form-group">
+            <label>More photos / videos (optional)</label>
+            <input type="file" id="extraInput" accept="image/*,video/*" multiple>
+            <div class="media-extra" id="extraGrid"></div>
+          </div>
+          <h2 style="margin-top:8px">Campaign details</h2>
+          <div class="form-group"><label for="title">Campaign title</label><input type="text" id="title" placeholder="e.g. Help me cover surgery costs" required maxlength="120"></div>
           <div class="form-row">
-            <div class="form-group">
-              <label for="goal">Fundraising goal ($)</label>
-              <input type="number" id="goal" name="goal" placeholder="5000" min="1" required>
-            </div>
-            <div class="form-group">
-              <label for="code">Campaign code</label>
-              <input type="text" id="code" name="code" placeholder="e.g. JOHNSURGERY" required>
-              <p class="form-hint">A short unique code supporters can reference</p>
-            </div>
+            <div class="form-group"><label for="goal">Fundraising goal ($)</label><input type="number" id="goal" placeholder="5000" min="1" required></div>
+            <div class="form-group"><label for="code">Campaign code</label><input type="text" id="code" placeholder="e.g. JOHNSURGERY" required maxlength="24" style="text-transform:uppercase"><p class="form-hint">Supporters use this code when donating</p></div>
           </div>
-
-          <div class="form-group">
-            <label for="story">Your story</label>
-            <textarea id="story" name="story" placeholder="Explain why you're fundraising and how the money will help..." required></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="category">Category</label>
-            <select id="category" name="category">
-              <option value="medical">Medical</option>
-              <option value="emergency">Emergency</option>
-              <option value="travel">Travel / Education</option>
-              <option value="community">Community</option>
-              <option value="other">Other</option>
+          <div class="form-group"><label for="story">Your story</label><textarea id="story" placeholder="Explain why you're fundraising..." required rows="6"></textarea></div>
+          <div class="form-group"><label for="category">Category</label>
+            <select id="category">
+              <option value="medical">Medical</option><option value="emergency">Emergency</option>
+              <option value="memorial">Memorial</option><option value="education">Education</option>
+              <option value="animals">Animals</option><option value="community">Community</option>
+              <option value="travel">Travel / Sports</option><option value="other">Other</option>
             </select>
           </div>
-
-          <div id="createMsg" class="auth-message" style="display:none;"></div>
-
-          <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 8px;">Publish campaign</button>
-          <a href="dashboard.html" class="btn btn-ghost" style="margin-left: 8px;">Cancel</a>
+          <div class="form-group"><label for="social">Link social media (optional)</label><input type="url" id="social" placeholder="https://instagram.com/yourhandle"></div>
+          <div id="createMsg" class="auth-message" style="display:none"></div>
+          <button type="submit" class="btn btn-primary btn-lg" style="margin-top:8px">Publish campaign</button>
+          <a href="dashboard.html" class="btn btn-ghost" style="margin-left:8px">Cancel</a>
         </form>
       </div>
     </div>
   </section>
-
-  <footer class="site-footer">
-    <div class="container">
-      <div class="footer-bottom" style="border: none; margin: 0; padding: 0;">
-        <p>&copy; 2026 HopeForUs</p>
-      </div>
-    </div>
-  </footer>
-
+  <footer class="site-footer"><div class="container"><div class="footer-bottom" style="border:none;margin:0;padding:0"><p>&copy; 2026 HopeForUs</p></div></div></footer>
   <script>
-    document.getElementById('createForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      var msg = document.getElementById('createMsg');
-      msg.style.display = 'block';
-      msg.className = 'auth-message success';
-      msg.textContent = 'Campaign published! Redirecting to your dashboard…';
-      setTimeout(function() {
-        window.location.href = 'dashboard.html';
-      }, 1000);
+    var user=JSON.parse(localStorage.getItem('hopeforus_user')||'null');
+    if(!user){document.getElementById('gateBox').style.display='block';document.getElementById('formWrap').style.display='none';}
+    var coverData=null, extraMedia=[];
+    function readFileAsDataURL(file,maxBytes,cb){
+      if(file.size>maxBytes){alert('File too large. Photos max 3.5MB, videos max 8MB.');return;}
+      var r=new FileReader();r.onload=function(e){cb(e.target.result,file.type);};r.readAsDataURL(file);
+    }
+    var coverZone=document.getElementById('coverZone'),coverInput=document.getElementById('coverInput');
+    coverZone.addEventListener('click',function(){coverInput.click();});
+    coverZone.addEventListener('dragover',function(e){e.preventDefault();coverZone.classList.add('drag');});
+    coverZone.addEventListener('dragleave',function(){coverZone.classList.remove('drag');});
+    coverZone.addEventListener('drop',function(e){e.preventDefault();coverZone.classList.remove('drag');if(e.dataTransfer.files[0])setCover(e.dataTransfer.files[0]);});
+    coverInput.addEventListener('change',function(){if(coverInput.files[0])setCover(coverInput.files[0]);});
+    function setCover(file){
+      var max=file.type.indexOf('video')===0?8*1024*1024:3.5*1024*1024;
+      readFileAsDataURL(file,max,function(dataUrl,type){
+        coverData={type:type,dataUrl:dataUrl};coverZone.innerHTML='';
+        if(type.indexOf('video')===0){var v=document.createElement('video');v.src=dataUrl;v.controls=true;v.muted=true;coverZone.appendChild(v);}
+        else{var img=document.createElement('img');img.src=dataUrl;img.alt='Cover';coverZone.appendChild(img);}
+      });
+    }
+    document.getElementById('extraInput').addEventListener('change',function(){
+      Array.prototype.forEach.call(this.files,function(file){
+        var max=file.type.indexOf('video')===0?8*1024*1024:3.5*1024*1024;
+        readFileAsDataURL(file,max,function(dataUrl,type){extraMedia.push({type:type,dataUrl:dataUrl});renderExtra();});
+      });this.value='';
+    });
+    function renderExtra(){
+      var grid=document.getElementById('extraGrid');grid.innerHTML='';
+      extraMedia.forEach(function(m,i){
+        var div=document.createElement('div');div.className='item';
+        if(m.type.indexOf('video')===0)div.innerHTML='<video src="'+m.dataUrl+'" muted></video><button type="button" data-i="'+i+'">&times;</button>';
+        else div.innerHTML='<img src="'+m.dataUrl+'" alt=""><button type="button" data-i="'+i+'">&times;</button>';
+        grid.appendChild(div);
+      });
+      grid.querySelectorAll('button').forEach(function(btn){btn.onclick=function(){extraMedia.splice(+btn.dataset.i,1);renderExtra();};});
+    }
+    document.getElementById('createForm').addEventListener('submit',function(e){
+      e.preventDefault();if(!user)return;
+      var title=document.getElementById('title').value.trim();
+      var goal=parseInt(document.getElementById('goal').value,10);
+      var code=document.getElementById('code').value.trim().toUpperCase().replace(/\s+/g,'');
+      var story=document.getElementById('story').value.trim();
+      var category=document.getElementById('category').value;
+      var social=document.getElementById('social').value.trim();
+      if(!title||!goal||!code||!story)return;
+      var id='c_'+Date.now();
+      var campaign={id:id,title:title,goal:goal,raised:0,code:code,story:story,category:category,social:social||'',cover:coverData,media:extraMedia.slice(0,6),organizer:user.name||'Organizer',createdAt:new Date().toISOString(),ownerEmail:user.email||''};
+      var list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]');list.unshift(campaign);
+      try{localStorage.setItem('hopeforus_campaigns',JSON.stringify(list));}
+      catch(err){
+        campaign.media=[];if(coverData&&coverData.dataUrl&&coverData.dataUrl.length>500000)campaign.cover=null;
+        list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]');list.unshift(campaign);
+        try{localStorage.setItem('hopeforus_campaigns',JSON.stringify(list));}
+        catch(e2){var m=document.getElementById('createMsg');m.className='auth-message error';m.style.display='block';m.textContent='Storage full. Use smaller photos.';return;}
+      }
+      var msg=document.getElementById('createMsg');msg.style.display='block';msg.className='auth-message success';msg.textContent='Campaign published! Opening it now…';
+      setTimeout(function(){window.location.href='campaign.html?id='+encodeURIComponent(id);},800);
     });
   </script>
 </body>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campaign – HopeForUs</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .media-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:16px}
+    .media-gallery img,.media-gallery video{width:100%;height:120px;object-fit:cover;border-radius:10px}
+    .social-link{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:0.9rem}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo"><span class="logo-icon">H</span> HopeForUs</a>
+      <nav class="nav">
+        <a href="index.html" class="nav-link hide-mobile">Campaigns</a>
+        <a href="login.html" class="nav-link">Log in</a>
+        <a href="signup.html" class="btn btn-primary btn-sm">Sign up</a>
+      </nav>
+    </div>
+  </header>
+  <div class="container campaign-page" id="page"><p style="color:var(--text-muted);padding:40px 0">Loading campaign…</p></div>
+  <div class="modal-overlay" id="donateModal">
+    <div class="modal">
+      <button class="modal-close" id="modalClose">&times;</button>
+      <h3 id="modalTitle">Donate</h3>
+      <p>Support is processed securely. Include the campaign code when you donate:</p>
+      <div class="code-box"><div class="label">Campaign code</div><div class="code" id="modalCode">—</div></div>
+      <a href="https://kickbot.com/tips/HopeForUs" target="_blank" class="btn btn-primary btn-block btn-lg" rel="noopener">Continue to donate</a>
+    </div>
+  </div>
+  <footer class="site-footer"><div class="container"><div class="footer-bottom" style="border:none;margin:0;padding:0"><p>&copy; 2026 HopeForUs</p></div></div></footer>
+  <script>
+    function getId(){return new URLSearchParams(window.location.search).get('id')||'';}
+    function findCampaign(id){var list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]');for(var i=0;i<list.length;i++)if(list[i].id===id)return list[i];return null;}
+    function pct(raised,goal){if(!goal)return 0;return Math.min(100,Math.round((raised/goal)*100));}
+    function dashOffset(p){var c=150.8;return c-(c*p/100);}
+    function escapeHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+    var id=getId(),c=findCampaign(id),page=document.getElementById('page');
+    if(!c){page.innerHTML='<p style="padding:40px 0">Campaign not found. <a href="index.html">Back to home</a></p>';}
+    else{
+      document.title=c.title+' – HopeForUs';
+      var p=pct(c.raised||0,c.goal);
+      var coverHtml='';
+      if(c.cover&&c.cover.dataUrl){
+        if(c.cover.type&&c.cover.type.indexOf('video')===0)coverHtml='<video src="'+c.cover.dataUrl+'" controls style="width:100%;max-height:400px;border-radius:16px"></video>';
+        else coverHtml='<img src="'+c.cover.dataUrl+'" alt="" style="width:100%;height:400px;object-fit:cover;border-radius:16px">';
+      } else if(c.image){
+        coverHtml='<img src="'+c.image+'" alt="" style="width:100%;height:400px;object-fit:cover;border-radius:16px">';
+      } else {
+        coverHtml='<div class="placeholder-hero" style="background:linear-gradient(135deg,#02a95c,#016b3a)">'+(c.title||'Campaign').slice(0,40)+'</div>';
+      }
+      var gallery='';
+      if(c.media&&c.media.length){
+        gallery='<div class="media-gallery">'+c.media.map(function(m){
+          if(m.type&&m.type.indexOf('video')===0)return '<video src="'+m.dataUrl+'" controls muted></video>';
+          return '<img src="'+m.dataUrl+'" alt="">';
+        }).join('')+'</div>';
+      }
+      var social=c.social?'<a class="social-link" href="'+c.social+'" target="_blank" rel="noopener">Linked social profile →</a>':'';
+      page.innerHTML='<h1 class="campaign-title-top">'+escapeHtml(c.title)+'</h1><div class="campaign-layout"><div class="campaign-main"><div class="campaign-media">'+coverHtml+'</div><div class="organizer-row"><div class="organizer-avatar">'+(c.organizer||'O').charAt(0).toUpperCase()+'</div><div class="organizer-info"><strong>'+escapeHtml(c.organizer||'Organizer')+'</strong><span>Organizer · '+escapeHtml(c.category||'')+'</span><div class="badge-protected">Donation protected</div>'+social+'</div></div><div class="story-section"><h2>Story</h2><p>'+escapeHtml(c.story).replace(/\n/g,'</p><p>')+'</p>'+gallery+'</div></div><aside class="support-card"><div class="raised-row"><div class="progress-circle"><svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="28" cy="28" r="24" fill="none" stroke="#02a95c" stroke-width="5" stroke-dasharray="150.8" stroke-dashoffset="'+dashOffset(p)+'" stroke-linecap="round"/></svg><span class="pct">'+p+'%</span></div><div><div class="raised-amount">$'+(c.raised||0).toLocaleString()+'</div><div class="raised-goal">raised of $'+Number(c.goal).toLocaleString()+' goal</div></div></div><div class="donation-count">Campaign</div><button type="button" class="btn btn-primary btn-block btn-lg" id="donateBtn">Donate now</button><button type="button" class="btn btn-dark btn-block" id="shareToggle">Share</button><div class="share-panel" id="sharePanel"><h4>Share this campaign</h4><div class="copy-link-row"><input type="text" id="campaignLink" readonly><button type="button" class="btn btn-outline btn-sm" id="copyBtn">Copy link</button></div><div class="copy-toast" id="copyToast">Link copied!</div></div></aside></div>';
+      document.getElementById('modalTitle').textContent='Donate to '+c.title;
+      document.getElementById('modalCode').textContent=c.code||'—';
+      var link=window.location.href.split('#')[0];
+      document.getElementById('campaignLink').value=link;
+      document.getElementById('shareToggle').onclick=function(){document.getElementById('sharePanel').classList.toggle('open');};
+      document.getElementById('copyBtn').onclick=function(){navigator.clipboard.writeText(link).then(function(){var t=document.getElementById('copyToast');t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2000);});};
+      var modal=document.getElementById('donateModal');
+      document.getElementById('donateBtn').onclick=function(){modal.classList.add('open');};
+      document.getElementById('modalClose').onclick=function(){modal.classList.remove('open');};
+      modal.onclick=function(e){if(e.target===modal)modal.classList.remove('open');};
+    }
+  </script>
+</body>
+</html>
