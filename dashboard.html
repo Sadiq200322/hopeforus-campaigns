@@ -8,7 +8,7 @@
 <style>
 .dash-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 .media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-top:12px}
-.media-grid .item{aspect-ratio:1;border-radius:12px;overflow:hidden;border:1px solid var(--border);position:relative;background:#f3f4f6}
+.media-grid .item{aspect-ratio:1;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#f3f4f6}
 .media-grid .item img,.media-grid .item video{width:100%;height:100%;object-fit:cover}
 .chat-thread{border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;background:#fff}
 .chat-thread .who{font-weight:700;font-size:.9rem}
@@ -59,6 +59,7 @@
       <button type="button" class="tab" data-tab="social">Social links</button>
       <button type="button" class="tab" data-tab="donors">Donors & emails</button>
       <button type="button" class="tab" data-tab="chat">Chat</button>
+      <button type="button" class="tab" data-tab="withdraw">Withdraw</button>
     </div>
     <div class="tab-panel active" id="panel-campaigns">
       <h2 style="font-size:1.15rem;font-weight:800;margin:0 0 16px">Your campaigns</h2>
@@ -89,6 +90,20 @@
       <h2 style="font-size:1.15rem;font-weight:800;margin:0 0 8px">Chat with donors</h2>
       <div id="chatList"></div>
     </div>
+    <div class="tab-panel" id="panel-withdraw">
+      <h2 style="font-size:1.15rem;font-weight:800;margin:0 0 8px">Withdraw funds</h2>
+      <p style="color:#5c5c5c;font-size:.9rem;margin:0 0 16px">Payouts process on the <strong>15th of every month</strong>.</p>
+      <div style="display:grid;gap:12px;max-width:480px">
+        <label style="display:flex;gap:12px;align-items:center;padding:14px;border:1.5px solid #e5e7eb;border-radius:14px;cursor:pointer"><input type="radio" name="payout" value="bank" checked> <strong>🏦 Bank transfer</strong></label>
+        <label style="display:flex;gap:12px;align-items:center;padding:14px;border:1.5px solid #e5e7eb;border-radius:14px;cursor:pointer"><input type="radio" name="payout" value="airtel"> <strong style="color:#e60000">Airtel Money</strong></label>
+        <label style="display:flex;gap:12px;align-items:center;padding:14px;border:1.5px solid #e5e7eb;border-radius:14px;cursor:pointer"><input type="radio" name="payout" value="momo"> <strong>MTN MoMo</strong></label>
+        <label style="display:flex;gap:12px;align-items:center;padding:14px;border:1.5px solid #e5e7eb;border-radius:14px;cursor:pointer"><input type="radio" name="payout" value="crypto"> <strong>₿ Crypto</strong></label>
+      </div>
+      <div style="max-width:480px;margin-top:14px"><label style="font-weight:600;font-size:.85rem">Account / phone / wallet</label><input type="text" id="payoutDetails" placeholder="Account, phone, or wallet" style="width:100%;padding:12px;border:1.5px solid #e5e7eb;border-radius:12px;margin-top:6px;box-sizing:border-box"></div>
+      <button type="button" class="btn btn-primary" id="savePayout" style="margin-top:12px">Save payout method</button>
+      <p id="payoutMsg" style="display:none;margin-top:10px;font-weight:600;color:#02a95c"></p>
+      <p style="font-size:.8rem;color:#6b7280;margin-top:14px">Next payout: 15th of this month.</p>
+    </div>
   </div>
 </section>
 <footer class="site-footer"><p><a href="index.html">Home</a> · <a href="create-campaign.html">New campaign</a></p><p style="margin-top:8px">&copy; 2026 HopeForUs</p></footer>
@@ -116,6 +131,8 @@ var THREADS=[{who:'Alex Rivera',meta:'$50 · 2 hrs ago',msg:'Wishing you a fast 
 var chatList=document.getElementById('chatList');
 chatList.innerHTML=THREADS.map(function(t,i){return '<div class="chat-thread"><div class="who">'+t.who+'</div><div class="meta">'+t.meta+'</div><div class="chat-bubble">'+t.msg+'</div><div class="chat-input-row"><input type="text" placeholder="Reply…" data-reply="'+i+'"><button type="button" class="btn btn-primary btn-sm" data-send="'+i+'">Send</button></div></div>'}).join('');
 chatList.addEventListener('click',function(e){if(!e.target.matches('[data-send]'))return;var i=e.target.getAttribute('data-send');var input=chatList.querySelector('[data-reply="'+i+'"]');var text=(input.value||'').trim();if(!text)return;var bubble=document.createElement('div');bubble.className='chat-bubble';bubble.style.background='#e6f7ef';bubble.style.marginTop='6px';bubble.textContent='You: '+text;e.target.closest('.chat-thread').insertBefore(bubble,e.target.closest('.chat-input-row'));input.value=''});
+document.getElementById('savePayout')&&document.getElementById('savePayout').addEventListener('click',function(){var m=document.getElementById('payoutMsg');if(m){m.style.display='block';m.textContent='Payout method saved. Transfers run on the 15th.';}try{localStorage.setItem('hopeforus_payout',JSON.stringify({method:(document.querySelector('input[name=payout]:checked')||{}).value,details:(document.getElementById('payoutDetails')||{}).value}))}catch(e){}});
+if(location.hash==='#withdraw'){document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});var tw=document.querySelector('[data-tab=withdraw]');if(tw){tw.classList.add('active');var pw=document.getElementById('panel-withdraw');if(pw)pw.classList.add('active')}}
 </script>
 </body>
 </html>
