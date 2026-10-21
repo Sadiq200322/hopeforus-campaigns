@@ -8,35 +8,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --g:#02a95c;--g-dark:#016b3a;--dark:#0c3d30;--lime:#c8f0a8;--lime-t:#1a4d2e;
-  --black:#1a1a1a;--muted:#5c5c5c;--border:#e8e8e8;--bg:#f7f7f7;
-  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-}
-body{font-family:var(--font);color:var(--black);background:#fff;line-height:1.45;-webkit-font-smoothing:antialiased;font-feature-settings:'ss01' on,'cv01' on;letter-spacing:-0.011em}
-a{color:inherit}
-img{max-width:100%;display:block}
+:root{--g:#02a95c;--g-dark:#016b3a;--dark:#0c3d30;--lime:#c8f0a8;--lime-t:#1a4d2e;--black:#1a1a1a;--muted:#5c5c5c;--border:#e8e8e8;--bg:#f7f7f7;--font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+body{font-family:var(--font);color:var(--black);background:#fff;line-height:1.45;-webkit-font-smoothing:antialiased;letter-spacing:-0.011em}
+a{color:inherit}img{max-width:100%;display:block}
 .hdr{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);height:64px;display:flex;align-items:center;padding:0 20px;gap:12px}
-.hdr-left,.hdr-right{display:flex;align-items:center;gap:4px;flex:1}
-.hdr-right{justify-content:flex-end;gap:8px}
-.logo{display:flex;align-items:center;gap:8px;text-decoration:none;font-weight:800;font-size:1.2rem;color:var(--black);flex-shrink:0}
-.logo img{width:30px;height:30px}
-.nav-link{font-size:.9rem;font-weight:600;color:var(--black);text-decoration:none;padding:8px 12px;border-radius:8px;white-space:nowrap}
-.nav-link:hover{background:#f3f4f6}
-.btn-outline{font-size:.9rem;font-weight:600;padding:10px 18px;border-radius:999px;border:1.5px solid #d0d0d0;background:#fff;text-decoration:none;color:var(--black);white-space:nowrap}
-.btn-green{font-size:.9rem;font-weight:700;padding:10px 18px;border-radius:999px;background:var(--g);color:#fff;text-decoration:none;white-space:nowrap}
-.btn-dark{display:inline-flex;align-items:center;justify-content:center;background:var(--dark);color:var(--lime);font-weight:700;font-size:1.05rem;padding:16px 32px;border-radius:999px;text-decoration:none;box-shadow:0 4px 14px rgba(12,61,48,.25);border:none;cursor:pointer}
+.hdr-left,.hdr-right{display:flex;align-items:center;gap:4px;flex:1}.hdr-right{justify-content:flex-end;gap:8px}
+.logo{display:flex;align-items:center;gap:8px;text-decoration:none;font-weight:800;font-size:1.2rem;color:var(--black)}.logo img{width:30px;height:30px}
+.nav-link{font-size:.9rem;font-weight:600;color:var(--black);text-decoration:none;padding:8px 12px;border-radius:8px}
+.btn-outline{font-size:.9rem;font-weight:600;padding:10px 18px;border-radius:999px;border:1.5px solid #d0d0d0;background:#fff;text-decoration:none;color:var(--black)}
+.btn-green{font-size:.9rem;font-weight:700;padding:10px 18px;border-radius:999px;background:var(--g);color:#fff;text-decoration:none}
+.btn-dark{display:inline-flex;background:var(--dark);color:var(--lime);font-weight:700;font-size:1.05rem;padding:16px 32px;border-radius:999px;text-decoration:none;box-shadow:0 4px 14px rgba(12,61,48,.25)}
 .icon-btn{width:40px;height:40px;border:none;background:transparent;cursor:pointer;border-radius:50%;display:inline-flex;align-items:center;justify-content:center}
 .user-chip{display:inline-flex;align-items:center;gap:8px;background:#f3f4f6;border-radius:999px;padding:4px 4px 4px 12px;text-decoration:none;font-weight:600;font-size:.9rem}
 .uav{width:28px;height:28px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
-.desk-only{display:none}
-@media(min-width:900px){.desk-only{display:inline-flex}.mob-only{display:none!important}}
+.desk-only{display:none}@media(min-width:900px){.desk-only{display:inline-flex}.mob-only{display:none!important}}
 .hero{text-align:center;padding:48px 20px 0;max-width:720px;margin:0 auto}
 .badge{display:inline-block;background:var(--lime);color:var(--lime-t);font-size:.8rem;font-weight:700;padding:8px 16px;border-radius:999px;margin-bottom:20px}
 .hero h1{font-size:clamp(2.1rem,7vw,3.4rem);font-weight:800;line-height:1.08;letter-spacing:-.04em;margin:0 0 16px}
 .hero .sub{font-size:1.15rem;color:var(--muted);max-width:480px;margin:0 auto 28px;line-height:1.5}
-.fan-wrap{position:relative;height:220px;margin-top:36px;overflow:hidden}
-@media(min-width:700px){.fan-wrap{height:280px}}
+.fan-wrap{position:relative;height:220px;margin-top:36px;overflow:hidden}@media(min-width:700px){.fan-wrap{height:280px}}
 .fan{display:flex;justify-content:center;align-items:flex-end;height:100%;padding:0 4%}
 .fan-card{flex:0 0 auto;width:min(42vw,220px);aspect-ratio:4/3;border-radius:16px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.15);background:#e8e8e8;transform-origin:center bottom}
 .fan-card img{width:100%;height:100%;object-fit:cover}
@@ -47,54 +37,39 @@ img{max-width:100%;display:block}
 .fan-card:nth-child(5){transform:rotate(12deg) translateY(28px) scale(.88);z-index:1}
 @media(max-width:600px){.fan-card{width:min(48vw,160px)}.fan-card:nth-child(1),.fan-card:nth-child(5){display:none}.fan-card:nth-child(2){transform:rotate(-6deg) translateY(12px);margin-left:0}.fan-card:nth-child(4){transform:rotate(6deg) translateY(12px);margin-right:0}}
 .stats{text-align:center;padding:56px 20px 40px;max-width:720px;margin:0 auto}
-.stats h2{font-size:clamp(1.6rem,5vw,2.4rem);font-weight:800;letter-spacing:-.03em;margin:0 0 12px;line-height:1.15}
+.stats h2{font-size:clamp(1.6rem,5vw,2.4rem);font-weight:800;letter-spacing:-.03em;margin:0 0 12px}
 .stats p{color:var(--muted);font-size:1.05rem;max-width:520px;margin:0 auto}
-.how{padding:48px 20px 64px}
-.how h2{text-align:center;font-size:clamp(1.5rem,4vw,2rem);font-weight:800;margin:0 0 36px;letter-spacing:-.02em}
-.steps{max-width:960px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:28px}
-@media(min-width:700px){.steps{grid-template-columns:repeat(3,1fr);gap:32px}}
-.step{text-align:center;padding:8px}
-.step-num{width:48px;height:48px;border-radius:50%;background:var(--lime);color:var(--lime-t);font-weight:800;font-size:1.2rem;display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px}
-.step h3{font-size:1.1rem;font-weight:700;margin:0 0 8px}
-.step p{font-size:.95rem;color:var(--muted);line-height:1.5}
+.how{padding:48px 20px 64px}.how h2{text-align:center;font-size:clamp(1.5rem,4vw,2rem);font-weight:800;margin:0 0 36px}
+.steps{max-width:960px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:28px}@media(min-width:700px){.steps{grid-template-columns:repeat(3,1fr)}}
+.step{text-align:center}.step-num{width:48px;height:48px;border-radius:50%;background:var(--lime);color:var(--lime-t);font-weight:800;font-size:1.2rem;display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px}
+.step h3{font-size:1.1rem;font-weight:700;margin:0 0 8px}.step p{font-size:.95rem;color:var(--muted)}
 .discover{background:var(--bg);padding:48px 0 64px;border-top:1px solid var(--border)}
 .inner{max-width:1120px;margin:0 auto;padding:0 16px}
-.discover h2{font-size:clamp(1.4rem,4vw,1.8rem);font-weight:800;margin:0 0 8px}
-.discover .lead{color:var(--muted);margin:0 0 20px}
+.discover h2{font-size:clamp(1.4rem,4vw,1.8rem);font-weight:800;margin:0 0 8px}.discover .lead{color:var(--muted);margin:0 0 20px}
 .search{width:100%;padding:14px 18px;border:1.5px solid #e0e0e0;border-radius:999px;font-size:.95rem;font-family:inherit;margin-bottom:14px;background:#fff}
-.cats{display:flex;gap:8px;overflow-x:auto;padding-bottom:14px;scrollbar-width:none}
-.cats::-webkit-scrollbar{display:none}
+.cats{display:flex;gap:8px;overflow-x:auto;padding-bottom:14px;scrollbar-width:none}.cats::-webkit-scrollbar{display:none}
 .chip{padding:10px 16px;border-radius:999px;border:1.5px solid #e0e0e0;background:#fff;font-size:.85rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit}
 .chip.active{border-color:var(--g);background:#e6f7ef;color:var(--g-dark)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
-.card{background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--border);text-decoration:none;color:inherit;display:flex;flex-direction:column;box-shadow:0 1px 3px rgba(0,0,0,.05);transition:box-shadow .2s,transform .2s}
+.card{background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--border);text-decoration:none;color:inherit;display:flex;flex-direction:column;box-shadow:0 1px 3px rgba(0,0,0,.05)}
 .card:hover{box-shadow:0 8px 24px rgba(0,0,0,.1);transform:translateY(-2px)}
-.card-img{height:160px;background:#e0e0e0;overflow:hidden}
-.card-img img{width:100%;height:100%;object-fit:cover}
+.card-img{height:160px;background:#e0e0e0;overflow:hidden}.card-img img{width:100%;height:100%;object-fit:cover}
 .card-b{padding:16px;flex:1;display:flex;flex-direction:column}
-.card-t{font-size:1rem;font-weight:700;margin:0 0 6px;line-height:1.3}
-.card-d{font-size:.85rem;color:var(--muted);margin:0 0 12px;flex:1}
-.bar{height:6px;background:#e8e8e8;border-radius:100px;overflow:hidden}
-.fill{height:100%;background:var(--g);border-radius:100px}
-.meta{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);margin-top:8px}
-.meta strong{color:var(--black)}
+.card-t{font-size:1rem;font-weight:700;margin:0 0 6px}.card-d{font-size:.85rem;color:var(--muted);margin:0 0 12px;flex:1}
+.bar{height:6px;background:#e8e8e8;border-radius:100px;overflow:hidden}.fill{height:100%;background:var(--g);border-radius:100px}
+.meta{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);margin-top:8px}.meta strong{color:var(--black)}
 .trust{padding:56px 20px;text-align:center;max-width:900px;margin:0 auto}
 .trust h2{font-size:clamp(1.4rem,4vw,1.9rem);font-weight:800;margin:0 0 28px}
-.trust-grid{display:grid;grid-template-columns:1fr;gap:24px}
-@media(min-width:640px){.trust-grid{grid-template-columns:repeat(3,1fr)}}
+.trust-grid{display:grid;grid-template-columns:1fr;gap:24px}@media(min-width:640px){.trust-grid{grid-template-columns:repeat(3,1fr)}}
 .trust-icon{width:48px;height:48px;border-radius:12px;background:#e6f7ef;display:inline-flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:12px}
-.trust-item h3{font-size:1.05rem;font-weight:700;margin:0 0 6px}
-.trust-item p{font-size:.9rem;color:var(--muted)}
+.trust-item h3{font-size:1.05rem;font-weight:700;margin:0 0 6px}.trust-item p{font-size:.9rem;color:var(--muted)}
 .ft{background:#0c3d30;color:#c8f0a8;padding:48px 20px 28px}
-.ft-grid{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:24px}
-@media(min-width:700px){.ft-grid{grid-template-columns:repeat(4,1fr)}}
+.ft-grid{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:24px}@media(min-width:700px){.ft-grid{grid-template-columns:repeat(4,1fr)}}
 .ft h4{font-size:.85rem;font-weight:700;color:#fff;margin:0 0 12px;text-transform:uppercase;letter-spacing:.04em}
 .ft a{display:block;font-size:.9rem;color:#a8d4b8;text-decoration:none;padding:4px 0}
 .ft-bottom{max-width:1120px;margin:32px auto 0;padding-top:20px;border-top:1px solid rgba(255,255,255,.12);display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;font-size:.8rem;color:#8ab89a}
-.social{display:flex;gap:10px}
-.social a{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;font-weight:700;font-size:.85rem}
-.drawer{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.4)}
-.drawer.open{display:block}
+.social{display:flex;gap:10px}.social a{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none}
+.drawer{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.4)}.drawer.open{display:block}
 .panel{position:absolute;top:0;right:0;width:min(300px,85vw);height:100%;background:#fff;padding:24px 20px;overflow-y:auto}
 .panel a{display:block;padding:14px 0;font-weight:600;text-decoration:none;border-bottom:1px solid #f0f0f0}
 </style>
@@ -145,9 +120,9 @@ img{max-width:100%;display:block}
 <section class="how" id="how">
   <h2>Fundraising on HopeForUs is easy, powerful, and trusted</h2>
   <div class="steps">
-    <div class="step"><div class="step-num">1</div><h3>Create your fundraiser</h3><p>Add photos or video, tell your story, and set a goal. Guided prompts help at every step.</p></div>
-    <div class="step"><div class="step-num">2</div><h3>Share with your circle</h3><p>Share your link with friends and family. Use social tools to build momentum fast.</p></div>
-    <div class="step"><div class="step-num">3</div><h3>Receive funds securely</h3><p>Withdraw to bank, Airtel Money, MoMo, or crypto. Payments available every 15th of the month.</p></div>
+    <div class="step"><div class="step-num">1</div><h3>Create your fundraiser</h3><p>Add photos or video, tell your story, and set a goal.</p></div>
+    <div class="step"><div class="step-num">2</div><h3>Share with your circle</h3><p>Share your link with friends and family to build momentum.</p></div>
+    <div class="step"><div class="step-num">3</div><h3>Receive funds securely</h3><p>Withdraw to bank, Airtel Money, MoMo, or crypto every 15th.</p></div>
   </div>
 </section>
 <section class="discover" id="campaigns">
@@ -163,7 +138,6 @@ img{max-width:100%;display:block}
       <button type="button" class="chip" data-c="animals">Animals</button>
       <button type="button" class="chip" data-c="community">Community</button>
       <button type="button" class="chip" data-c="memorial">Memorial</button>
-      <button type="button" class="chip" data-c="travel">Travel</button>
       <button type="button" class="chip" data-c="sports">Sports</button>
     </div>
     <div class="grid" id="grid"></div>
@@ -172,39 +146,32 @@ img{max-width:100%;display:block}
 <section class="trust">
   <h2>Your easy, powerful, and trusted home for help</h2>
   <div class="trust-grid">
-    <div class="trust-item"><div class="trust-icon">⚡</div><h3>Easy</h3><p>Donate quickly and easily. Start a campaign in minutes with guided steps.</p></div>
-    <div class="trust-item"><div class="trust-icon">💪</div><h3>Powerful</h3><p>Send help right to the people and causes you care about — share and grow fast.</p></div>
-    <div class="trust-item"><div class="trust-icon">🛡️</div><h3>Trusted</h3><p>Donation protected. Organizers can withdraw safely to bank or mobile money.</p></div>
+    <div class="trust-item"><div class="trust-icon">⚡</div><h3>Easy</h3><p>Donate quickly. Start a campaign in minutes.</p></div>
+    <div class="trust-item"><div class="trust-icon">💪</div><h3>Powerful</h3><p>Send help to people and causes you care about.</p></div>
+    <div class="trust-item"><div class="trust-icon">🛡️</div><h3>Trusted</h3><p>Donation protected. Withdraw to bank or mobile money.</p></div>
   </div>
 </section>
 <footer class="ft">
   <div class="ft-grid">
-    <div><h4>Donate</h4><a href="#campaigns">Browse campaigns</a><a href="#campaigns">Medical</a><a href="#campaigns">Emergency</a><a href="#campaigns">Animals</a></div>
-    <div><h4>Fundraise</h4><a href="create-campaign.html">How to start</a><a href="#how">How it works</a><a href="create-campaign.html">Start a campaign</a></div>
-    <div><h4>About</h4><a href="#how">How HopeForUs works</a><a href="signup.html">Sign up</a><a href="login.html">Log in</a></div>
-    <div><h4>Support</h4><a href="dashboard.html">Dashboard</a><a href="create-campaign.html">Create campaign</a></div>
+    <div><h4>Donate</h4><a href="#campaigns">Browse</a><a href="#campaigns">Medical</a><a href="#campaigns">Animals</a></div>
+    <div><h4>Fundraise</h4><a href="create-campaign.html">Start</a><a href="#how">How it works</a></div>
+    <div><h4>About</h4><a href="signup.html">Sign up</a><a href="login.html">Log in</a></div>
+    <div><h4>Support</h4><a href="dashboard.html">Dashboard</a></div>
   </div>
   <div class="ft-bottom"><span>© 2026 HopeForUs</span>
-    <div class="social"><a href="https://facebook.com" target="_blank" rel="noopener">f</a><a href="https://twitter.com" target="_blank" rel="noopener">𝕏</a><a href="https://instagram.com" target="_blank" rel="noopener">ig</a><a href="https://wa.me" target="_blank" rel="noopener">wa</a></div>
+    <div class="social">
+      <a href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.5c-1.5 0-1.96.93-1.96 1.89v2.26h3.32l-.53 3.5h-2.8V24C19.62 23.1 24 18.1 24 12.07z"/></svg></a>
+      <a href="https://twitter.com" target="_blank" rel="noopener" aria-label="X"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.65l-5.21-6.82-5.96 6.82H1.69l7.73-8.84L1.25 2.25h6.81l4.71 6.23 5.47-6.23zm-1.16 17.52h1.83L7.08 4.13H5.11l11.97 15.64z"/></svg></a>
+      <a href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 3.25.15 4.77 1.69 4.92 4.92.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.15 3.23-1.66 4.77-4.92 4.92-1.27.06-1.64.07-4.85.07s-3.58-.01-4.85-.07c-3.26-.15-4.77-1.7-4.92-4.92-.06-1.27-.07-1.64-.07-4.85s.01-3.58.07-4.85C2.38 3.92 3.9 2.38 7.15 2.23 8.42 2.17 8.8 2.16 12 2.16M12 0C8.74 0 8.33.01 7.05.07 2.7.27.27 2.69.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.2 4.36 2.62 6.78 6.98 6.98C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c4.35-.2 6.78-2.62 6.98-6.98.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95C23.73 2.7 21.31.27 16.95.07 15.67.01 15.26 0 12 0zm0 5.84a6.16 6.16 0 100 12.32 6.16 6.16 0 000-12.32zM12 16a4 4 0 110-8 4 4 0 010 8zm6.41-11.85a1.44 1.44 0 11-2.88 0 1.44 1.44 0 012.88 0z"/></svg></a>
+      <a href="https://wa.me" target="_blank" rel="noopener" aria-label="WhatsApp"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.47 14.38c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.48-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.06 2.87 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35zM12.05 21.78h-.01a9.78 9.78 0 01-4.98-1.36l-.36-.21-3.7.97.99-3.61-.24-.37a9.78 9.78 0 01-1.5-5.22c0-5.4 4.4-9.8 9.81-9.8a9.73 9.73 0 016.93 2.87 9.73 9.73 0 012.87 6.93c0 5.4-4.4 9.8-9.81 9.8zm8.34-18.14A11.7 11.7 0 0012.04 0C5.46 0 .1 5.36.1 11.94c0 2.1.55 4.16 1.59 5.97L0 24l6.26-1.64a11.9 11.9 0 005.78 1.47h.01c6.58 0 11.94-5.36 11.94-11.94 0-3.19-1.24-6.19-3.5-8.45z"/></svg></a>
+      <a href="https://youtube.com" target="_blank" rel="noopener" aria-label="YouTube"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 00-2.12-2.14C19.54 3.5 12 3.5 12 3.5s-7.54 0-9.38.55A3.02 3.02 0 00.5 6.19 31.6 31.6 0 000 12a31.6 31.6 0 00.5 5.81 3.02 3.02 0 002.12 2.14c1.84.55 9.38.55 9.38.55s7.54 0 9.38-.55a3.02 3.02 0 002.12-2.14A31.6 31.6 0 0024 12a31.6 31.6 0 00-.5-5.81zM9.75 15.57V8.43L15.82 12l-6.07 3.57z"/></svg></a>
+      <a href="https://tiktok.com" target="_blank" rel="noopener" aria-label="TikTok"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.3a6.34 6.34 0 0010.86 4.48V9.66a8.26 8.26 0 005.58 2.13V8.34a4.85 4.85 0 01-1.99-1.65z"/></svg></a>
+    </div>
   </div>
 </footer>
+<script src="campaigns-data.js"></script>
 <script>
-var SAMPLES=[
-{id:'sample_charlie',title:"Save Charlie's Life – Emergency Surgery",desc:'Advanced tumors — urgent surgery and recovery care.',raised:10437,goal:10000,category:'animals',image:'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&h=600&fit=crop',story:'Charlie has advanced tumors and needs immediate surgery. Funds cover surgery, vet visits, medications, and recovery care.',code:'CHARLIE',organizer:'Pamela F.'},
-{id:'sample_sarah',title:"Sarah's Fight for Life: Urgent Surgery",desc:'Life-saving surgery and months of follow-up care.',raised:21264,goal:50000,category:'medical',image:'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=600&fit=crop',story:'Sarah is scheduled for life-saving surgery. Funds cover surgery, hospital stay, nutrition support, and 6–12 months of follow-up.',code:'SARAH',organizer:'Chad S.'},
-{id:'sample_hans',title:'Emergency Surgery for Hans',desc:'Twisted stomach — emergency vet surgery needed.',raised:2968,goal:5000,category:'animals',image:'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&h=600&fit=crop',story:'Hans stomach flipped. Emergency surgery costs about $10K. We need help to start the procedure today.',code:'HANS',organizer:'Jenna E.'},
-{id:'sample_mary',title:"Mary's Urgent Surgery and Hospital Care",desc:'Emergency surgery, hospital stay, ongoing treatment.',raised:5115,goal:10000,category:'medical',image:'https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=800&h=600&fit=crop',story:'Mary is in hospital with a life-threatening emergency and needs surgery as soon as possible. Every donation goes to hospital treatment.',code:'MARY',organizer:'Mary P.'},
-{id:'sample_luna',title:'Emergency surgery for Luna',desc:'Hit by a car — specialist surgery and recovery.',raised:3200,goal:4500,category:'animals',image:'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800&h=600&fit=crop',story:'Luna was hit by a car and needs specialist surgery, urgent care, and recovery. She is family.',code:'LUNA',organizer:'HopeForUs Community'},
-{id:'sample_maya',title:'Help Maya finish nursing school',desc:'Final semester tuition and books.',raised:4100,goal:8000,category:'education',image:'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=600&fit=crop',story:'Maya is one semester from graduating nursing school. Funds cover tuition, books, and living costs so she can finish.',code:'MAYA',organizer:'Maya K.'},
-{id:'sample_madison',title:'Vet Student: Help Madison Start College',desc:'Tuition, books, and essentials for vet school.',raised:950,goal:1500,category:'education',image:'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=800&h=600&fit=crop',story:'Madison is starting college to become a veterinarian. Funds go to books, supplies, meal plan, and tuition.',code:'MADISON',organizer:'Madison J.'},
-{id:'sample_maria',title:"Maria's Emergency Fund",desc:'Home repairs after severe storm damage.',raised:1150,goal:5000,category:'emergency',image:'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop',story:'Storm damage left Maria needing urgent home repairs. Community support will help her family get back on their feet.',code:'MARIA',organizer:'Maria R.'},
-{id:'sample_team',title:'Team Beta Travel Fund',desc:'Travel costs to national championships.',raised:1300,goal:2000,category:'sports',image:'https://images.unsplash.com/photo-1461896836934-ffe607ba6851?w=800&h=600&fit=crop',story:"Support Team Beta's travel to nationals — transport, lodging, and entry fees.",code:'TEAMBETA',organizer:'Coach Lee'},
-{id:'sample_marilynn',title:'Rally for Marilynn Mee',desc:'Critical cancer care for a community legend.',raised:5049,goal:100000,category:'medical',image:'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=800&h=600&fit=crop',story:'Help cover critical cancer care for Milwaukee radio legend Marilynn Mee.',code:'MARILYNN',organizer:'Friends of Marilynn'},
-{id:'sample_john',title:"John's Surgery Fund",desc:'Unexpected surgery and recovery costs.',raised:2350,goal:5000,category:'medical',image:'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&h=600&fit=crop',story:'John faces unexpected surgery bills. Your support helps cover medical expenses and recovery.',code:'JOHNSURGERY',organizer:'John Family'},
-{id:'sample_community',title:'Rebuild Our Community Center',desc:'Repairs after flood damage — space for kids and seniors.',raised:8750,goal:25000,category:'community',image:'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800&h=600&fit=crop',story:'Flood damaged our neighborhood center. Funds restore the hall used for youth programs and senior meals.',code:'COMMUNITY',organizer:'Neighborhood Collective'},
-{id:'sample_memorial',title:'In Memory of Elena – Family Support',desc:'Help Elena\'s family with funeral and living costs.',raised:6200,goal:15000,category:'memorial',image:'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800&h=600&fit=crop',story:'Elena left us too soon. This fund helps her family with memorial costs and short-term living expenses.',code:'ELENA',organizer:'Elena Family Friends'},
-{id:'sample_finley',title:"Support Finley's Fight for Health",desc:'Congestive heart failure — intensive vet care.',raised:615,goal:2800,category:'animals',image:'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800&h=600&fit=crop',story:'Finley is hospitalized with congestive heart failure. Treatment costs are rising fast — help bring him home.',code:'FINLEY',organizer:'Ava S.'}
-];
+if(typeof SAMPLES==="undefined") var SAMPLES=[];
 function user(){try{return JSON.parse(localStorage.getItem('hopeforus_user')||'null')}catch(e){return null}}
 function camps(){try{return JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){return[]}}
 function esc(s){return String(s||'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>')}
@@ -213,7 +180,7 @@ function esc(s){return String(s||'').replace(/&/g,'&').replace(/</g,'<').replace
   if(u&&u.email){
     var n=(u.name||u.email.split('@')[0]||'You').trim().split(' ')[0];
     box.innerHTML='<a href="dashboard.html" class="user-chip"><span>'+esc(n)+'</span><span class="uav">'+esc(n.charAt(0).toUpperCase())+'</span></a><button type="button" class="icon-btn" id="menuBtn" aria-label="Menu"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>';
-    document.getElementById('menuPanel').innerHTML='<a href="dashboard.html">Dashboard</a><a href="create-campaign.html">Start a campaign</a><a href="#campaigns">Browse</a><a href="#how">How it works</a><a href="#" id="lo">Log out</a>';
+    document.getElementById('menuPanel').innerHTML='<a href="dashboard.html">Dashboard</a><a href="create-campaign.html">Start a campaign</a><a href="#campaigns">Browse</a><a href="#" id="lo">Log out</a>';
     document.getElementById('lo').onclick=function(e){e.preventDefault();localStorage.removeItem('hopeforus_user');location.reload()};
   }else{
     box.innerHTML='<a href="login.html" class="nav-link desk-only">Sign in</a><a href="create-campaign.html" class="btn-outline desk-only">Start a HopeForUs</a><a href="signup.html" class="btn-green mob-only">Sign up</a><button type="button" class="icon-btn" id="menuBtn" aria-label="Menu"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>';
@@ -221,14 +188,14 @@ function esc(s){return String(s||'').replace(/&/g,'&').replace(/</g,'<').replace
   document.getElementById('menuBtn').onclick=function(){document.getElementById('drawer').classList.add('open')};
   document.getElementById('drawer').onclick=function(e){if(e.target===this)this.classList.remove('open')};
 })();
-function ensure(){var list=camps(),ids=list.map(function(x){return x.id});SAMPLES.forEach(function(s){if(ids.indexOf(s.id)===-1)list.push({id:s.id,title:s.title,goal:s.goal,raised:s.raised,code:s.code,story:s.story,category:s.category,cover:null,media:[],organizer:s.organizer||'HopeForUs Community',image:s.image})});try{localStorage.setItem('hopeforus_campaigns',JSON.stringify(list))}catch(e){}}
+function ensure(){var list=camps(),ids=list.map(function(x){return x.id});SAMPLES.forEach(function(s){if(ids.indexOf(s.id)===-1)list.push({id:s.id,title:s.title,goal:s.goal,raised:s.raised,code:s.code,story:s.story,category:s.category,cover:null,media:s.media||[],organizer:s.organizer||'HopeForUs Community',image:s.image})});try{localStorage.setItem('hopeforus_campaigns',JSON.stringify(list))}catch(e){}}
 function card(c,isU){
   var r=c.raised||0,g=c.goal||1,p=Math.min(100,Math.round(r/g*100));
   var href='campaign.html?id='+encodeURIComponent(c.id);
   var img='';
   if(isU&&c.cover&&c.cover.dataUrl&&(!c.cover.type||c.cover.type.indexOf('video')!==0))img='<img src="'+c.cover.dataUrl+'" alt="">';
   else if(c.image)img='<img src="'+c.image+'" alt="" loading="lazy">';
-  else img='<div style="height:100%;background:linear-gradient(135deg,#02a95c,#016b3a);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;padding:12px;text-align:center">'+(c.title||'').slice(0,28)+'</div>';
+  else return '';
   return '<a href="'+href+'" class="card" data-c="'+(c.category||'')+'" data-t="'+(c.title||'').toLowerCase()+'"><div class="card-img">'+img+'</div><div class="card-b"><h3 class="card-t">'+esc(c.title)+'</h3><p class="card-d">'+esc(c.desc||(c.story||'').slice(0,90))+'</p><div class="bar"><div class="fill" style="width:'+p+'%"></div></div><div class="meta"><span><strong>$'+Number(r).toLocaleString()+'</strong> raised</span><span>$'+Number(g).toLocaleString()+'</span></div></div></a>';
 }
 function render(){
