@@ -4,9 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HopeForUs</title>
-<link rel="stylesheet" href="style.css">
-<style>body{display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:Inter,sans-serif;color:#1a1a1a}
-.box{text-align:center;padding:32px}.logo{width:180px;margin:0 auto 20px}</style>
+<style>body{display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:Inter,-apple-system,sans-serif;color:#1a1a1a}.box{text-align:center;padding:32px}.logo{width:180px;margin:0 auto 20px}</style>
 </head>
 <body>
 <div class="box">
@@ -22,7 +20,12 @@
   var list=[];try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
   var found=list.find(function(c){return (c.code||'').toUpperCase()===code||c.id===code});
   if(found){location.replace('campaign.html?id='+encodeURIComponent(found.id));return}
-  var samples={MARILYNN:'sample_marilynn',JOHNSURGERY:'sample_john',TEAMBETA:'sample_team',MARIA:'sample_maria',LUNA:'sample_pet',MAYA:'sample_edu'};
+  var samples={
+    CHARLIE:'sample_charlie',SARAH:'sample_sarah',HANS:'sample_hans',MARY:'sample_mary',
+    LUNA:'sample_luna',MAYA:'sample_maya',MADISON:'sample_madison',MARIA:'sample_maria',
+    TEAMBETA:'sample_team',MARILYNN:'sample_marilynn',JOHNSURGERY:'sample_john',
+    COMMUNITY:'sample_community',ELENA:'sample_memorial',FINLEY:'sample_finley'
+  };
   if(samples[code]){location.replace('campaign.html?id='+samples[code]);return}
   document.getElementById('msg').innerHTML='Campaign <strong>'+code+'</strong> not found on this device. <a href="index.html">Browse campaigns</a>';
 })();
