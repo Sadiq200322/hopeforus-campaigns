@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HopeForUs</title>
+<link rel="stylesheet" href="style.css">
+<style>body{display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:Inter,sans-serif;color:#1a1a1a}
+.box{text-align:center;padding:32px}.logo{width:180px;margin:0 auto 20px}</style>
+</head>
+<body>
+<div class="box">
+<img class="logo" src="logo.svg" alt="HopeForUs">
+<p id="msg">Opening campaign…</p>
+</div>
+<script>
+(function(){
+  var params=new URLSearchParams(location.search);
+  var code=(params.get('c')||params.get('code')||'').trim().toUpperCase();
+  if(!code&&location.hash)code=location.hash.replace(/^#/,'').trim().toUpperCase();
+  if(!code){document.getElementById('msg').innerHTML='Missing campaign code. <a href="index.html">Home</a>';return}
+  var list=[];try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
+  var found=list.find(function(c){return (c.code||'').toUpperCase()===code||c.id===code});
+  if(found){location.replace('campaign.html?id='+encodeURIComponent(found.id));return}
+  var samples={MARILYNN:'sample_marilynn',JOHNSURGERY:'sample_john',TEAMBETA:'sample_team',MARIA:'sample_maria',LUNA:'sample_pet',MAYA:'sample_edu'};
+  if(samples[code]){location.replace('campaign.html?id='+samples[code]);return}
+  document.getElementById('msg').innerHTML='Campaign <strong>'+code+'</strong> not found on this device. <a href="index.html">Browse campaigns</a>';
+})();
+</script>
+</body>
+</html>

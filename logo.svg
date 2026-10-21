@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 48" fill="none">
+  <g transform="translate(24,24)">
+    <circle cx="0" cy="0" r="10" fill="#02a95c"/>
+    <g stroke="#02a95c" stroke-width="2.2" stroke-linecap="round">
+      <line x1="0" y1="-14" x2="0" y2="-18"/>
+      <line x1="0" y1="14" x2="0" y2="18"/>
+      <line x1="-14" y1="0" x2="-18" y2="0"/>
+      <line x1="14" y1="0" x2="18" y2="0"/>
+      <line x1="-9.9" y1="-9.9" x2="-12.7" y2="-12.7"/>
+      <line x1="9.9" y1="9.9" x2="12.7" y2="12.7"/>
+      <line x1="9.9" y1="-9.9" x2="12.7" y2="-12.7"/>
+      <line x1="-9.9" y1="9.9" x2="-12.7" y2="12.7"/>
+    </g>
+    <text x="0" y="4" text-anchor="middle" fill="#fff" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="11">H</text>
+  </g>
+  <text x="52" y="31" fill="#02a95c" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="22" letter-spacing="-0.5">HopeForUs</text>
+</svg>
