@@ -10,7 +10,7 @@
 body{margin:0;font-family:Inter,-apple-system,sans-serif;background:#fff;color:var(--black)}
 .hdr{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid #eee;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
 .logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--black);font-weight:800;font-size:1.15rem}
-.mark{width:28px;height:28px;background:var(--g);border-radius:8px;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.logo img{display:block;width:32px;height:32px}
 .hdr-r{display:flex;align-items:center;gap:6px}
 .hdr-r a{font-size:.9rem;font-weight:600;color:var(--black);text-decoration:none;padding:8px 10px}
 .pill{background:var(--g);color:#fff!important;border-radius:999px;padding:8px 14px!important;font-size:.85rem}
@@ -60,7 +60,7 @@ body{margin:0;font-family:Inter,-apple-system,sans-serif;background:#fff;color:v
 <body>
 <header class="hdr">
 <button type="button" class="icon-btn" aria-label="Search" onclick="document.getElementById('q').focus()"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="7"/><path d="M15 15l5 5"/></svg></button>
-<a href="index.html" class="logo"><span class="mark">H</span> HopeForUs</a>
+<a href="index.html" class="logo"><img src="logo-mark.svg" alt="HopeForUs" width="32" height="32"> HopeForUs</a>
 <div class="hdr-r" id="hdrAuth"></div>
 </header>
 <div class="drawer" id="drawer"><div class="panel" id="menuPanel">
@@ -107,12 +107,12 @@ body{margin:0;font-family:Inter,-apple-system,sans-serif;background:#fff;color:v
 </footer>
 <script>
 var SAMPLES=[
-{id:'sample_marilynn',title:'Rally for Marilynn Mee',desc:'Help cover critical cancer care.',raised:5049,goal:100000,category:'medical',image:'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&h=400&fit=crop',story:'Help cover critical cancer care for Milwaukee radio legend Marilynn Mee.'},
-{id:'sample_john',title:"John's Surgery Fund",desc:'Help John cover medical expenses.',raised:2350,goal:5000,category:'medical',image:'https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=600&h=400&fit=crop',story:'Help John cover medical expenses from unexpected surgery.'},
-{id:'sample_team',title:'Team Beta Travel Fund',desc:"Support Team Beta's travel to nationals.",raised:1300,goal:2000,category:'travel',image:'https://images.unsplash.com/photo-1461896836934-ffe607ba6851?w=600&h=400&fit=crop',story:"Support Team Beta's travel to nationals."},
-{id:'sample_maria',title:"Maria's Emergency Fund",desc:'Home repairs after storm damage.',raised:1150,goal:5000,category:'emergency',image:'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop',story:'Home repairs after storm damage.'},
-{id:'sample_pet',title:'Emergency surgery for Luna',desc:'Luna needs urgent surgery.',raised:3200,goal:4500,category:'animals',image:'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=400&fit=crop',story:'Luna needs surgery after a car accident.'},
-{id:'sample_edu',title:'Help Maya finish nursing school',desc:'Final semester tuition.',raised:4100,goal:8000,category:'education',image:'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&h=400&fit=crop',story:'Maya is one semester from graduating nursing school.'}
+{id:'sample_marilynn',title:'Rally for Marilynn Mee',desc:'Help cover critical cancer care.',raised:5049,goal:100000,category:'medical',image:'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&h=400&fit=crop',story:'Help cover critical cancer care for Milwaukee radio legend Marilynn Mee.',code:'MARILYNN'},
+{id:'sample_john',title:"John's Surgery Fund",desc:'Help John cover medical expenses.',raised:2350,goal:5000,category:'medical',image:'https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=600&h=400&fit=crop',story:'Help John cover medical expenses from unexpected surgery.',code:'JOHNSURGERY'},
+{id:'sample_team',title:'Team Beta Travel Fund',desc:"Support Team Beta's travel to nationals.",raised:1300,goal:2000,category:'travel',image:'https://images.unsplash.com/photo-1461896836934-ffe607ba6851?w=600&h=400&fit=crop',story:"Support Team Beta's travel to nationals.",code:'TEAMBETA'},
+{id:'sample_maria',title:"Maria's Emergency Fund",desc:'Home repairs after storm damage.',raised:1150,goal:5000,category:'emergency',image:'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop',story:'Home repairs after storm damage.',code:'MARIA'},
+{id:'sample_pet',title:'Emergency surgery for Luna',desc:'Luna needs urgent surgery.',raised:3200,goal:4500,category:'animals',image:'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=400&fit=crop',story:'Luna needs surgery after a car accident.',code:'LUNA'},
+{id:'sample_edu',title:'Help Maya finish nursing school',desc:'Final semester tuition.',raised:4100,goal:8000,category:'education',image:'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&h=400&fit=crop',story:'Maya is one semester from graduating nursing school.',code:'MAYA'}
 ];
 function user(){try{return JSON.parse(localStorage.getItem('hopeforus_user')||'null')}catch(e){return null}}
 function camps(){try{return JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){return[]}}
@@ -130,7 +130,7 @@ function esc(s){return String(s||'').replace(/&/g,'&').replace(/</g,'<').replace
   document.getElementById('menuBtn').onclick=function(){document.getElementById('drawer').classList.add('open')};
   document.getElementById('drawer').onclick=function(e){if(e.target===this)this.classList.remove('open')};
 })();
-function ensure(){var list=camps(),ids=list.map(function(x){return x.id});SAMPLES.forEach(function(s){if(ids.indexOf(s.id)===-1)list.push({id:s.id,title:s.title,goal:s.goal,raised:s.raised,code:s.id.replace('sample_','').toUpperCase(),story:s.story,category:s.category,cover:null,media:[],organizer:'HopeForUs Community',image:s.image})});try{localStorage.setItem('hopeforus_campaigns',JSON.stringify(list))}catch(e){}}
+function ensure(){var list=camps(),ids=list.map(function(x){return x.id});SAMPLES.forEach(function(s){if(ids.indexOf(s.id)===-1)list.push({id:s.id,title:s.title,goal:s.goal,raised:s.raised,code:s.code||s.id.replace('sample_','').toUpperCase(),story:s.story,category:s.category,cover:null,media:[],organizer:'HopeForUs Community',image:s.image})});try{localStorage.setItem('hopeforus_campaigns',JSON.stringify(list))}catch(e){}}
 function card(c,isU){
   var r=c.raised||0,g=c.goal||1,p=Math.min(100,Math.round(r/g*100));
   var href='campaign.html?id='+encodeURIComponent(c.id);
