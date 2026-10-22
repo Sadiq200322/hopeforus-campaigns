@@ -4,67 +4,80 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Sign up – HopeForUs</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,-apple-system,sans-serif;background:#f7f7f7;min-height:100vh;display:flex;flex-direction:column;color:#1a1a1a}
+.top{padding:16px 20px;background:#fff;border-bottom:1px solid #eee;text-align:center}
+.top a{font-weight:800;text-decoration:none;color:#1a1a1a;display:inline-flex;align-items:center;gap:8px}
+.wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.card{background:#fff;border-radius:16px;padding:28px 24px;width:100%;max-width:400px;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:6px;letter-spacing:-.02em}
+.sub{color:#5c5c5c;font-size:.95rem;margin-bottom:22px}
+label{display:block;font-size:.85rem;font-weight:600;margin-bottom:6px}
+input{width:100%;padding:14px 14px;border:1.5px solid #e0e0e0;border-radius:12px;font-size:1rem;font-family:inherit;margin-bottom:14px}
+input:focus{outline:none;border-color:#02a95c}
+.btn{width:100%;padding:14px;border:none;border-radius:999px;background:#02a95c;color:#fff;font-weight:700;font-size:1rem;cursor:pointer;margin-top:6px}
+.err{color:#c0392b;font-size:.85rem;margin-bottom:10px;display:none}
+.ok{color:#016b3a;font-size:.85rem;margin-bottom:10px;display:none}
+.hint{background:#e6f7ef;border-radius:12px;padding:12px;font-size:.85rem;margin-bottom:14px;display:none;line-height:1.4}
+.foot{text-align:center;margin-top:18px;font-size:.9rem;color:#5c5c5c}
+.foot a{color:#02a95c;font-weight:600;text-decoration:none}
+.step2{display:none}
+</style>
 </head>
 <body>
-<header class="site-header">
-  <div class="header-inner">
-    <a href="index.html" class="logo"><span class="logo-icon">H</span> HopeForUs</a>
-    <nav class="nav">
-      <a href="login.html" class="nav-link">Log in</a>
-    </nav>
-  </div>
-</header>
-<main class="auth-page">
-  <div class="auth-card fade-up">
-    <div class="form-card">
-      <h1>Join HopeForUs</h1>
-      <p class="sub">Create an account to start fundraising</p>
-      <div id="msg" class="auth-message" style="display:none"></div>
-      <form id="signupForm">
-        <div class="form-group">
-          <label for="name">Full name</label>
-          <input type="text" id="name" placeholder="Your name" required autocomplete="name">
-        </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="you@email.com" required autocomplete="email">
-        </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" placeholder="At least 4 characters" required minlength="4" autocomplete="new-password">
-        </div>
-        <button type="submit" class="btn btn-primary btn-block btn-lg">Create account</button>
-      </form>
-      <p class="auth-footer">Already have an account? <a href="login.html">Log in</a></p>
+<div class="top"><a href="index.html"><img src="logo-mark.svg" width="28" height="28" alt=""> HopeForUs</a></div>
+<div class="wrap">
+  <div class="card">
+    <div class="step1" id="step1">
+      <h1>Create your account</h1>
+      <p class="sub">We'll send a verification code to your email.</p>
+      <div class="err" id="err1"></div>
+      <label>Full name</label>
+      <input id="name" autocomplete="name" placeholder="Your name">
+      <label>Email</label>
+      <input id="email" type="email" autocomplete="email" placeholder="you@email.com">
+      <label>Password</label>
+      <input id="pass" type="password" autocomplete="new-password" placeholder="At least 6 characters">
+      <button class="btn" id="btn1" type="button">Continue</button>
+      <p class="foot">Already have an account? <a href="login.html">Log in</a></p>
+    </div>
+    <div class="step2" id="step2">
+      <h1>Verify your email</h1>
+      <p class="sub">Enter the 6-digit code for <strong id="showEmail"></strong></p>
+      <div class="hint" id="demoCode"></div>
+      <div class="err" id="err2"></div>
+      <div class="ok" id="ok2"></div>
+      <label>Verification code</label>
+      <input id="code" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code">
+      <button class="btn" id="btn2" type="button">Verify & create account</button>
+      <p class="foot"><a href="#" id="back">← Back</a></p>
     </div>
   </div>
-</main>
+</div>
+<script src="app.js"></script>
 <script>
-document.getElementById('signupForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  var name = document.getElementById('name').value.trim();
-  var email = document.getElementById('email').value.trim().toLowerCase();
-  var pass = document.getElementById('password').value;
-  var msg = document.getElementById('msg');
-  var users = JSON.parse(localStorage.getItem('hopeforus_users') || '[]');
-  if (users.some(function(u) { return u.email === email; })) {
-    msg.className = 'auth-message error';
-    msg.style.display = 'block';
-    msg.textContent = 'That email is already registered. Try logging in.';
-    return;
-  }
-  users.push({ name: name, email: email, password: pass });
-  localStorage.setItem('hopeforus_users', JSON.stringify(users));
-  localStorage.setItem('hopeforus_user', JSON.stringify({ name: name, email: email }));
-  msg.className = 'auth-message success';
-  msg.style.display = 'block';
-  msg.textContent = 'Account created! Opening your dashboard…';
-  setTimeout(function() { location.href = 'dashboard.html'; }, 600);
-});
+document.getElementById('btn1').onclick=function(){
+  var err=document.getElementById('err1');err.style.display='none';
+  var r=HF.startSignup(document.getElementById('name').value,document.getElementById('email').value,document.getElementById('pass').value);
+  if(!r.ok){err.textContent=r.err;err.style.display='block';return}
+  document.getElementById('step1').style.display='none';
+  document.getElementById('step2').style.display='block';
+  document.getElementById('showEmail').textContent=r.email;
+  var h=document.getElementById('demoCode');
+  h.style.display='block';
+  h.innerHTML='<strong>Demo mode:</strong> your code is <strong style="font-size:1.2rem;letter-spacing:.1em">'+r.code+'</strong> (production would email this).';
+};
+document.getElementById('btn2').onclick=function(){
+  var err=document.getElementById('err2');err.style.display='none';
+  var r=HF.verifySignup(document.getElementById('code').value);
+  if(!r.ok){err.textContent=r.err;err.style.display='block';return}
+  document.getElementById('ok2').style.display='block';
+  document.getElementById('ok2').textContent='Account created! Redirecting…';
+  setTimeout(function(){location.href='dashboard.html'},600);
+};
+document.getElementById('back').onclick=function(e){e.preventDefault();document.getElementById('step2').style.display='none';document.getElementById('step1').style.display='block'};
 </script>
 </body>
 </html>
