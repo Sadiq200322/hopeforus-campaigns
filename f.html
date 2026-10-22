@@ -4,30 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HopeForUs</title>
-<style>body{display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:Inter,-apple-system,sans-serif;color:#1a1a1a}.box{text-align:center;padding:32px}.logo{width:180px;margin:0 auto 20px}</style>
+<style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;color:#1a1a1a;background:#fff}.box{text-align:center;padding:24px}a{color:#02a95c;font-weight:600}</style>
 </head>
 <body>
-<div class="box">
-<img class="logo" src="logo.svg" alt="HopeForUs">
-<p id="msg">Opening campaign…</p>
-</div>
+<div class="box" id="msg">Opening fundraiser…</div>
+<script src="app.js"></script>
+<script src="campaigns-data.js"></script>
 <script>
 (function(){
-  var params=new URLSearchParams(location.search);
-  var code=(params.get('c')||params.get('code')||'').trim().toUpperCase();
-  if(!code&&location.hash)code=location.hash.replace(/^#/,'').trim().toUpperCase();
-  if(!code){document.getElementById('msg').innerHTML='Missing campaign code. <a href="index.html">Home</a>';return}
+  var code=(new URLSearchParams(location.search).get('c')||'').toUpperCase().trim();
+  if(!code){document.getElementById('msg').innerHTML='Invalid link. <a href="index.html">Home</a>';return}
+  try{HF.trackClick(code)}catch(e){}
   var list=[];try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
-  var found=list.find(function(c){return (c.code||'').toUpperCase()===code||c.id===code});
-  if(found){location.replace('campaign.html?id='+encodeURIComponent(found.id));return}
-  var samples={
-    CHARLIE:'sample_charlie',SARAH:'sample_sarah',HANS:'sample_hans',MARY:'sample_mary',
-    LUNA:'sample_luna',MAYA:'sample_maya',MADISON:'sample_madison',MARIA:'sample_maria',
-    TEAMBETA:'sample_team',MARILYNN:'sample_marilynn',JOHNSURGERY:'sample_john',
-    COMMUNITY:'sample_community',ELENA:'sample_memorial',FINLEY:'sample_finley'
-  };
-  if(samples[code]){location.replace('campaign.html?id='+samples[code]);return}
-  document.getElementById('msg').innerHTML='Campaign <strong>'+code+'</strong> not found on this device. <a href="index.html">Browse campaigns</a>';
+  var c=list.find(function(x){return (x.code||'').toUpperCase()===code || String(x.id).toUpperCase()===code});
+  if(!c && typeof SAMPLES!=='undefined'){
+    var s=SAMPLES.find(function(x){return (x.code||'').toUpperCase()===code || String(x.id).toUpperCase()===code || String(x.id).toUpperCase()==='SAMPLE_'+code});
+    if(s){location.replace('campaign.html?id='+encodeURIComponent(s.id)+'&from=share');return}
+  }
+  if(c){location.replace('campaign.html?id='+encodeURIComponent(c.id)+'&from=share');return}
+  document.getElementById('msg').innerHTML='Fundraiser not found for <strong>'+code+'</strong>. <a href="index.html">Browse campaigns</a>';
 })();
 </script>
 </body>
