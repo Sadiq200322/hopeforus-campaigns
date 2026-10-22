@@ -1,1 +1,156 @@
-PLACEHOLDER_WILL_FAIL
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Campaign – HopeForUs</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:hidden;max-width:100vw}
+body{font-family:'Inter',system-ui,sans-serif;color:#1a1a1a;background:#fff;line-height:1.5}
+a{color:inherit;text-decoration:none}img,video{max-width:100%;display:block}
+.wrap{max-width:1100px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right)) 80px max(16px,env(safe-area-inset-left))}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #eee;position:sticky;top:0;background:#fff;z-index:50}
+.logo{font-weight:800;font-size:1.1rem;display:flex;align-items:center;gap:8px}
+.logo img{width:28px;height:28px}
+.grid{display:grid;gap:24px}
+@media(min-width:900px){.grid{grid-template-columns:1fr 340px;gap:32px}.sticky{position:sticky;top:72px}}
+.gallery{position:relative;border-radius:16px;overflow:hidden;background:#e8e8e8;aspect-ratio:16/10;max-width:100%}
+.gallery img,.gallery video{width:100%;height:100%;object-fit:cover;display:block}
+.gallery .slide-fade{animation:galFade .4s ease}
+@keyframes galFade{from{opacity:.3}to{opacity:1}}
+.gallery video{background:#000}
+.gallery .ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;padding:20px;text-align:center}
+.gallery .dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px}
+.gallery .dots span{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.45)}
+.gallery .dots span.on{background:#fff}
+.gallery .nav-btn{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,.92);cursor:pointer;font-size:1.2rem}
+.gallery .nav-btn.prev{left:10px}.gallery .nav-btn.next{right:10px}
+.thumbs{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:8px 0;scrollbar-width:none}
+.thumbs::-webkit-scrollbar{display:none}
+.thumbs button{flex:0 0 64px;width:64px;height:48px;border-radius:8px;overflow:hidden;border:2px solid transparent;padding:0;background:#eee;cursor:pointer}
+.thumbs button.on{border-color:#7C3AED}
+.thumbs img,.thumbs video{width:100%;height:100%;object-fit:cover;display:block}
+h1{font-size:clamp(1.35rem,4vw,1.85rem);font-weight:800;line-height:1.2;margin:12px 0 8px;word-break:break-word}
+.meta{color:#5c5c5c;font-size:.9rem;margin-bottom:12px}
+.story{font-size:.95rem;color:#333;white-space:pre-wrap;word-break:break-word}
+.story.collapsed{max-height:120px;overflow:hidden}
+.card{border:1px solid #e5e5e5;border-radius:16px;padding:20px;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.06)}
+.amt{font-size:1.5rem;font-weight:800}
+.bar{height:8px;background:#eee;border-radius:99px;overflow:hidden;margin:10px 0}
+.fill{height:100%;background:#00a964;border-radius:99px}
+.btn-d{display:block;width:100%;text-align:center;background:#7C3AED;color:#fff;font-weight:700;padding:14px;border-radius:999px;border:0;cursor:pointer;font-size:1rem;margin:12px 0 8px}
+.btn-s{display:block;width:100%;text-align:center;background:#fff;color:#7C3AED;font-weight:700;padding:12px;border-radius:999px;border:2px solid #7C3AED;cursor:pointer}
+.mbar{display:none;position:fixed;bottom:0;left:0;right:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #eee;gap:10px;z-index:60}
+.mbar .btn-d,.mbar .btn-s{margin:0;flex:1}
+@media(max-width:899px){.mbar{display:flex}.card .btn-d,.card .btn-s{display:none}}
+.upd{border-top:1px solid #f0f0f0;padding:14px 0}
+.dt{font-size:.8rem;color:#888;margin-bottom:4px}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <a href="index.html" class="logo"><img src="logo-mark.svg" alt=""> HopeForUs</a>
+  <a href="index.html" style="font-weight:600;font-size:.9rem">← Home</a>
+</header>
+<div class="wrap" id="page"></div>
+<div class="mbar" id="mbar">
+  <button type="button" class="btn-d" id="mDonate">Donate now</button>
+  <button type="button" class="btn-s" id="mShare">Share</button>
+</div>
+<script src="campaigns-data.js"></script>
+<script src="app.js"></script>
+<script>
+if(typeof SAMPLES==="undefined")var SAMPLES=[];
+function getId(){var q=new URLSearchParams(location.search);return q.get("id")||q.get("c")||""}
+function loadList(){try{return JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")}catch(e){return[]}}
+function saveList(list){localStorage.setItem("hopeforus_campaigns",JSON.stringify(list))}
+function findC(id){
+  var list=loadList(),map={};list.forEach(function(c,i){if(c&&c.id)map[c.id]=i});
+  SAMPLES.forEach(function(s){
+    if(map[s.id]===undefined)list.push(Object.assign({},s));
+    else{
+      var cur=list[map[s.id]]||{};
+      list[map[s.id]]=Object.assign({},cur,s,{media:(cur.media&&cur.media.length)?cur.media:s.media,image:cur.image||s.image,category:s.category||cur.category});
+    }
+  });
+  try{saveList(list)}catch(e){}
+  var c=list.find(function(x){return x&&(x.id===id||x.code===id)});
+  if(!c)c=SAMPLES.find(function(x){return x.id===id||x.code===id});
+  return c?{c:c,list:list}:null;
+}
+function pct(r,g){return g?Math.min(100,Math.round(r/g*100)):0}
+function esc(s){return String(s||"").replace(/&/g,"&").replace(/</g,"<").replace(/>/g,">").replace(/"/g,""")}
+function fmt(iso){try{return new Date(iso).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})}catch(e){return""}}
+function money(n,c){c=c||"USD";var s=Number(n||0).toLocaleString();return c==="EUR"?"€"+s:c==="GBP"?"£"+s:"$"+s}
+var id=getId(),found=findC(id),user=null,updatePhoto=null,gIdx=0,gItems=[];
+try{user=JSON.parse(localStorage.getItem("hopeforus_user")||"null")}catch(e){}
+if(!found){document.getElementById("page").innerHTML="<p style=\"padding:40px 0\">Campaign not found. <a href=\"index.html\">Home</a></p>"}else{render(found)}
+function render(found){
+  var c=found.c;document.title=(c.title||"Campaign")+" – HopeForUs";
+  var raised=Number(c.raised)||0,goal=Number(c.goal)||1,p=pct(raised,goal);
+  gItems=[];
+  if(c.cover&&c.cover.dataUrl)gItems.push(c.cover);
+  else if(c.image)gItems.push({type:"image",dataUrl:c.image});
+  if(c.media)c.media.forEach(function(m){
+    if(!m)return;
+    if(typeof m==="string"){gItems.push({type:"image",dataUrl:m});return;}
+    if(m.dataUrl)gItems.push(m);
+    else if(m.url)gItems.push({type:m.type||"image",dataUrl:m.url});
+  });
+  if(gIdx>=gItems.length)gIdx=0;
+  var cover=gItems.length?(function(){
+    var g=gItems[gIdx];
+    if(g.type&&String(g.type).indexOf("video")===0){
+      return '<video class="slide-fade" src="'+g.dataUrl+'" autoplay muted loop playsinline webkit-playsinline preload="auto" style="width:100%;height:100%;object-fit:cover"></video>';
+    }
+    return '<img class="slide-fade" src="'+g.dataUrl+'" alt="" loading="eager" decoding="async">';
+  })():'<div class="ph" style="background:linear-gradient(135deg,#7C3AED,#4C1D95)">'+esc((c.title||"").slice(0,40))+'</div>';
+  var dots="",nav="",thumbs="";
+  if(gItems.length>1){
+    dots='<div class="dots">'+gItems.map(function(_,i){return '<span class="'+(i===gIdx?'on':'')+'"></span>'}).join('')+'</div>';
+    nav='<button type="button" class="nav-btn prev" id="galPrev">‹</button><button type="button" class="nav-btn next" id="galNext">›</button>';
+    thumbs='<div class="thumbs" id="thumbs">'+gItems.map(function(m,i){
+      var inn=(m.type&&String(m.type).indexOf("video")===0)?'<video src="'+m.dataUrl+'" muted></video>':'<img src="'+m.dataUrl+'" alt="" loading="lazy">';
+      return '<button type="button" class="'+(i===gIdx?'on':'')+'" data-i="'+i+'">'+inn+'</button>';
+    }).join('')+'</div>';
+  }
+  var html='<div class="grid"><div><div class="gallery">'+cover+dots+nav+'</div>'+thumbs+
+    '<h1>'+esc(c.title)+'</h1><div class="meta">Organized by '+esc(c.organizer||'Organizer')+(c.category?' · '+esc(c.category):'')+'</div>'+
+    '<div class="story" id="storyBlock">'+esc(c.story||'')+'</div></div>'+
+    '<div class="sticky"><div class="card"><div class="amt">'+money(raised,c.currency)+' raised</div>'+
+    '<div class="bar"><div class="fill" style="width:'+p+'%"></div></div>'+
+    '<div style="font-size:.9rem;color:#5c5c5c">'+p+'% of '+money(goal,c.currency)+' goal · '+(c.donations||0)+' donations</div>'+
+    '<button type="button" class="btn-d" id="donateBtn">Donate now</button>'+
+    '<button type="button" class="btn-s" id="shareBtn">Share</button></div></div></div>';
+  document.getElementById("page").innerHTML=html;
+  var d1=document.getElementById("donateBtn"),d2=document.getElementById("mDonate");
+  function openDonate(){alert("Donate flow: add your tip code in the message when you give. Opening tip page…");window.open("https://kickbot.com/tips/HopeForUs","_blank","noopener")}
+  if(d1)d1.onclick=openDonate;if(d2)d2.onclick=openDonate;
+  function doShare(){
+    var url=location.href;
+    if(navigator.share){navigator.share({title:c.title,url:url}).catch(function(){});}
+    else if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){alert("Link copied!")});}
+    else{prompt("Copy link",url)}
+  }
+  var s1=document.getElementById("shareBtn"),s2=document.getElementById("mShare");
+  if(s1)s1.onclick=doShare;if(s2)s2.onclick=doShare;
+  if(window._galTimer){clearInterval(window._galTimer);window._galTimer=null;}
+  if(gItems.length>1){
+    document.getElementById("galPrev").onclick=function(){gIdx=(gIdx-1+gItems.length)%gItems.length;render(findC(id))};
+    document.getElementById("galNext").onclick=function(){gIdx=(gIdx+1)%gItems.length;render(findC(id))};
+    var th=document.getElementById("thumbs");
+    if(th)th.onclick=function(e){var b=e.target.closest("button[data-i]");if(!b)return;gIdx=+b.dataset.i;render(findC(id))};
+    window._galTimer=setInterval(function(){
+      if(document.hidden)return;
+      gIdx=(gIdx+1)%gItems.length;
+      render(findC(id));
+    },4000);
+  }
+  var gv=document.querySelector(".gallery video");
+  if(gv){gv.muted=true;gv.playsInline=true;var pr=gv.play();if(pr&&pr.catch)pr.catch(function(){});}
+}
+</script>
+</body>
+</html>
