@@ -1,15 +1,93 @@
-// HopeForUs sample campaigns – all with working photos
-var SAMPLES=[
-{id:'sample_charlie',title:"Save Charlie's Life – Emergency Surgery",desc:'Advanced tumors — urgent surgery and recovery.',raised:10437,goal:10000,category:'animals',image:'https://picsum.photos/seed/charlie1/800/600',media:['https://picsum.photos/seed/charlie1/800/600','https://picsum.photos/seed/charlie2/800/600'],story:'Charlie has advanced tumors and needs immediate surgery.',code:'CHARLIE',organizer:'Pamela F.'},
-{id:'sample_sarah',title:"Sarah's Fight for Life: Urgent Surgery",desc:'Life-saving surgery and follow-up care.',raised:21264,goal:50000,category:'medical',image:'https://picsum.photos/seed/sarah1/800/600',media:['https://picsum.photos/seed/sarah1/800/600','https://picsum.photos/seed/sarah2/800/600'],story:'Sarah is scheduled for life-saving surgery.',code:'SARAH',organizer:'Chad S.'},
-{id:'sample_hans',title:'Emergency Surgery for Hans',desc:'Twisted stomach — emergency vet surgery.',raised:2968,goal:5000,category:'animals',image:'https://picsum.photos/seed/hans1/800/600',media:['https://picsum.photos/seed/hans1/800/600','https://picsum.photos/seed/hans2/800/600'],story:'Hans needs emergency surgery.',code:'HANS',organizer:'Jenna E.'},
-{id:'sample_mary',title:"Mary's Urgent Surgery and Hospital Care",desc:'Emergency surgery and hospital stay.',raised:5115,goal:10000,category:'medical',image:'https://picsum.photos/seed/mary1/800/600',media:['https://picsum.photos/seed/mary1/800/600','https://picsum.photos/seed/mary2/800/600'],story:'Mary needs emergency surgery.',code:'MARY',organizer:'Mary P.'},
-{id:'sample_luna',title:'Emergency surgery for Luna',desc:'Hit by a car — specialist surgery.',raised:3200,goal:4500,category:'animals',image:'https://picsum.photos/seed/luna1/800/600',media:['https://picsum.photos/seed/luna1/800/600','https://picsum.photos/seed/luna2/800/600'],story:'Luna needs specialist surgery.',code:'LUNA',organizer:'Community'},
-{id:'sample_maya',title:'Help Maya finish nursing school',desc:'Final semester tuition and books.',raised:4100,goal:8000,category:'education',image:'https://picsum.photos/seed/maya1/800/600',media:['https://picsum.photos/seed/maya1/800/600','https://picsum.photos/seed/maya2/800/600'],story:'Maya is one semester from graduating.',code:'MAYA',organizer:'Maya K.'},
-{id:'sample_team',title:'Team Beta Travel Fund',desc:'Travel costs to national championships.',raised:1300,goal:2000,category:'sports',image:'https://picsum.photos/seed/team1/800/600',media:['https://picsum.photos/seed/team1/800/600','https://picsum.photos/seed/team2/800/600'],story:"Support Team Beta's travel to nationals.",code:'TEAMBETA',organizer:'Coach Lee'},
-{id:'sample_john',title:"John's Surgery Fund",desc:'Unexpected surgery and recovery costs.',raised:2350,goal:5000,category:'medical',image:'https://picsum.photos/seed/john1/800/600',media:['https://picsum.photos/seed/john1/800/600','https://picsum.photos/seed/john2/800/600'],story:'John faces unexpected surgery bills.',code:'JOHNSURGERY',organizer:'John Family'},
-{id:'sample_community',title:'Rebuild Our Community Center',desc:'Repairs after flood damage.',raised:8750,goal:25000,category:'community',image:'https://picsum.photos/seed/community1/800/600',media:['https://picsum.photos/seed/community1/800/600','https://picsum.photos/seed/community2/800/600'],story:'Flood damaged our neighborhood center.',code:'COMMUNITY',organizer:'Neighborhood'},
-{id:'sample_memorial',title:'In Memory of Elena – Family Support',desc:'Funeral and short-term living costs.',raised:6200,goal:15000,category:'memorial',image:'https://picsum.photos/seed/elena1/800/600',media:['https://picsum.photos/seed/elena1/800/600','https://picsum.photos/seed/elena2/800/600'],story:"Help Elena's family with memorial costs.",code:'ELENA',organizer:'Family Friends'},
-{id:'sample_finley',title:"Support Finley's Fight for Health",desc:'Congestive heart failure — intensive vet care.',raised:615,goal:2800,category:'animals',image:'https://picsum.photos/seed/finley1/800/600',media:['https://picsum.photos/seed/finley1/800/600','https://picsum.photos/seed/finley2/800/600'],story:'Finley is hospitalized with heart failure.',code:'FINLEY',organizer:'Ava S.'},
-{id:'sample_teddy',title:'Urgent Surgery to Save Puppy Teddy',desc:'8-month-old puppy needs emergency surgery.',raised:200,goal:1500,category:'animals',image:'https://picsum.photos/seed/teddy1/800/600',media:['https://picsum.photos/seed/teddy1/800/600','https://picsum.photos/seed/teddy2/800/600'],story:'Teddy needs emergency surgery within 48 hours.',code:'TEDDY',organizer:'Raven W.'}
+const SAMPLES = [
+  {
+    id: "plotzlich-papa",
+    title: "Plötzlich ohne Papa – Hilfe für eine werdende Mama & ihr Baby",
+    raised: 49324, goal: 65000, code: "PAPA26",
+    category: "memorial",
+    organizer: "Daniel Wagenbach",
+    story: "Our family needs support after an unexpected loss. Every contribution helps a young mother and her children through this difficult time.",
+    image: "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800&h=600&fit=crop",
+    media: [
+      "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1609220136736-443140cffec6?w=800&h=600&fit=crop"
+    ],
+    currency: "EUR", donations: 1705
+  },
+  {
+    id: "sebastian-heart",
+    title: "Help Save Sebastian's Life – Urgent Heart Surgery Needed",
+    raised: 319217, goal: 400000, code: "SEB26",
+    category: "medical",
+    organizer: "Chanie Silver",
+    story: "Sebastian needs life-saving heart surgery. Funds cover medical care, travel, and recovery.",
+    image: "https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800&h=600&fit=crop",
+    media: ["https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800&h=600&fit=crop"],
+    currency: "GBP", donations: 5231
+  },
+  {
+    id: "ellie-cagnolina",
+    title: "Aiutami a Guarire per tornare dalla mia cagnolina Ellie",
+    raised: 32250, goal: 50000, code: "ELLIE26",
+    category: "medical",
+    organizer: "Maria Rossi",
+    story: "Help me heal so I can return to my beloved dog Ellie.",
+    image: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800&h=600&fit=crop",
+    media: ["https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800&h=600&fit=crop"],
+    currency: "EUR", donations: 1376
+  },
+  {
+    id: "zeehonden",
+    title: "Red Zeehondencentrum Pieterburen – doneren nu!",
+    raised: 91405, goal: 120000, code: "SEAL26",
+    category: "animals",
+    organizer: "Zeehondencentrum",
+    story: "Support the seal rescue center so we can continue saving seals in need.",
+    image: "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=800&h=600&fit=crop",
+    media: ["https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=800&h=600&fit=crop"],
+    currency: "EUR", donations: 2840
+  },
+  {
+    id: "silver-rail",
+    title: "Support Family of Injured Silver Rail Child",
+    raised: 278364, goal: 350000, code: "RAIL26",
+    category: "emergency",
+    organizer: "Amy Reynolds",
+    story: "Standing with a family after tragedy. Donations support recovery and care.",
+    image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&h=600&fit=crop",
+    media: ["https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&h=600&fit=crop"],
+    currency: "USD", donations: 4100
+  },
+  {
+    id: "maya-nursing",
+    title: "Help Maya finish nursing school",
+    raised: 4100, goal: 8000, code: "MAYA26",
+    category: "education",
+    organizer: "Maya Chen",
+    story: "Support Maya as she completes her final year of nursing school.",
+    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=600&fit=crop",
+    media: ["https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=600&fit=crop"],
+    currency: "USD", donations: 89
+  },
+  {
+    id: "team-beta",
+    title: "Team Beta Travel Fund",
+    raised: 12500, goal: 20000, code: "BETA26",
+    category: "sports",
+    organizer: "Team Beta",
+    story: "Help our youth team travel to the national championship.",
+    image: "https://images.unsplash.com/photo-1461896836934-ffe607ba6851?w=800&h=600&fit=crop",
+    media: ["https://images.unsplash.com/photo-1461896836934-ffe607ba6851?w=800&h=600&fit=crop"],
+    currency: "USD", donations: 210
+  },
+  {
+    id: "community-kitchen",
+    title: "Rebuild our community kitchen after the fire",
+    raised: 18750, goal: 45000, code: "KITCH26",
+    category: "community",
+    organizer: "Neighborhood Collective",
+    story: "Our shared kitchen was destroyed. Help us rebuild a place for neighbors to cook and connect.",
+    image: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&h=600&fit=crop",
+    media: ["https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&h=600&fit=crop"],
+    currency: "USD", donations: 340
+  }
 ];
