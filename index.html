@@ -6,9 +6,11 @@
 <title>HopeForUs – Where successful fundraisers start</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="gfm-cards.css">
+<link rel="stylesheet" href="mobile.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--p:#7C3AED;--p-dark:#5B21B6;--p-deep:#4C1D95;--soft:#EDE9FE;--soft-t:#5B21B6;--yellow:#ffd863;--yellow-t:#3D2E00;--green:#00a964;--black:#1a1a1a;--muted:#5c5c5c;--border:#d8d8d8;--bg:#f7f7f7;--font:'Inter',system-ui,-apple-system,sans-serif;--step-ms:8000}
+html,body{overflow-x:hidden;max-width:100vw}
 body{font-family:var(--font);color:var(--black);background:#fff;line-height:1.45}
 a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 .hdr{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.98);border-bottom:1px solid #e8e8e8;height:64px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 16px}
@@ -66,49 +68,47 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 .srow h3{font-size:1.05rem;font-weight:700;margin:0 0 4px}
 .srow p{font-size:.9rem;color:var(--muted)}
 .srow a{color:var(--p);font-weight:600;font-size:.88rem}
-.disc{padding:5rem 0 6rem}.disc .in{max-width:1120px;margin:0 auto;padding:0 20px}
-.disc h2{font-size:clamp(1.25rem,3.2vw,1.5rem);font-weight:800;margin:0 0 14px;color:#232323}
-.disc-tools{display:flex;align-items:center;gap:12px;margin-bottom:20px;position:relative;z-index:20}
+.disc{padding:3.5rem 0 4rem}.disc .in{max-width:1120px;margin:0 auto;padding:0 16px}
+.disc h2{font-size:clamp(1.2rem,3.5vw,1.5rem);font-weight:800;margin:0 0 14px;color:#232323}
+.disc-tools{display:flex;align-items:center;gap:12px;margin-bottom:16px;position:relative;z-index:20}
 .pill{display:inline-flex;align-items:center;gap:6px;font-size:.875rem;font-weight:600;padding:8px 16px;border-radius:24px;border:1px solid var(--border);background:#fff;font-family:inherit;cursor:pointer}
 .pill.open{border-color:#bbb;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 .pill-menu{display:none;position:absolute;top:calc(100% + 8px);left:0;min-width:240px;background:#fff;border:1px solid #e8e8e8;border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.14);padding:8px;z-index:60}
 .pill-menu.open{display:block}
 .pill-menu button{display:block;width:100%;text-align:left;padding:12px 14px;border:0;background:0;font-family:inherit;font-size:.9rem;font-weight:600;border-radius:8px;cursor:pointer}
 .pill-menu button:hover,.pill-menu button.active{background:var(--soft);color:var(--p-dark)}
-.discover-grid{display:grid;grid-template-columns:1fr;gap:16px}
+.discover-grid{display:grid;grid-template-columns:1fr;gap:14px;width:100%}
 @media(min-width:860px){.discover-grid{grid-template-columns:1fr 1fr;gap:16px;align-items:start}}
-/* GFM cards */
-.campaign-card{display:block!important;text-decoration:none!important;border-radius:12px!important;overflow:hidden!important;background:#ffffff!important;border:1px solid #dcdcdc!important;box-shadow:0 4px 12px rgba(0,0,0,.08)!important;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease!important;color:#333!important}
-.campaign-card:hover{transform:translateY(-4px)!important;box-shadow:0 12px 24px rgba(0,0,0,.12)!important}
-.campaign-card .image-container{width:100%!important;height:200px!important;aspect-ratio:auto!important;position:relative!important;overflow:hidden!important;background:#e8e8e8!important;border-bottom:1px solid #f0f0f0!important}
-.campaign-card.mini .image-container{height:140px!important}
-.campaign-card.featured .image-container{height:240px!important}
-@media(max-width:640px){.campaign-card .image-container{height:180px!important}.campaign-card.featured .image-container{height:200px!important}.campaign-card.mini .image-container{height:120px!important}}
-.campaign-card .card-image{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
+.campaign-card{display:block;border-radius:12px;overflow:hidden;background:#fff;border:1px solid #dcdcdc;box-shadow:0 4px 12px rgba(0,0,0,.08);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease;width:100%}
+.campaign-card:hover{transform:translateY(-4px);box-shadow:0 12px 24px rgba(0,0,0,.12)}
+.campaign-card .image-container{width:100%;height:180px;position:relative;overflow:hidden;background:#e8e8e8;border-bottom:1px solid #f0f0f0}
+.campaign-card.mini .image-container{height:120px}
+.campaign-card.featured .image-container{height:200px}
+@media(min-width:640px){.campaign-card .image-container{height:200px}.campaign-card.featured .image-container{height:240px}.campaign-card.mini .image-container{height:140px}}
+.campaign-card .card-image{width:100%;height:100%;object-fit:cover;display:block}
 .donation-badge{position:absolute;left:10px;bottom:10px;background:rgba(0,0,0,.55);color:#fff;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:999px}
-.card-content{padding:16px!important;background:#fff!important}
-.campaign-card.mini .card-content{padding:12px!important}
-.card-title{font-size:1rem;font-weight:700;line-height:1.3;margin:0 0 12px;color:#232323;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-content{padding:14px 12px 16px;background:#fff}
+.card-title{font-size:.95rem;font-weight:700;line-height:1.3;margin:0 0 10px;color:#232323;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
 .campaign-card.featured .card-title{-webkit-line-clamp:3;font-size:1.05rem}
-.campaign-card.mini .card-title{font-size:.84rem;margin:0 0 8px}
+.campaign-card.mini .card-title{font-size:.82rem;margin:0 0 8px}
 .progress-track{height:6px;background:#EBEBEB;border-radius:99px;overflow:hidden;margin-bottom:8px}
 .progress-fill{height:100%;background:var(--green);border-radius:99px}
-.raised-label{font-size:.875rem;font-weight:600;color:#333}
-.mini-cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.more-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:24px}
+.raised-label{font-size:.85rem;font-weight:600;color:#333}
+.mini-cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%}
+.more-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:16px;width:100%}
 @media(min-width:520px){.more-grid{grid-template-columns:repeat(2,1fr)}}
 @media(min-width:900px){.more-grid{grid-template-columns:repeat(3,1fr)}}
-.yel{background:var(--yellow);text-align:center;padding:5rem 20px 7.5rem;position:relative;overflow:hidden}
+.yel{background:var(--yellow);text-align:center;padding:4rem 20px 6.5rem;position:relative;overflow:hidden}
 .yel:after{content:'';position:absolute;left:-15%;right:-15%;bottom:-2px;height:80px;background:#fff;border-radius:50% 50% 0 0/100% 100% 0 0}
-.yel h2{font-size:clamp(1.4rem,4vw,2rem);font-weight:800;color:var(--yellow-t);margin:0 auto 10px;max-width:520px;position:relative;z-index:1}
+.yel h2{font-size:clamp(1.3rem,4vw,2rem);font-weight:800;color:var(--yellow-t);margin:0 auto 10px;max-width:520px;position:relative;z-index:1}
 .yel p{color:#5a4a1a;max-width:460px;margin:0 auto;position:relative;z-index:1}
 .yel .badge{position:relative;z-index:1}
-.topics{padding:48px 20px 64px;background:#fff}
+.topics{padding:40px 16px 56px;background:#fff}
 .topics .in{max-width:1120px;margin:0 auto}
-.topics h2{font-size:1.35rem;font-weight:800;margin:0 0 20px}
-.topics-grid{display:grid;gap:16px}
+.topics h2{font-size:1.25rem;font-weight:800;margin:0 0 16px}
+.topics-grid{display:grid;gap:14px}
 @media(min-width:700px){.topics-grid{grid-template-columns:1.4fr 1fr 1fr}}
-.topic-card{border-radius:16px;overflow:hidden;min-height:180px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:20px;color:#fff}
+.topic-card{border-radius:16px;overflow:hidden;min-height:160px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:18px;color:#fff}
 .topic-card.dark{background:linear-gradient(135deg,#2d1b4e,#4c1d95)}
 .topic-card.mint{background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:#064e3b}
 .topic-card.lilac{background:linear-gradient(135deg,#ede9fe,#c4b5fd);color:#4c1d95}
@@ -116,10 +116,10 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 .topic-card h3{font-size:1.05rem;font-weight:800;margin:0 0 6px}
 .topic-card p{font-size:.85rem;opacity:.9;margin:0 0 10px;line-height:1.4}
 .topic-card a{font-weight:700;font-size:.85rem;color:inherit}
-.tr{background:var(--p-deep);color:#fff;padding:56px 20px;text-align:center}
-.tr h2{font-size:clamp(1.4rem,4vw,2rem);font-weight:800;margin:12px 0}
+.tr{background:var(--p-deep);color:#fff;padding:48px 20px;text-align:center}
+.tr h2{font-size:clamp(1.3rem,4vw,2rem);font-weight:800;margin:12px 0}
 .tr p{color:#C4B5FD}
-.ft{padding:32px 20px;border-top:1px solid #e8e8e8;text-align:center;font-size:.85rem;color:var(--muted)}
+.ft{padding:28px 20px;border-top:1px solid #e8e8e8;text-align:center;font-size:.85rem;color:var(--muted)}
 .dr{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45)}.dr.on{display:block}
 .pn{position:absolute;top:0;right:0;width:min(300px,90vw);height:100%;background:#fff;padding:16px 20px;box-shadow:-8px 0 32px rgba(0,0,0,.15)}
 .pn-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f0f0f0}
@@ -150,11 +150,11 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 </div>
 <section class="hero"><div class="badge">#1 crowdfunding platform</div><h1>Where successful fundraisers start</h1><p class="sub">Tell your story, set a goal, with guidance at every step. No fee to start.</p><a href="create-campaign.html" class="cta">Start a HopeForUs</a></section>
 <div class="fan-w"><div class="fan">
-<div class="fc"><img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&h=320&fit=crop" alt=""></div>
-<div class="fc"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=320&fit=crop" alt=""></div>
-<div class="fc"><img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=400&h=320&fit=crop" alt=""></div>
-<div class="fc"><img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=320&fit=crop" alt=""></div>
-<div class="fc"><img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=400&h=320&fit=crop" alt=""></div>
+<div class="fc"><img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&h=320&fit=crop&auto=format&q=70" alt="" loading="lazy"></div>
+<div class="fc"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=320&fit=crop&auto=format&q=70" alt="" loading="lazy"></div>
+<div class="fc"><img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=400&h=320&fit=crop&auto=format&q=70" alt="" loading="eager"></div>
+<div class="fc"><img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=320&fit=crop&auto=format&q=70" alt="" loading="lazy"></div>
+<div class="fc"><img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=400&h=320&fit=crop&auto=format&q=70" alt="" loading="lazy"></div>
 </div></div>
 <section class="stats"><div class="badge">No fee to start fundraising</div><h2>More than thousands raise support every week on HopeForUs</h2><p>Get started in just a few minutes — pick a title, write your story, and share it with the world.</p></section>
 <section class="how" id="how">
@@ -162,26 +162,16 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
     <div class="how-img-wrap">
       <button type="button" class="how-pause" id="howPause" aria-label="Pause"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6V5zm8 0h4v14h-4V5z"/></svg></button>
       <div class="how-card">
-        <div class="how-slide on" data-step="0"><div class="phone-ui"><div class="lbl">Create fundraiser</div><div style="font-size:.85rem;font-weight:700;margin:8px 0 4px;text-align:left">Your goal</div><div class="goal-bar"><div class="goal-fill"></div></div><div class="goal-amt">$4,500 of $10,000</div><div style="margin-top:12px;font-size:.75rem;color:#6b7280;text-align:left">Title, story & photos</div></div></div>
-        <div class="how-slide" data-step="1"><div class="phone-ui"><div class="lbl">Ready to share</div>
-          <div class="social-icons">
-            <span class="si" title="Facebook"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#1877F2" d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07C0 18.1 4.39 23.09 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.89v2.26h3.32l-.53 3.49h-2.79V24C19.61 23.09 24 18.1 24 12.07z"/></svg></span>
-            <span class="si" title="Instagram"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#E4405F" d="M12 2.16c3.2 0 3.58.01 4.85.07 3.25.15 4.77 1.69 4.92 4.92.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.15 3.23-1.66 4.77-4.92 4.92-1.27.06-1.64.07-4.85.07s-3.58-.01-4.85-.07c-3.26-.15-4.77-1.7-4.92-4.92-.06-1.27-.07-1.64-.07-4.85s.01-3.58.07-4.85C2.38 3.92 3.9 2.38 7.15 2.23 8.42 2.17 8.8 2.16 12 2.16zm0 1.8c-3.15 0-3.52.01-4.76.07-2.25.1-3.29 1.15-3.4 3.4-.06 1.24-.07 1.61-.07 4.76s.01 3.52.07 4.76c.1 2.24 1.16 3.29 3.4 3.4 1.24.06 1.61.07 4.76.07s3.52-.01 4.76-.07c2.25-.1 3.29-1.16 3.4-3.4.06-1.24.07-1.61.07-4.76s-.01-3.52-.07-4.76c-.1-2.25-1.16-3.29-3.4-3.4-1.24-.06-1.61-.07-4.76-.07zm0 3.06a5.18 5.18 0 110 10.36 5.18 5.18 0 010-10.36zm0 1.8a3.38 3.38 0 100 6.76 3.38 3.38 0 000-6.76zm5.4-2.1a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z"/></svg></span>
-            <span class="si" title="X"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#000" d="M18.24 2H21l-6.52 7.46L22 22h-6.06l-4.74-6.2L5.68 22H3l6.98-7.98L2 2h6.22l4.28 5.68L18.24 2zm-1.06 18h1.68L6.94 3.92H5.14L17.18 20z"/></svg></span>
-            <span class="si" title="WhatsApp"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#25D366" d="M12.04 2C6.58 2 2.15 6.4 2.15 11.84c0 1.94.52 3.76 1.43 5.34L2 22l4.98-1.53a9.86 9.86 0 004.99 1.33h.01c5.45 0 9.88-4.4 9.88-9.84C21.86 6.4 17.49 2 12.04 2zm5.75 13.97c-.24.68-1.4 1.25-1.93 1.33-.5.07-1.13.1-1.82-.11-.42-.13-.96-.28-1.66-.55-2.92-1.14-4.82-3.8-4.96-3.97-.14-.18-1.18-1.57-1.18-3 0-1.42.75-2.12 1.02-2.41.26-.28.58-.35.77-.35h.56c.18 0 .42-.07.65.5.24.58.82 2 .89 2.14.07.14.12.3.02.49-.1.18-.14.3-.28.46-.14.16-.3.36-.42.48-.14.14-.28.29-.12.56.16.28.7 1.15 1.5 1.86 1.03.92 1.9 1.2 2.17 1.34.27.14.43.12.59-.07.16-.18.68-.79.86-1.06.18-.28.36-.23.61-.14.24.1 1.55.73 1.82.86.26.14.44.2.5.31.07.12.07.68-.17 1.36z"/></svg></span>
-            <span class="si" title="Email"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#EA4335" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></span>
-            <span class="si" title="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#0A66C2" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 110-4.12 2.06 2.06 0 010 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.73V1.73C24 .77 23.21 0 22.23 0z"/></svg></span>
-          </div>
-          <div class="sbtn">Ready to share</div>
-        </div></div>
-        <div class="how-slide" data-step="2"><div class="phone-ui"><div class="lbl">Receive funds</div><div class="wallet">₮ USDT wallet</div><div class="wallet" style="margin-top:6px">₿ BTC wallet</div><div style="margin-top:12px;font-size:.75rem;color:#6b7280">Payouts on the 15th</div></div></div>
+        <div class="how-slide on" data-step="0"><div class="phone-ui"><div class="lbl">Create fundraiser</div><div style="font-size:.85rem;font-weight:700;margin:8px 0 4px;text-align:left">Your goal</div><div class="goal-bar"><div class="goal-fill"></div></div><div class="goal-amt">$4,500 of $10,000</div></div></div>
+        <div class="how-slide" data-step="1"><div class="phone-ui"><div class="lbl">Ready to share</div><div class="social-icons"><span class="si">📘</span><span class="si">📸</span><span class="si">✉️</span></div><div class="sbtn">Ready to share</div></div></div>
+        <div class="how-slide" data-step="2"><div class="phone-ui"><div class="lbl">Receive funds</div><div class="wallet">₮ USDT</div><div class="wallet">₿ BTC</div></div></div>
       </div>
     </div>
     <div>
       <h2>Fundraising on HopeForUs is easy, powerful, and trusted</h2>
-      <div class="srow active" data-step="0"><div class="sn"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="16"/><circle class="prog" cx="18" cy="18" r="16" pathLength="100"/></svg><span>1</span></div><div><h3>Use our tools to create your fundraiser</h3><p>You'll be guided by prompts to add fundraiser details and set your goal. Make updates anytime.</p><a href="create-campaign.html">Get tips for starting your fundraiser →</a></div></div>
-      <div class="srow" data-step="1"><div class="sn"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="16"/><circle class="prog" cx="18" cy="18" r="16" pathLength="100"/></svg><span>2</span></div><div><h3>Reach donors by sharing</h3><p>Share your fundraiser link and use the resources in your dashboard to gain momentum.</p></div></div>
-      <div class="srow" data-step="2"><div class="sn"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="16"/><circle class="prog" cx="18" cy="18" r="16" pathLength="100"/></svg><span>3</span></div><div><h3>Securely receive funds</h3><p>Withdraw to USDT or BTC wallets. Payouts process on the 15th of each month.</p></div></div>
+      <div class="srow active" data-step="0"><div class="sn"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="16"/><circle class="prog" cx="18" cy="18" r="16" pathLength="100"/></svg><span>1</span></div><div><h3>Create your fundraiser</h3><p>Add details, set a goal, upload photos.</p></div></div>
+      <div class="srow" data-step="1"><div class="sn"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="16"/><circle class="prog" cx="18" cy="18" r="16" pathLength="100"/></svg><span>2</span></div><div><h3>Reach donors by sharing</h3><p>Share your link and grow momentum.</p></div></div>
+      <div class="srow" data-step="2"><div class="sn"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="16"/><circle class="prog" cx="18" cy="18" r="16" pathLength="100"/></svg><span>3</span></div><div><h3>Securely receive funds</h3><p>Withdraw to USDT or BTC on the 15th.</p></div></div>
     </div>
   </div>
 </section>
@@ -189,9 +179,7 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
   <div class="in">
     <h2>Discover fundraisers inspired by what you care about</h2>
     <div class="disc-tools">
-      <button type="button" class="pill" id="worldPill" onclick="event.stopPropagation();var m=document.getElementById('pillMenu');m.classList.toggle('open');this.classList.toggle('open')">
-        <span id="pillLabel">Happening worldwide</span> ▾
-      </button>
+      <button type="button" class="pill" id="worldPill" onclick="event.stopPropagation();var m=document.getElementById('pillMenu');m.classList.toggle('open');this.classList.toggle('open')"><span id="pillLabel">Happening worldwide</span> ▾</button>
       <div class="pill-menu" id="pillMenu" onclick="event.stopPropagation()">
         <button type="button" data-filter="all" class="active" onclick="pickFilter(this)">Happening worldwide</button>
         <button type="button" data-filter="medical" onclick="pickFilter(this)">Medical</button>
@@ -207,22 +195,13 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
     <div class="more-grid" id="grid"></div>
   </div>
 </section>
-<section class="yel">
-  <div class="badge" style="background:var(--yellow-t);color:var(--yellow)">We've got you covered.</div>
-  <h2>Get what you need to help your fundraiser succeed on HopeForUs</h2>
-  <p>From memorial tributes to medical emergencies. Whenever you need help, you can ask here.</p>
-</section>
-<section class="topics">
-  <div class="in">
-    <h2>Featured topics</h2>
-    <div class="topics-grid">
-      <div class="topic-card dark"><span class="topic-badge">New</span><h3>Fundraise with smart coaching</h3><p>Guidance at every step to create and grow your fundraiser.</p><a href="create-campaign.html">Learn more →</a></div>
-      <div class="topic-card mint"><span class="topic-badge">New</span><h3>Giving funds</h3><p>Track progress and celebrate milestones with your donors.</p></div>
-      <div class="topic-card lilac"><span class="topic-badge">Urgent</span><h3>Crisis relief</h3><p>Support families facing medical emergencies and disasters.</p></div>
-    </div>
-  </div>
-</section>
-<section class="tr"><div class="badge">We've got you covered.</div><h2>HopeForUs is a trusted leader in online fundraising.</h2><p>With simple pricing and a focus on trust & safety, you can raise money with peace of mind.</p></section>
+<section class="yel"><div class="badge" style="background:var(--yellow-t);color:var(--yellow)">We've got you covered.</div><h2>Get what you need to help your fundraiser succeed on HopeForUs</h2><p>From memorial tributes to medical emergencies. Whenever you need help, you can ask here.</p></section>
+<section class="topics"><div class="in"><h2>Featured topics</h2><div class="topics-grid">
+<div class="topic-card dark"><span class="topic-badge">New</span><h3>Fundraise with smart coaching</h3><p>Guidance at every step.</p><a href="create-campaign.html">Learn more →</a></div>
+<div class="topic-card mint"><span class="topic-badge">New</span><h3>Giving funds</h3><p>Track progress with donors.</p></div>
+<div class="topic-card lilac"><span class="topic-badge">Urgent</span><h3>Crisis relief</h3><p>Support families in emergencies.</p></div>
+</div></div></section>
+<section class="tr"><div class="badge">We've got you covered.</div><h2>HopeForUs is a trusted leader in online fundraising.</h2><p>Simple pricing and a focus on trust &amp; safety.</p></section>
 <footer class="ft">© 2026 HopeForUs</footer>
 <script src="ui.js"></script>
 <script src="app.js"></script>
@@ -230,7 +209,7 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 <script src="how-works.js"></script>
 <script>
 if(typeof SAMPLES==="undefined")var SAMPLES=[];
-function esc(s){return String(s||"").replace(/&/g,"&").replace(/</g,"<")}
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;")}
 function money(n,c){c=c||"USD";var s=Number(n).toLocaleString();return c==="EUR"?"€"+s:c==="GBP"?"£"+s:"$"+s}
 function fmtDon(n){n=Number(n)||0;if(n>=1000)return(n/1000).toFixed(1).replace(/\.0$/,"")+"K";return String(n)}
 var ALL=[],currentFilter="all";
@@ -250,18 +229,17 @@ document.addEventListener("click",function(){
 function renderCampaigns(){
   var filtered=currentFilter==="all"?ALL:ALL.filter(function(x){return String(x.c.category||"").toLowerCase()===currentFilter});
   if(!filtered.length){
-    document.getElementById("feat").innerHTML="<p style='color:#5c5c5c;padding:24px 0'>No fundraisers in this category yet. <a href='create-campaign.html' style='color:#7C3AED;font-weight:600'>Start one →</a></p>";
-    document.getElementById("grid").innerHTML="";
-    return;
+    document.getElementById("feat").innerHTML="<p style='color:#5c5c5c;padding:20px 0'>No fundraisers here yet. <a href='create-campaign.html' style='color:#7C3AED;font-weight:600'>Start one →</a></p>";
+    document.getElementById("grid").innerHTML="";return;
   }
   var featured=filtered.slice(0,5),f=featured[0],rest=featured.slice(1,5);
   var fc=f.c,fp=Math.min(100,Math.round((fc.raised||0)/(fc.goal||1)*100));
-  var fh='<a class="campaign-card featured" href="campaign.html?id='+encodeURIComponent(fc.id)+'"><div class="image-container"><img class="card-image" src="'+f.src+'" alt="" onerror="this.closest(\'.campaign-card\').style.display=\'none\'"><span class="donation-badge">'+fmtDon(fc.donations||0)+' donations</span></div><div class="card-content"><h3 class="card-title">'+esc(fc.title)+'</h3><div class="progress-track"><div class="progress-fill" style="width:'+fp+'%"></div></div><span class="raised-label">'+money(fc.raised,fc.currency)+' raised</span></div></a>';
+  var fh='<a class="campaign-card featured" href="campaign.html?id='+encodeURIComponent(fc.id)+'"><div class="image-container"><img class="card-image" src="'+f.src+'" alt="" loading="eager" decoding="async" onerror="this.closest(\'.campaign-card\').style.display=\'none\'"><span class="donation-badge">'+fmtDon(fc.donations||0)+' donations</span></div><div class="card-content"><h3 class="card-title">'+esc(fc.title)+'</h3><div class="progress-track"><div class="progress-fill" style="width:'+fp+'%"></div></div><span class="raised-label">'+money(fc.raised,fc.currency)+' raised</span></div></a>';
   if(rest.length){
     fh+='<div class="mini-cards-grid">';
     rest.forEach(function(x){
       var c=x.c,p=Math.min(100,Math.round((c.raised||0)/(c.goal||1)*100));
-      fh+='<a class="campaign-card mini" href="campaign.html?id='+encodeURIComponent(c.id)+'"><div class="image-container"><img class="card-image" src="'+x.src+'" alt="" onerror="this.closest(\'.campaign-card\').style.display=\'none\'"><span class="donation-badge">'+fmtDon(c.donations||0)+' donations</span></div><div class="card-content"><h3 class="card-title">'+esc(c.title)+'</h3><div class="progress-track"><div class="progress-fill" style="width:'+p+'%"></div></div><span class="raised-label">'+money(c.raised,c.currency)+' raised</span></div></a>';
+      fh+='<a class="campaign-card mini" href="campaign.html?id='+encodeURIComponent(c.id)+'"><div class="image-container"><img class="card-image" src="'+x.src+'" alt="" loading="lazy" decoding="async" onerror="this.closest(\'.campaign-card\').style.display=\'none\'"><span class="donation-badge">'+fmtDon(c.donations||0)+' donations</span></div><div class="card-content"><h3 class="card-title">'+esc(c.title)+'</h3><div class="progress-track"><div class="progress-fill" style="width:'+p+'%"></div></div><span class="raised-label">'+money(c.raised,c.currency)+' raised</span></div></a>';
     });
     fh+='</div>';
   }
@@ -269,7 +247,7 @@ function renderCampaigns(){
   var more=filtered.slice(5),html="";
   more.forEach(function(x){
     var c=x.c,p=Math.min(100,Math.round((c.raised||0)/(c.goal||1)*100));
-    html+='<a class="campaign-card" href="campaign.html?id='+encodeURIComponent(c.id)+'"><div class="image-container"><img class="card-image" src="'+x.src+'" alt="" loading="lazy" onerror="this.closest(\'.campaign-card\').remove()"><span class="donation-badge">'+fmtDon(c.donations||0)+' donations</span></div><div class="card-content"><h3 class="card-title">'+esc(c.title)+'</h3><div class="progress-track"><div class="progress-fill" style="width:'+p+'%"></div></div><span class="raised-label">'+money(c.raised,c.currency)+' raised</span></div></a>';
+    html+='<a class="campaign-card" href="campaign.html?id='+encodeURIComponent(c.id)+'"><div class="image-container"><img class="card-image" src="'+x.src+'" alt="" loading="lazy" decoding="async" onerror="this.closest(\'.campaign-card\').remove()"><span class="donation-badge">'+fmtDon(c.donations||0)+' donations</span></div><div class="card-content"><h3 class="card-title">'+esc(c.title)+'</h3><div class="progress-track"><div class="progress-fill" style="width:'+p+'%"></div></div><span class="raised-label">'+money(c.raised,c.currency)+' raised</span></div></a>';
   });
   document.getElementById("grid").innerHTML=html;
 }
@@ -288,7 +266,7 @@ function renderCampaigns(){
   var seen={};
   list.forEach(function(c){
     if(!c||!c.id||seen[c.id])return;seen[c.id]=1;
-    var src=c.image||(c.cover&&c.cover.dataUrl)||(c.media&&c.media[0])||"";
+    var src=c.image||(c.cover&&c.cover.dataUrl)||(c.media&&c.media[0]&&(c.media[0].dataUrl||c.media[0]))||"";
     if(!src)return;
     if(!c.category)c.category="community";
     ALL.push({c:c,src:src});
