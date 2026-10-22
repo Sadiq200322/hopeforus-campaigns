@@ -86,5 +86,16 @@ const SAMPLES = [
     image: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&h=450&fit=crop",
     media: ["https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&h=450&fit=crop"],
     currency: "USD", donations: 340
+  },
+  {
+    id: "john-memorial",
+    title: "In loving memory of John – support his family",
+    raised: 8200, goal: 15000, code: "JOHN26",
+    category: "memorial",
+    organizer: "Sarah Mitchell",
+    story: "Help us support John's family during this difficult time.",
+    image: "https://images.unsplash.com/photo-1490750965869-43174be27da4?w=800&h=450&fit=crop",
+    media: ["https://images.unsplash.com/photo-1490750965869-43174be27da4?w=800&h=450&fit=crop"],
+    currency: "USD", donations: 156
   }
 ];
