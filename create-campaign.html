@@ -8,16 +8,15 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--p:#7C3AED;--pd:#4C1D95;--soft:#EDE9FE;--ink:#1a1a1a;--muted:#5c5c5c;--line:#e5e5e5;--panel:#f3f2f0;--ok:#00a964}
-html,body{height:100%;font-family:Inter,system-ui,sans-serif;color:var(--ink);background:var(--panel)}
-a{color:inherit;text-decoration:none}
-button{font-family:inherit;cursor:pointer}
+html,body{height:100%;font-family:Inter,system-ui,sans-serif;color:var(--ink);background:var(--panel);overflow-x:hidden}
+a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}
 .shell{min-height:100%;display:grid}
 @media(min-width:900px){.shell{grid-template-columns:minmax(240px,34%) 1fr}}
 .side{padding:20px 24px 40px}
 .side .logo{display:inline-flex;align-items:center;gap:8px;font-weight:800;color:var(--p)}
 .side .logo img{width:28px;height:28px}
-.side .stepn{margin-top:48px;font-size:.85rem;color:var(--muted);font-weight:600}
-.side h1{margin-top:10px;font-size:clamp(1.5rem,3.5vw,2rem);font-weight:800;line-height:1.15;max-width:280px}
+.side .stepn{margin-top:40px;font-size:.85rem;color:var(--muted);font-weight:600}
+.side h1{margin-top:10px;font-size:clamp(1.45rem,3.2vw,2rem);font-weight:800;line-height:1.15;max-width:280px}
 .side p{margin-top:10px;color:var(--muted);max-width:280px;font-size:.95rem}
 .main{background:#fff;min-height:70vh;display:flex;flex-direction:column;border-radius:20px 20px 0 0}
 @media(min-width:900px){.main{min-height:100vh;border-radius:20px 0 0 20px}}
@@ -27,7 +26,7 @@ h2{font-size:1rem;font-weight:700;margin-bottom:6px}
 .hint{font-size:.88rem;color:var(--muted);margin-bottom:16px}
 .row2{display:grid;gap:12px}
 @media(min-width:560px){.row2{grid-template-columns:1fr 1fr}}
-label.f{display:block;font-size:.8rem;color:var(--muted);margin-bottom:4px}
+label.f{display:block;font-size:.8rem;color:var(--muted);margin-bottom:4px;font-weight:600}
 input,select,textarea{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-size:.95rem;font-family:inherit;background:#fff}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--p)}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
@@ -35,7 +34,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--p)}
 .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 .choice{display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;padding:16px;border:1.5px solid var(--line);border-radius:14px;background:#fff;margin-bottom:10px}
 .choice.on{border-color:var(--ink)}
-.choice .ic{width:48px;height:48px;border-radius:12px;background:var(--panel);display:grid;place-items:center;flex-shrink:0}
+.choice .ic{width:48px;height:48px;border-radius:12px;background:var(--panel);display:grid;place-items:center;flex-shrink:0;font-size:1.2rem}
 .choice strong{display:block;font-size:.95rem}
 .choice span{display:block;font-size:.85rem;color:var(--muted);margin-top:2px}
 .amt{display:flex;align-items:center;height:56px;border:1.5px solid var(--line);border-radius:14px;padding:0 14px;gap:8px}
@@ -56,23 +55,10 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--p)}
 .cont{margin-left:auto;height:44px;padding:0 22px;border-radius:999px;border:0;background:var(--pd);color:#E9D5FF;font-weight:700}
 .err{color:#b91c1c;font-size:.88rem;font-weight:600;margin-top:12px;display:none}
 .err.show{display:block}
-.inbox{margin-top:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
-.inbox .t{font-size:.7rem;font-weight:700;letter-spacing:.06em;color:var(--muted)}
-.codes{display:flex;gap:8px;margin-top:16px}
-.codes input{text-align:center;font-size:1.25rem;font-weight:800;height:52px;padding:0}
 .media-grid{display:flex;gap:8px;overflow-x:auto;margin-top:10px}
 .media-grid img,.media-grid video{width:120px;height:80px;object-fit:cover;border-radius:10px;flex-shrink:0}
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
-.modal-bg.on{display:flex}
-.modal{background:#fff;border-radius:20px;padding:32px 28px 28px;width:100%;max-width:400px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.2)}
-.modal .x{position:absolute;top:14px;right:14px;width:36px;height:36px;border:0;background:0;border-radius:50%;font-size:1.2rem;color:var(--muted)}
-.modal .mark{text-align:center;color:var(--p);margin-bottom:12px}
-.modal h3{text-align:center;font-size:1.75rem;font-weight:800}
-.modal .sub{text-align:center;color:var(--muted);margin:8px 0 20px;font-size:.95rem}
-.sbtn{width:100%;height:48px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px}
-.or{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:.85rem;margin:14px 0}
-.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
-.pbtn{width:100%;height:48px;border-radius:999px;border:0;background:var(--pd);color:#E9D5FF;font-weight:700;margin-top:12px}
+.acct{max-width:400px}
+.acct .note{font-size:.85rem;color:var(--muted);margin-top:10px}
 </style>
 </head>
 <body>
@@ -84,7 +70,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--p)}
     <p id="ssub">We're here to guide you every step of the way.</p>
   </aside>
   <section class="main">
-    <div class="topr"><a href="login.html" id="topAuth">Sign in</a></div>
+    <div class="topr" id="topr"><a href="login.html">Sign in</a></div>
     <div class="body" id="body"></div>
     <div class="foot">
       <div class="prog"><i id="prog"></i></div>
@@ -93,20 +79,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--p)}
     </div>
   </section>
 </div>
-<div class="modal-bg" id="authModal">
-  <div class="modal">
-    <button type="button" class="x" id="authX" aria-label="Close">×</button>
-    <div class="mark"><svg width="36" height="36" viewBox="0 0 32 32"><path fill="currentColor" d="M16 3c.6 2.4 1.4 4 3.2 5.2C21.4 9.6 24 10.2 27 10c-2.2 1.6-3.4 3.4-4 5.8-.6 2.6-.4 5 .8 7.4-2.6-.2-4.8.4-6.6 1.8-1.6 1.2-2.6 2.8-3.2 4.8-.6-2-1.6-3.6-3.2-4.8-1.8-1.4-4-2-6.6-1.8 1.2-2.4 1.4-4.8.8-7.4C4.4 13.4 3.2 11.6 1 10c3 .2 5.6-.4 7.8-1.8C10.6 7 11.4 5.4 12 3c.8 2.2 2 3.8 4 5.2z"/></svg></div>
-    <h3>Welcome</h3>
-    <p class="sub">Sign in to HopeForUs or sign up to continue.</p>
-    <button type="button" class="sbtn" id="btnGoogle">Sign in with Google</button>
-    <button type="button" class="sbtn" id="btnApple">Continue with Apple</button>
-    <div class="or">or</div>
-    <input type="email" id="authEmail" placeholder="Email address" autocomplete="email">
-    <p class="err" id="authErr"></p>
-    <button type="button" class="pbtn" id="authCont">Continue</button>
-  </div>
-</div>
 <script src="clear-test-data.js"></script>
 <script>
 var CATS=["Animals","Business","Community","Competitions","Creative","Education","Emergencies","Environment","Events","Faith","Family","Funerals & Memorials","Medical","Monthly Bills","Newlyweds","Other","Sports","Travel","Volunteer","Wishes"];
@@ -114,23 +86,22 @@ var COUNTRIES=["United States","United Kingdom","Canada","Kenya","Uganda","Niger
 var STEPS=6;
 var step=0;
 var draft={country:"United States",zip:"",category:"",beneficiary:"",goal:"",autoGoal:true,title:"",story:"",media:[]};
-var pending=null;
 var user=null;
 try{user=JSON.parse(localStorage.getItem("hopeforus_user")||"null")}catch(e){}
 var titles=[
   ["Let's begin your fundraising journey","We're here to guide you every step of the way."],
-  ["Tell us who you're raising funds for","This information helps us get to know you and your fundraising needs."],
+  ["Tell us who you're raising funds for","This helps us tailor guidance for your fundraiser."],
   ["Tell us how much you'd like to raise","You can change this later from your organizer desk."],
-  ["Create your HopeForUs account","We'll send a code so we know the inbox is yours."],
-  ["Check your inbox","Enter the 6-digit code. In this preview it also appears below."],
+  ["Create your account","Email and password so you can return to your fundraiser."],
+  ["Almost there","Confirm your details then add your story."],
   ["Add the story people will see","Photos and a short video help donors understand fast."]
 ];
 function $(id){return document.getElementById(id)}
-function code6(){return String(Math.floor(100000+Math.random()*900000))}
 function goalNum(){return Number(draft.goal)||0}
 function startGoal(){var g=goalNum();return draft.autoGoal?Math.max(50,Math.round(g*0.6)):g}
 function esc(s){return String(s||"").replace(/&/g,"&").replace(/</g,"<").replace(/"/g,""")}
 function showErr(msg){var e=$("err");if(e){e.textContent=msg;e.classList.add("show")}}
+function isLoggedIn(){return !!(user&&user.email)}
 function paintMedia(){
   var mg=$("mg");if(!mg)return;mg.innerHTML="";
   draft.media.forEach(function(m){
@@ -145,7 +116,8 @@ function render(){
   $("prog").style.width=((step+1)/STEPS*100)+"%";
   $("back").disabled=step===0;
   $("cont").textContent=step===5?"Publish":"Continue";
-  if(user){$("topAuth").textContent=user.email||user.name;$("topAuth").href="dashboard.html"}
+  if(isLoggedIn()){$("topr").innerHTML='<a href="dashboard.html">'+(user.name||user.email)+'</a>'}
+  else{$("topr").innerHTML='<a href="login.html">Sign in</a>'}
   var el=$("body");el.innerHTML="";
   var err=document.createElement("p");err.className="err";err.id="err";
   if(step===0){
@@ -154,25 +126,20 @@ function render(){
     var chips=$("chips");CATS.forEach(function(c){var b=document.createElement("button");b.type="button";b.className="chip"+(draft.category===c?" on":"");b.textContent=c;b.onclick=function(){draft.category=c;render()};chips.appendChild(b)});
   } else if(step===1){
     el.innerHTML='<h2>Who are you fundraising for?</h2>';
-    [["yourself","Yourself","Funds are delivered to your account for your own use.","👤"],["someone","Someone else","You'll invite a beneficiary to receive funds or distribute them yourself.","👥"],["charity","Charity","Funds are delivered to your chosen nonprofit for you.","🎗️"]].forEach(function(x){
+    [["yourself","Yourself","Funds go to your account for your own use.","👤"],["someone","Someone else","Invite a beneficiary or distribute funds yourself.","👥"],["charity","Charity","Funds go to a nonprofit you name in the story.","🎗️"]].forEach(function(x){
       var b=document.createElement("button");b.type="button";b.className="choice"+(draft.beneficiary===x[0]?" on":"");
       b.innerHTML='<span class="ic">'+x[3]+'</span><span><strong>'+x[1]+'</strong><span>'+x[2]+'</span></span>';
       b.onclick=function(){draft.beneficiary=x[0];render()};
       el.appendChild(b);
     });
   } else if(step===2){
-    el.innerHTML='<div class="amt"><span>$</span><input id="goal" inputmode="numeric" placeholder="Enter amount" value="'+esc(draft.goal)+'"><span class="cur">USD</span></div><p class="hint" style="margin-top:8px">Fundraisers like yours typically aim to raise $5,000</p><div class="auto"><div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start"><div><span class="badge">RECOMMENDED</span><p style="font-weight:700;margin-top:8px">Automated goal setting</p><p class="hint" style="margin:4px 0 0">We\'ll gradually adjust your goal as donations come in to help build momentum.</p></div><button type="button" class="sw'+(draft.autoGoal?" on":"")+'" id="autoSw"><i></i></button></div><div id="startHint" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:.9rem;display:'+(draft.autoGoal&&goalNum()>=50?"block":"none")+'">Your starting goal would be: <strong>$'+startGoal().toLocaleString()+'</strong></div></div>';
+    el.innerHTML='<div class="amt"><span>$</span><input id="goal" inputmode="numeric" placeholder="Enter amount" value="'+esc(draft.goal)+'"><span class="cur">USD</span></div><p class="hint" style="margin-top:8px">Fundraisers like yours typically aim to raise $5,000</p><div class="auto"><div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start"><div><span class="badge">RECOMMENDED</span><p style="font-weight:700;margin-top:8px">Automated goal setting</p><p class="hint" style="margin:4px 0 0">Start lower and raise the public goal as donations come in.</p></div><button type="button" class="sw'+(draft.autoGoal?" on":"")+'" id="autoSw"><i></i></button></div><div id="startHint" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:.9rem;display:'+(draft.autoGoal&&goalNum()>=50?"block":"none")+'">Your starting goal would be: <strong>$'+startGoal().toLocaleString()+'</strong></div></div>';
     $("goal").oninput=function(){draft.goal=this.value.replace(/[^\d]/g,"");this.value=draft.goal;var sh=$("startHint");if(sh){sh.style.display=draft.autoGoal&&goalNum()>=50?"block":"none";sh.innerHTML='Your starting goal would be: <strong>$'+startGoal().toLocaleString()+'</strong>'}};
     $("autoSw").onclick=function(){draft.autoGoal=!draft.autoGoal;render()};
-  } else if(step===4&&pending){
-    el.innerHTML='<p class="hint">Code for <strong>'+esc(pending.email)+'</strong> via '+esc(pending.provider)+'.</p><div class="inbox"><div class="t">INBOX</div><p style="margin-top:6px">Your HopeForUs code is <strong style="letter-spacing:.12em">'+pending.code+'</strong></p></div><div class="codes" id="codes"></div><button type="button" id="resend" style="margin-top:14px;border:0;background:0;color:var(--p);font-weight:700;font-size:.9rem">Send a new code</button>';
-    var codes=$("codes");
-    for(var i=0;i<6;i++){
-      var inp=document.createElement("input");inp.maxLength=1;inp.inputMode="numeric";
-      inp.oninput=function(){var v=this.value.replace(/\D/g,"").slice(-1);this.value=v;if(v&&this.nextSibling)this.nextSibling.focus();trySubmitCode()};
-      codes.appendChild(inp);
-    }
-    $("resend").onclick=function(){pending.code=code6();render()};
+  } else if(step===3){
+    el.innerHTML='<div class="acct"><h2>Your preferred email</h2><p class="hint">Just email and a password — no Google or Apple required.</p><label class="f">Email</label><input type="email" id="regEmail" placeholder="you@email.com" autocomplete="email"><label class="f" style="margin-top:12px">Password</label><input type="password" id="regPass" placeholder="At least 6 characters" autocomplete="new-password"><label class="f" style="margin-top:12px">Display name (optional)</label><input type="text" id="regName" placeholder="How donors see you" autocomplete="name"><p class="note">Already have an account? <a href="login.html" style="color:var(--p);font-weight:700">Sign in</a> first, then start a fundraiser.</p></div>';
+  } else if(step===4){
+    el.innerHTML='<div class="acct"><h2>You\'re set</h2><p class="hint">Next, add a title, story, and at least one photo or video.</p><p style="font-weight:600">Signed in as '+(user&&user.email?esc(user.email):"")+'</p></div>';
   } else if(step===5){
     el.innerHTML='<label class="f">Fundraiser title</label><input id="title" placeholder="Help Maya finish nursing school" value="'+esc(draft.title)+'"><label class="f" style="margin-top:14px">Story</label><textarea id="story" rows="5" placeholder="What happened, and how will the funds help?">'+esc(draft.story)+'</textarea><label class="f" style="margin-top:14px">Photos and video (required)</label><input type="file" id="files" accept="image/*,video/*" multiple><div class="media-grid" id="mg"></div>';
     $("title").oninput=function(){draft.title=this.value};
@@ -192,23 +159,17 @@ function render(){
   }
   el.appendChild(err);
 }
-function openAuth(){$("authModal").classList.add("on");$("authErr").classList.remove("show")}
-function closeAuth(){$("authModal").classList.remove("on")}
-function startVerify(email,provider){
-  pending={email:email.trim().toLowerCase(),provider:provider,name:email.split("@")[0],code:code6()};
-  closeAuth();step=4;render();
-}
-function trySubmitCode(){
-  var nodes=document.querySelectorAll("#codes input");
-  var code="";nodes.forEach(function(n){code+=n.value});
-  if(code.length<6)return;
-  if(!pending||code!==pending.code){showErr("That code doesn't match. Use the code in the inbox card.");return}
-  user={id:"u_"+pending.email,email:pending.email,name:pending.name,provider:pending.provider};
-  localStorage.setItem("hopeforus_user",JSON.stringify(user));
-  pending=null;step=5;render();
+function saveUser(email, pass, name){
+  user={id:"u_"+email.toLowerCase(),email:email.toLowerCase(),name:(name||email.split("@")[0]),password:pass,provider:"email"};
+  var users=[];try{users=JSON.parse(localStorage.getItem("hopeforus_users")||"[]")}catch(e){}
+  if(!Array.isArray(users))users=[];
+  users=users.filter(function(u){return u.email!==user.email});
+  users.push(user);
+  try{localStorage.setItem("hopeforus_users",JSON.stringify(users))}catch(e){}
+  try{localStorage.setItem("hopeforus_user",JSON.stringify({id:user.id,email:user.email,name:user.name,provider:"email"}))}catch(e){}
 }
 function publish(){
-  if(!user){openAuth();return}
+  if(!isLoggedIn()){step=3;render();return}
   if(!draft.title.trim())return showErr("Add a title.");
   if(!draft.media.length)return showErr("Add at least one photo or video.");
   var goal=Math.max(1,goalNum());
@@ -220,25 +181,27 @@ function publish(){
   try{localStorage.setItem("hopeforus_campaigns",JSON.stringify(list))}catch(e){return showErr("Could not save media — try fewer or smaller files.")}
   location.href="dashboard.html";
 }
-$("back").onclick=function(){if(step>0){step--;render()}};
+$("back").onclick=function(){
+  if(step===0)return;
+  if(isLoggedIn()&&step===5){step=2;render();return}
+  if(step===5&&!isLoggedIn()){step=4;render();return}
+  step--;render();
+};
 $("cont").onclick=function(){
   if(step===0){draft.country=$("country").value;draft.zip=$("zip").value;if(!draft.category)return showErr("Choose what best describes the fundraiser.");step=1;render();return}
   if(step===1){if(!draft.beneficiary)return showErr("Choose who the funds are for.");step=2;render();return}
-  if(step===2){if(goalNum()<50)return showErr("Enter a goal of at least 50.");if(user){step=5;render();return}openAuth();return}
-  if(step===4){trySubmitCode();return}
+  if(step===2){if(goalNum()<50)return showErr("Enter a goal of at least 50.");if(isLoggedIn()){step=5;render();return}step=3;render();return}
+  if(step===3){
+    var email=($("regEmail").value||"").trim();
+    var pass=($("regPass").value||"");
+    var name=($("regName").value||"").trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return showErr("Enter a valid email.");
+    if(pass.length<6)return showErr("Password must be at least 6 characters.");
+    saveUser(email,pass,name);step=4;render();return;
+  }
+  if(step===4){step=5;render();return}
   if(step===5){publish();return}
 };
-$("authX").onclick=closeAuth;
-$("authModal").onclick=function(e){if(e.target===this)closeAuth()};
-function authGo(provider){
-  var email=$("authEmail").value.trim();
-  var err=$("authErr");
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent=provider==="email"?"Enter a valid email address.":(provider==="google"?"Enter the Gmail address to link.":"Enter the Apple email to link.");err.classList.add("show");return}
-  startVerify(email,provider);
-}
-$("authCont").onclick=function(){authGo("email")};
-$("btnGoogle").onclick=function(){authGo("google")};
-$("btnApple").onclick=function(){authGo("apple")};
 render();
 </script>
 </body>
