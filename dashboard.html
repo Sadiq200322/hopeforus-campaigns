@@ -4,135 +4,114 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Dashboard – HopeForUs</title>
-<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-.dash-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-.media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-top:12px}
-.media-grid .item{aspect-ratio:1;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#f3f4f6}
-.media-grid .item img,.media-grid .item video{width:100%;height:100%;object-fit:cover}
-.chat-thread{border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;background:#fff}
-.chat-thread .who{font-weight:700;font-size:.9rem}
-.chat-thread .meta{font-size:.8rem;color:var(--muted)}
-.chat-bubble{background:#f3f4f6;padding:10px 12px;border-radius:12px;margin-top:8px;font-size:.9rem}
-.chat-input-row{display:flex;gap:8px;margin-top:10px}
-.chat-input-row input{flex:1;padding:12px;border:1.5px solid var(--border);border-radius:12px}
-.donor-table{width:100%;border-collapse:collapse;font-size:.9rem}
-.donor-table th,.donor-table td{text-align:left;padding:12px 8px;border-bottom:1px solid #eee}
-.donor-table th{font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
-.social-field{display:flex;gap:8px;margin-bottom:10px;align-items:center}
-.social-field span{width:90px;font-size:.85rem;font-weight:600;color:var(--muted)}
-.social-field input{flex:1;padding:12px;border:1.5px solid var(--border);border-radius:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,-apple-system,sans-serif;background:#f7f7f7;color:#1a1a1a;padding-bottom:calc(80px + env(safe-area-inset-bottom))}
+.hdr{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid #e8e8e8;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hdr a.logo{font-weight:800;text-decoration:none;color:#1a1a1a;display:flex;align-items:center;gap:8px}
+.nav{display:flex;gap:6px;flex-wrap:wrap}
+.nav a,.nav button{font-size:.8rem;font-weight:600;padding:8px 12px;border-radius:999px;border:1.5px solid #e0e0e0;background:#fff;text-decoration:none;color:#1a1a1a;cursor:pointer;font-family:inherit;white-space:nowrap}
+.nav a.primary{background:#02a95c;color:#fff;border-color:#02a95c}
+.wrap{max-width:960px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;font-weight:800;margin-bottom:4px}
+.lead{color:#5c5c5c;font-size:.9rem;margin-bottom:18px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
+@media(min-width:600px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stat{background:#fff;border-radius:14px;padding:14px;border:1px solid #e8e8e8}
+.stat strong{display:block;font-size:1.25rem;font-weight:800}.stat span{font-size:.78rem;color:#5c5c5c}
+.card{background:#fff;border-radius:14px;border:1px solid #e8e8e8;padding:16px;margin-bottom:14px}
+.card h2{font-size:1.05rem;font-weight:700;margin-bottom:12px}
+.camp{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f0f0f0;align-items:center}
+.camp:last-child{border-bottom:none}
+.camp img{width:72px;height:56px;object-fit:cover;border-radius:8px;background:#eee;flex-shrink:0}
+.camp .t{font-weight:700;font-size:.9rem}.camp .m{font-size:.8rem;color:#5c5c5c}
+.camp a{color:#02a95c;font-weight:600;font-size:.8rem;text-decoration:none}
+label{display:block;font-size:.8rem;font-weight:600;margin:10px 0 4px}
+input,select,textarea{width:100%;padding:12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:.95rem;font-family:inherit}
+.btn{display:inline-block;padding:12px 18px;border-radius:999px;border:none;background:#02a95c;color:#fff;font-weight:700;font-size:.9rem;cursor:pointer;font-family:inherit;margin-top:12px}
+.err{color:#c0392b;font-size:.85rem;margin-top:8px}.ok{color:#016b3a;font-size:.85rem;margin-top:8px}
+.fields{display:none}.fields.on{display:block}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid #f0f0f0}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:.72rem;font-weight:700;background:#e6f7ef;color:#016b3a}
+.badge.pending{background:#fef3c7;color:#92400e}
+.empty{color:#5c5c5c;font-size:.9rem;padding:8px 0}
+.mob-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e8e8e8;display:flex;padding:8px 8px calc(8px + env(safe-area-inset-bottom));gap:4px;z-index:40}
+.mob-bar a{flex:1;text-align:center;padding:10px 4px;font-size:.72rem;font-weight:600;text-decoration:none;color:#5c5c5c;border-radius:10px}
+@media(min-width:800px){.mob-bar{display:none}}
 </style>
 </head>
 <body>
-<header class="site-header">
-  <div class="header-inner">
-    <a href="index.html" class="logo"><span class="logo-icon">H</span> HopeForUs</a>
-    <nav class="nav">
-      <a href="create-campaign.html" class="btn btn-primary btn-sm">New campaign</a>
-      <a href="index.html" class="nav-link hide-mobile">Home</a>
-      <button type="button" class="btn btn-ghost btn-sm" id="logoutBtn">Log out</button>
-    </nav>
+<header class="hdr">
+  <a class="logo" href="index.html"><img src="logo-mark.svg" width="26" height="26" alt=""> HopeForUs</a>
+  <div class="nav">
+    <a href="create-campaign.html" class="primary">Start campaign</a>
+    <a href="admin.html" id="adminLink" style="display:none">Admin</a>
+    <button type="button" id="lo">Log out</button>
   </div>
 </header>
-<section class="dashboard-header">
-  <div class="container">
-    <h1>Your dashboard</h1>
-    <p id="welcome">Manage media, donors, and messages</p>
-    <div class="dash-actions">
-      <a href="create-campaign.html" class="btn btn-lime">Start a campaign</a>
-      <a href="index.html" class="btn btn-outline">Browse campaigns</a>
+<div class="wrap">
+  <h1 id="hello">Dashboard</h1>
+  <p class="lead">New accounts start at zero donors, chats, and share clicks.</p>
+  <div class="stats" id="stats"></div>
+  <div class="card"><h2>Your campaigns</h2><div id="camps"><p class="empty">No campaigns yet.</p></div></div>
+  <div class="card"><h2>Share link analytics</h2><p class="empty" style="margin-bottom:10px">Clicks on hopeforus.me/f/CODE — total and by country.</p><div id="analytics"></div></div>
+  <div class="card">
+    <h2>Withdraw (USDT & BTC only)</h2>
+    <p class="empty" style="margin-bottom:8px">Payouts process on the 15th. Crypto wallets only.</p>
+    <label>Method</label>
+    <select id="wMethod"><option value="">Select…</option><option value="usdt">USDT (Tether)</option><option value="btc">BTC (Bitcoin)</option></select>
+    <div class="fields" id="usdtFields">
+      <label>Network</label>
+      <select id="usdtNet"><option value="TRC20">TRC20 (Tron)</option><option value="ERC20">ERC20 (Ethereum)</option><option value="BEP20">BEP20 (BSC)</option></select>
+      <label>USDT wallet address</label>
+      <input id="usdtAddr" placeholder="Your USDT address">
     </div>
+    <div class="fields" id="btcFields">
+      <label>BTC wallet address</label>
+      <input id="btcAddr" placeholder="bc1… or 1… or 3…">
+    </div>
+    <label>Amount (USD equivalent)</label>
+    <input id="wAmount" type="number" min="1" step="0.01" placeholder="100">
+    <label>Note (optional)</label>
+    <input id="wNote" placeholder="Campaign code or memo">
+    <button class="btn" type="button" id="wBtn">Request withdrawal</button>
+    <div class="err" id="wErr"></div><div class="ok" id="wOk"></div>
+    <h2 style="margin-top:20px;font-size:.95rem">Your requests</h2>
+    <div id="wList"></div>
   </div>
-</section>
-<section class="section">
-  <div class="container">
-    <div class="stats-grid">
-      <div class="stat-card"><div class="label">Total raised</div><div class="value" id="statRaised">$0</div></div>
-      <div class="stat-card"><div class="label">Active campaigns</div><div class="value" id="statCampaigns">0</div></div>
-      <div class="stat-card"><div class="label">Supporters</div><div class="value" id="statSupporters">0</div></div>
-      <div class="stat-card"><div class="label">Unread messages</div><div class="value">3</div></div>
-    </div>
-    <div class="tabs" role="tablist">
-      <button type="button" class="tab active" data-tab="campaigns">Campaigns</button>
-      <button type="button" class="tab" data-tab="media">Photos & videos</button>
-      <button type="button" class="tab" data-tab="social">Social links</button>
-      <button type="button" class="tab" data-tab="donors">Donors & emails</button>
-      <button type="button" class="tab" data-tab="chat">Chat</button>
-      <button type="button" class="tab" data-tab="withdraw">Withdraw</button>
-    </div>
-    <div class="tab-panel active" id="panel-campaigns">
-      <h2 style="font-size:1.15rem;font-weight:800;margin:0 0 16px">Your campaigns</h2>
-      <div class="campaigns-grid" id="myCampaigns"></div>
-      <p id="noCampaigns" class="empty-state" style="display:none">No campaigns yet. <a href="create-campaign.html">Create your first one</a></p>
-    </div>
-    <div class="tab-panel" id="panel-media">
-      <h2 style="font-size:1.15rem;font-weight:800;margin:0 0 8px">Photos & videos</h2>
-      <p style="color:var(--muted);font-size:.9rem;margin:0 0 16px">Add media to your latest campaign anytime.</p>
-      <input type="file" id="mediaInput" accept="image/*,video/*" multiple>
-      <div class="media-grid" id="mediaGrid"></div>
-    </div>
-    <div class="tab-panel" id="panel-social">
-      <h2 style="font-size:1.15rem;font-weight:800;margin:0 0 8px">Social links</h2>
-      <div class="social-field"><span>Instagram</span><input type="url" id="socIg" placeholder="https://instagram.com/you"></div>
-      <div class="social-field"><span>Facebook</span><input type="url" id="socFb" placeholder="https://facebook.com/you"></div>
-      <div class="social-field"><span>X / Twitter</span><input type="url" id="socX" placeholder="https://x.com/you"></div>
-      <div class="social-field"><span>TikTok</span><input type="url" id="socTt" placeholder="https://tiktok.com/@you"></div>
-      <button type="button" class="btn btn-primary mt-2" id="saveSocial">Save links</button>
-      <p id="socialMsg" style="display:none;margin-top:10px;font-weight:600;color:var(--g)"></p>
-    </div>
-    <div class="tab-panel" id="panel-donors">
-      <h2 style="font-size:1.15rem;font-weight:800;margin:0 0 8px">Donors & emails</h2>
-      <button type="button" class="btn btn-outline btn-sm mb-2" id="exportCsv">Download emails (CSV)</button>
-      <div style="overflow-x:auto"><table class="donor-table"><thead><tr><th>Name</th><th>Email</th><th>Amount</th><th>When</th></tr></thead><tbody id="donorBody"></tbody></table></div>
-    </div>
-    <div class="tab-panel" id="panel-chat">
-      <h2 style="font-size:1.15rem;font-weight:800;margin:0 0 8px">Chat with donors</h2>
-      <div id="chatList"></div>
-    </div>
-    <div class="tab-panel" id="panel-withdraw">
-      <h2 style="font-size:1.15rem;font-weight:800;margin:0 0 8px">Withdraw funds</h2>
-      <p style="color:#5c5c5c;font-size:.9rem;margin:0 0 16px">Payouts process on the <strong>15th of every month</strong>.</p>
-      <div style="display:grid;gap:12px;max-width:480px">
-        <label style="display:flex;gap:12px;align-items:center;padding:14px;border:1.5px solid #e5e7eb;border-radius:14px;cursor:pointer"><input type="radio" name="payout" value="bank" checked> <strong>🏦 Bank transfer</strong></label>
-        <label style="display:flex;gap:12px;align-items:center;padding:14px;border:1.5px solid #e5e7eb;border-radius:14px;cursor:pointer"><input type="radio" name="payout" value="airtel"> <strong style="color:#e60000">Airtel Money</strong></label>
-        <label style="display:flex;gap:12px;align-items:center;padding:14px;border:1.5px solid #e5e7eb;border-radius:14px;cursor:pointer"><input type="radio" name="payout" value="momo"> <strong>MTN MoMo</strong></label>
-        <label style="display:flex;gap:12px;align-items:center;padding:14px;border:1.5px solid #e5e7eb;border-radius:14px;cursor:pointer"><input type="radio" name="payout" value="crypto"> <strong>₿ Crypto</strong></label>
-      </div>
-      <div style="max-width:480px;margin-top:14px"><label style="font-weight:600;font-size:.85rem">Account / phone / wallet</label><input type="text" id="payoutDetails" placeholder="Account, phone, or wallet" style="width:100%;padding:12px;border:1.5px solid #e5e7eb;border-radius:12px;margin-top:6px;box-sizing:border-box"></div>
-      <button type="button" class="btn btn-primary" id="savePayout" style="margin-top:12px">Save payout method</button>
-      <p id="payoutMsg" style="display:none;margin-top:10px;font-weight:600;color:#02a95c"></p>
-      <p style="font-size:.8rem;color:#6b7280;margin-top:14px">Next payout: 15th of this month.</p>
-    </div>
-  </div>
-</section>
-<footer class="site-footer"><p><a href="index.html">Home</a> · <a href="create-campaign.html">New campaign</a></p><p style="margin-top:8px">&copy; 2026 HopeForUs</p></footer>
+</div>
+<nav class="mob-bar">
+  <a href="index.html">Home</a>
+  <a href="create-campaign.html">Create</a>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="#" onclick="document.getElementById('wMethod').focus();return false">Withdraw</a>
+</nav>
+<script src="app.js"></script>
 <script>
-var user=JSON.parse(localStorage.getItem('hopeforus_user')||'null');
-if(!user)location.href='login.html';
-document.getElementById('welcome').textContent='Welcome, '+(user.name||'friend')+' — manage media, donors and messages';
-document.getElementById('logoutBtn').onclick=function(){localStorage.removeItem('hopeforus_user');location.href='index.html'};
-function campaigns(){try{return JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){return[]}}
-function myCamps(){return campaigns().filter(function(c){return c.ownerEmail===user.email||c.organizer===user.name})}
-function saveCamps(list){localStorage.setItem('hopeforus_campaigns',JSON.stringify(list))}
-(function(){var mine=myCamps();var raised=mine.reduce(function(s,c){return s+(c.raised||0)},0);document.getElementById('statRaised').textContent='$'+raised.toLocaleString();document.getElementById('statCampaigns').textContent=String(mine.length);document.getElementById('statSupporters').textContent=String(mine.length?47:0)})();
-document.querySelectorAll('.tab').forEach(function(tab){tab.onclick=function(){document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});tab.classList.add('active');document.getElementById('panel-'+tab.dataset.tab).classList.add('active')}});
-var activeId=(myCamps()[0]||{}).id;
-function renderCampaigns(){var mine=myCamps();var grid=document.getElementById('myCampaigns');var empty=document.getElementById('noCampaigns');if(!mine.length){grid.innerHTML='';empty.style.display='block';return}empty.style.display='none';grid.innerHTML=mine.map(function(c){var p=c.goal?Math.min(100,Math.round((c.raised||0)/c.goal*100)):0;var img='';if(c.cover&&c.cover.dataUrl&&(!c.cover.type||c.cover.type.indexOf('video')!==0))img='<img src="'+c.cover.dataUrl+'" alt="">';else if(c.image)img='<img src="'+c.image+'" alt="">';else img='<div style="width:100%;height:100%;background:linear-gradient(135deg,#02a95c,#016b3a);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;padding:12px;text-align:center">'+(c.title||'').slice(0,30)+'</div>';return '<a class="campaign-card" href="campaign.html?id='+encodeURIComponent(c.id)+'"><div class="campaign-card-image">'+img+'</div><div class="campaign-card-body"><h3 class="campaign-card-title">'+(c.title||'')+'</h3><div class="progress-bar"><div class="progress-fill" style="width:'+p+'%"></div></div><div class="progress-meta"><span><strong>$'+(c.raised||0).toLocaleString()+'</strong> raised</span><span>$'+Number(c.goal).toLocaleString()+'</span></div></div></a>'}).join('')}
-renderCampaigns();
-document.getElementById('mediaInput').onchange=function(){var files=this.files;if(!files.length)return;if(!activeId){alert('Create a campaign first.');return}var list=campaigns();var camp=list.find(function(c){return c.id===activeId});if(!camp)return;if(!camp.media)camp.media=[];var left=files.length;Array.prototype.forEach.call(files,function(file){var max=file.type.indexOf('video')===0?8*1024*1024:3.5*1024*1024;if(file.size>max){left--;return}var r=new FileReader();r.onload=function(e){camp.media.push({type:file.type,dataUrl:e.target.result});left--;if(left<=0){try{saveCamps(list)}catch(err){alert('Storage full')}renderMedia()}};r.readAsDataURL(file)});this.value=''};
-function renderMedia(){var camp=campaigns().find(function(c){return c.id===activeId});var grid=document.getElementById('mediaGrid');if(!camp||!camp.media||!camp.media.length){grid.innerHTML='';return}grid.innerHTML=camp.media.map(function(m){return(m.type&&m.type.indexOf('video')===0)?'<div class="item"><video src="'+m.dataUrl+'" muted></video></div>':'<div class="item"><img src="'+m.dataUrl+'" alt=""></div>'}).join('')}
-renderMedia();
-document.getElementById('saveSocial').onclick=function(){var list=campaigns();var camp=list.find(function(c){return c.id===activeId})||list.find(function(c){return c.ownerEmail===user.email});if(!camp){alert('Create a campaign first.');return}camp.socialLinks={ig:document.getElementById('socIg').value.trim(),fb:document.getElementById('socFb').value.trim(),x:document.getElementById('socX').value.trim(),tt:document.getElementById('socTt').value.trim()};var main=camp.socialLinks.ig||camp.socialLinks.fb||camp.socialLinks.x||'';if(main)camp.social=main;saveCamps(list);var m=document.getElementById('socialMsg');m.style.display='block';m.textContent='Links saved to your campaign.'};
-var DONORS=[{name:'Alex Rivera',email:'alex.r@example.com',amount:50,when:'2 hrs ago'},{name:'Sam Chen',email:'sam.chen@example.com',amount:100,when:'5 hrs ago'},{name:'Jordan Lee',email:'j.lee@example.com',amount:25,when:'1 day ago'},{name:'Anonymous',email:'hidden@hopeforus.app',amount:75,when:'2 days ago'},{name:'Taylor Kim',email:'taylor.k@example.com',amount:200,when:'3 days ago'}];
-document.getElementById('donorBody').innerHTML=DONORS.map(function(d){return '<tr><td>'+d.name+'</td><td>'+d.email+'</td><td>$'+d.amount+'</td><td>'+d.when+'</td></tr>'}).join('');
-document.getElementById('exportCsv').onclick=function(){var csv='Name,Email,Amount,When\n'+DONORS.map(function(d){return '"'+d.name+'","'+d.email+'",'+d.amount+',"'+d.when+'"'}).join('\n');var a=document.createElement('a');a.href='data:text/csv,'+encodeURIComponent(csv);a.download='hopeforus-donors.csv';a.click()};
-var THREADS=[{who:'Alex Rivera',meta:'$50 · 2 hrs ago',msg:'Wishing you a fast recovery!'},{who:'Sam Chen',meta:'$100 · 5 hrs ago',msg:'Happy to help. Keep us posted.'},{who:'Taylor Kim',meta:'$200 · 3 days ago',msg:'You are not alone.'}];
-var chatList=document.getElementById('chatList');
-chatList.innerHTML=THREADS.map(function(t,i){return '<div class="chat-thread"><div class="who">'+t.who+'</div><div class="meta">'+t.meta+'</div><div class="chat-bubble">'+t.msg+'</div><div class="chat-input-row"><input type="text" placeholder="Reply…" data-reply="'+i+'"><button type="button" class="btn btn-primary btn-sm" data-send="'+i+'">Send</button></div></div>'}).join('');
-chatList.addEventListener('click',function(e){if(!e.target.matches('[data-send]'))return;var i=e.target.getAttribute('data-send');var input=chatList.querySelector('[data-reply="'+i+'"]');var text=(input.value||'').trim();if(!text)return;var bubble=document.createElement('div');bubble.className='chat-bubble';bubble.style.background='#e6f7ef';bubble.style.marginTop='6px';bubble.textContent='You: '+text;e.target.closest('.chat-thread').insertBefore(bubble,e.target.closest('.chat-input-row'));input.value=''});
-document.getElementById('savePayout')&&document.getElementById('savePayout').addEventListener('click',function(){var m=document.getElementById('payoutMsg');if(m){m.style.display='block';m.textContent='Payout method saved. Transfers run on the 15th.';}try{localStorage.setItem('hopeforus_payout',JSON.stringify({method:(document.querySelector('input[name=payout]:checked')||{}).value,details:(document.getElementById('payoutDetails')||{}).value}))}catch(e){}});
-if(location.hash==='#withdraw'){document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});var tw=document.querySelector('[data-tab=withdraw]');if(tw){tw.classList.add('active');var pw=document.getElementById('panel-withdraw');if(pw)pw.classList.add('active')}}
+var u=HF.session();
+if(!u) location.href='login.html';
+document.getElementById('hello').textContent='Hi, '+(u.name||u.email).split(' ')[0];
+if(u.isAdmin) document.getElementById('adminLink').style.display='inline-flex';
+document.getElementById('lo').onclick=function(){HF.logout();location.href='login.html'};
+function myCamps(){var list=[];try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}return list.filter(function(c){return c.ownerEmail===u.email||c.organizerEmail===u.email})}
+function render(){
+  var camps=myCamps();
+  var raised=camps.reduce(function(s,c){return s+(c.raised||0)},0);
+  var clicks=0;var analytics=HF.clicksForUser(u.email);analytics.forEach(function(a){clicks+=(a.clicks.total||0)});
+  document.getElementById('stats').innerHTML='<div class="stat"><strong>'+camps.length+'</strong><span>Campaigns</span></div><div class="stat"><strong>$'+raised.toLocaleString()+'</strong><span>Raised</span></div><div class="stat"><strong>0</strong><span>Donors</span></div><div class="stat"><strong>'+clicks+'</strong><span>Share clicks</span></div>';
+  if(!camps.length) document.getElementById('camps').innerHTML='<p class="empty">No campaigns yet. <a href="create-campaign.html">Start one</a> — it shows on the homepage with your photos.</p>';
+  else{var h='';camps.forEach(function(c){var img=c.image||(c.cover&&c.cover.dataUrl)||'';var link=HF.shortLink(c.code||c.id);h+='<div class="camp">'+(img?'<img src="'+img+'" alt="">':'<div style="width:72px;height:56px;background:#eee;border-radius:8px"></div>')+'<div style="flex:1;min-width:0"><div class="t">'+(c.title||'Campaign')+'</div><div class="m">$'+(c.raised||0).toLocaleString()+' raised · code '+(c.code||'—')+'</div><a href="campaign.html?id='+encodeURIComponent(c.id)+'">View</a> · <a href="#" data-copy="'+link+'">Copy share link</a></div></div>'});document.getElementById('camps').innerHTML=h;document.querySelectorAll('[data-copy]').forEach(function(a){a.onclick=function(e){e.preventDefault();navigator.clipboard.writeText(a.getAttribute('data-copy'));a.textContent='Copied!';setTimeout(function(){a.textContent='Copy share link'},1500)}})}
+  if(!analytics.length) document.getElementById('analytics').innerHTML='<p class="empty">No share clicks yet. Share your hopeforus.me/f/CODE link.</p>';
+  else{var ah='<table><tr><th>Campaign</th><th>Clicks</th><th>Countries</th></tr>';analytics.forEach(function(a){var countries=Object.keys(a.clicks.byCountry||{}).map(function(k){return k+': '+a.clicks.byCountry[k]}).join(', ')||'—';ah+='<tr><td>'+(a.campaign.title||a.campaign.code)+'</td><td><strong>'+(a.clicks.total||0)+'</strong></td><td>'+countries+'</td></tr>'});document.getElementById('analytics').innerHTML=ah+'</table>'}
+  var wd=HF.listWithdrawals(u.email);
+  if(!wd.length) document.getElementById('wList').innerHTML='<p class="empty">No withdrawal requests.</p>';
+  else{var wh='<table><tr><th>Method</th><th>Amount</th><th>Status</th><th>Date</th></tr>';wd.forEach(function(w){wh+='<tr><td>'+w.method.toUpperCase()+' '+(w.network||'')+'</td><td>'+w.amount+'</td><td><span class="badge '+w.status+'">'+w.status+'</span></td><td>'+new Date(w.created).toLocaleDateString()+'</td></tr>'});document.getElementById('wList').innerHTML=wh+'</table>'}
+}
+document.getElementById('wMethod').onchange=function(){document.getElementById('usdtFields').classList.toggle('on',this.value==='usdt');document.getElementById('btcFields').classList.toggle('on',this.value==='btc')};
+document.getElementById('wBtn').onclick=function(){var err=document.getElementById('wErr'),ok=document.getElementById('wOk');err.textContent='';ok.textContent='';var method=document.getElementById('wMethod').value;var address=method==='usdt'?document.getElementById('usdtAddr').value:document.getElementById('btcAddr').value;var network=method==='usdt'?document.getElementById('usdtNet').value:'BTC';var r=HF.requestWithdraw({method:method,address:address,network:network,amount:document.getElementById('wAmount').value,note:document.getElementById('wNote').value});if(!r.ok){err.textContent=r.err;return}ok.textContent='Withdrawal requested. Admin processes on the 15th.';render()};
+render();
 </script>
 </body>
 </html>
