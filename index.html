@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--p:#7C3AED;--p-dark:#5B21B6;--p-deep:#4C1D95;--soft:#EDE9FE;--soft-t:#5B21B6;--yellow:#F5C542;--yellow-t:#3D2E00;--black:#1a1a1a;--muted:#5c5c5c;--border:#e8e8e8;--bg:#f7f7f7;--font:'Inter',-apple-system,sans-serif;--step-ms:8000}
+:root{--p:#7C3AED;--p-dark:#5B21B6;--p-deep:#4C1D95;--soft:#EDE9FE;--soft-t:#5B21B6;--yellow:#F5C542;--yellow-t:#3D2E00;--green:#00a964;--black:#1a1a1a;--muted:#5c5c5c;--border:#e0e0e0;--bg:#f7f7f7;--font:'Inter',-apple-system,sans-serif;--step-ms:8000}
 body{font-family:var(--font);color:var(--black);background:#fff;line-height:1.45}
 a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 .hdr{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.98);border-bottom:1px solid var(--border);height:64px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 16px}
@@ -65,19 +65,47 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 .srow h3{font-size:1.05rem;font-weight:700;margin:0 0 4px}
 .srow p{font-size:.9rem;color:var(--muted)}
 .srow a{color:var(--p);font-weight:600;font-size:.88rem}
-.disc{padding:56px 0}.in{max-width:1120px;margin:0 auto;padding:0 16px}
-.disc h2{font-size:1.4rem;font-weight:800;margin:0 0 16px}
-.grid{display:grid;grid-template-columns:1fr;gap:14px}
-@media(min-width:520px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media(min-width:900px){.grid{grid-template-columns:repeat(3,1fr)}}
-.card{background:#fff;border-radius:14px;overflow:hidden;border:1px solid var(--border)}
-.card img{width:100%;height:150px;object-fit:cover;background:#e8e8e8}
-.card .b{padding:12px}
-.card h3{font-size:.92rem;font-weight:700;margin:0 0 4px}
-.card .bar{height:5px;background:#e8e8e8;border-radius:100px;overflow:hidden;margin:8px 0 4px}
-.card .fill{height:100%;background:var(--p)}
-.card .m{font-size:.78rem;color:var(--muted)}
-.card .m strong{color:var(--black)}
+
+/* DISCOVER – GFM featured + 2x2 */
+.disc{padding:56px 0 72px}
+.in{max-width:1120px;margin:0 auto;padding:0 16px}
+.disc-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+.disc h2{font-size:clamp(1.3rem,3.5vw,1.65rem);font-weight:800;margin:0}
+.pill{font-size:.85rem;font-weight:600;padding:8px 14px;border-radius:999px;border:1.5px solid var(--border);background:#fff;font-family:inherit;cursor:pointer}
+.feat{display:grid;gap:16px;margin-bottom:28px}
+@media(min-width:860px){.feat{grid-template-columns:1fr 1fr;gap:16px}}
+.feat-main{position:relative;border-radius:12px;overflow:hidden;background:#e5e7eb;display:block;min-height:280px}
+.feat-main .img-wrap{aspect-ratio:16/9;position:relative;overflow:hidden}
+.feat-main img{width:100%;height:100%;object-fit:cover}
+.feat-main .don{position:absolute;left:12px;bottom:12px;background:rgba(0,0,0,.6);color:#fff;font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:999px}
+.feat-main .body{padding:14px 4px 0}
+.feat-main h3{font-size:1rem;font-weight:700;margin:0 0 10px;line-height:1.3}
+.feat-main .bar{height:6px;background:#e8e8e8;border-radius:100px;overflow:hidden;margin-bottom:6px}
+.feat-main .fill{height:100%;background:var(--green);border-radius:100px}
+.feat-main .amt{font-size:.9rem;font-weight:600;color:var(--black)}
+.feat-side{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.sm{border-radius:12px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+.sm .img-wrap{aspect-ratio:16/9;position:relative;overflow:hidden;background:#e8e8e8}
+.sm img{width:100%;height:100%;object-fit:cover}
+.sm .don{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.55);color:#fff;font-size:.7rem;font-weight:700;padding:3px 8px;border-radius:999px}
+.sm .body{padding:10px 2px 0}
+.sm h4{font-size:.84rem;font-weight:700;line-height:1.25;margin:0 0 8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sm .bar{height:5px;background:#e8e8e8;border-radius:100px;overflow:hidden;margin-bottom:5px}
+.sm .fill{height:100%;background:var(--green);border-radius:100px}
+.sm .amt{font-size:.8rem;font-weight:600;color:var(--black)}
+.more-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:8px}
+@media(min-width:520px){.more-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:900px){.more-grid{grid-template-columns:repeat(3,1fr)}}
+.card{border-radius:12px;overflow:hidden;background:#fff}
+.card .img-wrap{aspect-ratio:16/9;position:relative;overflow:hidden;background:#e8e8e8}
+.card img{width:100%;height:100%;object-fit:cover}
+.card .don{position:absolute;left:10px;bottom:10px;background:rgba(0,0,0,.55);color:#fff;font-size:.72rem;font-weight:700;padding:3px 8px;border-radius:999px}
+.card .body{padding:12px 2px 0}
+.card h3{font-size:.92rem;font-weight:700;margin:0 0 8px;line-height:1.3}
+.card .bar{height:5px;background:#e8e8e8;border-radius:100px;overflow:hidden;margin-bottom:5px}
+.card .fill{height:100%;background:var(--green);border-radius:100px}
+.card .amt{font-size:.82rem;font-weight:600}
+
 .yel{background:var(--yellow);text-align:center;padding:64px 20px 88px;position:relative}
 .yel:after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:40px;background:#fff;border-radius:50% 50% 0 0/100% 100% 0 0}
 .yel h2{font-size:clamp(1.4rem,4vw,2rem);font-weight:800;color:var(--yellow-t);margin:0 auto 10px;max-width:520px}
@@ -127,7 +155,16 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
     </div>
   </div>
 </section>
-<section class="disc" id="disc"><div class="in"><h2>Discover fundraisers inspired by what you care about</h2><div class="grid" id="grid"></div></div></section>
+<section class="disc" id="disc">
+  <div class="in">
+    <div class="disc-head">
+      <h2>Discover fundraisers inspired by what you care about</h2>
+      <button type="button" class="pill">Happening worldwide ▾</button>
+    </div>
+    <div class="feat" id="feat"></div>
+    <div class="more-grid" id="grid"></div>
+  </div>
+</section>
 <section class="yel"><div class="badge" style="background:var(--yellow-t);color:var(--yellow)">We've got you covered.</div><h2>Get what you need to help your fundraiser succeed on HopeForUs</h2><p>From memorial tributes to medical emergencies. Whenever you need help, you can ask here.</p></section>
 <section class="tr"><div class="badge">We've got you covered.</div><h2>HopeForUs is a trusted leader in online fundraising.</h2><p>With simple pricing and a focus on trust & safety, you can raise money with peace of mind.</p></section>
 <footer class="ft">© 2026 HopeForUs</footer>
@@ -138,19 +175,43 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 if(typeof SAMPLES==="undefined")var SAMPLES=[];
 function esc(s){return String(s||"").replace(/&/g,"&").replace(/</g,"<")}
 function money(n,c){c=c||"USD";var s=Number(n).toLocaleString();return c==="EUR"?"€"+s:c==="GBP"?"£"+s:"$"+s}
+function fmtDon(n){n=Number(n)||0;if(n>=1000)return(n/1000).toFixed(1).replace(/\.0$/,"")+"K";return String(n)}
 document.getElementById("mBtn").onclick=function(){document.getElementById("dr").classList.add("on")};
 document.getElementById("dr").onclick=function(e){if(e.target===this)this.classList.remove("on")};
 (function(){
   var list=[];try{list=JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")}catch(e){}
   var map={};list.forEach(function(c,i){map[c.id]=i});
-  SAMPLES.forEach(function(s){if(map[s.id]===undefined)list.push(s);else Object.assign(list[map[s.id]],s)});
+  SAMPLES.forEach(function(s){if(map[s.id]===undefined)list.push(Object.assign({},s));else Object.assign(list[map[s.id]],s)});
   try{localStorage.setItem("hopeforus_campaigns",JSON.stringify(list))}catch(e){}
-  var html="",seen={};
+  var all=[],seen={};
   list.concat(SAMPLES).forEach(function(c){
     if(seen[c.id])return;seen[c.id]=1;
-    var src=c.image||(c.cover&&c.cover.dataUrl)||"";if(!src)return;
-    var r=c.raised||0,g=c.goal||1,p=Math.min(100,Math.round(r/g*100));
-    html+='<a class="card" href="campaign.html?id='+encodeURIComponent(c.id)+'"><img src="'+src+'" alt="" loading="lazy" onerror="this.closest(\'.card\').remove()"><div class="b"><h3>'+esc(c.title)+'</h3><div class="bar"><div class="fill" style="width:'+p+'%"></div></div><div class="m"><strong>'+money(r,c.currency)+'</strong> raised</div></div></a>';
+    var src=c.image||(c.cover&&c.cover.dataUrl)||"";
+    if(!src)return;
+    all.push({c:c,src:src});
+  });
+  if(!all.length){document.getElementById("feat").innerHTML="";document.getElementById("grid").innerHTML="";return}
+  var featured=all.slice(0,5);
+  var f=featured[0],rest=featured.slice(1,5);
+  var fc=f.c,fp=Math.min(100,Math.round((fc.raised||0)/(fc.goal||1)*100));
+  var fh='<a class="feat-main" href="campaign.html?id='+encodeURIComponent(fc.id)+'">'+ 
+    '<div class="img-wrap"><img src="'+f.src+'" alt="" onerror="this.closest(\'.feat-main\').style.display=\'none\'"><span class="don">'+fmtDon(fc.donations||Math.round((fc.raised||0)/40))+' donations</span></div>'+
+    '<div class="body"><h3>'+esc(fc.title)+'</h3><div class="bar"><div class="fill" style="width:'+fp+'%"></div></div><div class="amt">'+money(fc.raised,fc.currency)+' raised</div></div></a>';
+  fh+='<div class="feat-side">';
+  rest.forEach(function(x){
+    var c=x.c,p=Math.min(100,Math.round((c.raised||0)/(c.goal||1)*100));
+    fh+='<a class="sm" href="campaign.html?id='+encodeURIComponent(c.id)+'">'+ 
+      '<div class="img-wrap"><img src="'+x.src+'" alt="" onerror="this.closest(\'.sm\').style.display=\'none\'"><span class="don">'+fmtDon(c.donations||Math.round((c.raised||0)/50))+' donations</span></div>'+
+      '<div class="body"><h4>'+esc(c.title)+'</h4><div class="bar"><div class="fill" style="width:'+p+'%"></div></div><div class="amt">'+money(c.raised,c.currency)+' raised</div></div></a>';
+  });
+  fh+='</div>';
+  document.getElementById("feat").innerHTML=fh;
+  var more=all.slice(5),html="";
+  more.forEach(function(x){
+    var c=x.c,p=Math.min(100,Math.round((c.raised||0)/(c.goal||1)*100));
+    html+='<a class="card" href="campaign.html?id='+encodeURIComponent(c.id)+'">'+ 
+      '<div class="img-wrap"><img src="'+x.src+'" alt="" loading="lazy" onerror="this.closest(\'.card\').remove()"><span class="don">'+fmtDon(c.donations||0)+' donations</span></div>'+
+      '<div class="body"><h3>'+esc(c.title)+'</h3><div class="bar"><div class="fill" style="width:'+p+'%"></div></div><div class="amt">'+money(c.raised,c.currency)+' raised</div></div></a>';
   });
   document.getElementById("grid").innerHTML=html;
 })();
