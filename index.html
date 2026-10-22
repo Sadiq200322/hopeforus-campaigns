@@ -7,22 +7,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--p:#7C3AED;--p-dark:#5B21B6;--p-deep:#4C1D95;--soft:#EDE9FE;--soft-t:#5B21B6;--yellow:#F5C542;--yellow-t:#3D2E00;--green:#00a964;--black:#1a1a1a;--muted:#5c5c5c;--border:#d8d8d8;--bg:#f7f7f7;--font:'Inter',system-ui,-apple-system,sans-serif;--step-ms:8000}
+:root{--p:#7C3AED;--p-dark:#5B21B6;--p-deep:#4C1D95;--soft:#EDE9FE;--soft-t:#5B21B6;--yellow:#ffd863;--yellow-t:#3D2E00;--green:#00a964;--black:#1a1a1a;--muted:#5c5c5c;--border:#d8d8d8;--bg:#f7f7f7;--font:'Inter',system-ui,-apple-system,sans-serif;--step-ms:8000}
 body{font-family:var(--font);color:var(--black);background:#fff;line-height:1.45}
 a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 .hdr{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.98);border-bottom:1px solid #e8e8e8;height:64px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 16px}
 .hdr-l{justify-self:start;display:flex}.hdr-r{justify-self:end;display:flex;gap:8px;align-items:center}
 .logo{justify-self:center;display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:1.2rem}
 .logo img{width:28px;height:28px}
-.nlink{font-size:.9rem;font-weight:600;padding:8px 12px;display:none}
-.btn-p{font-size:.88rem;font-weight:700;padding:9px 16px;border-radius:999px;background:var(--p);color:#fff;display:none}
+.nlink{font-size:.9rem;font-weight:600;padding:8px 12px;display:none;transition:color .15s}
+.nlink:hover{color:var(--p)}
+.btn-p{font-size:.88rem;font-weight:700;padding:9px 16px;border-radius:999px;background:var(--p);color:#fff;display:none;transition:filter .2s ease,transform .1s ease}
+.btn-p:hover{filter:brightness(.92)}.btn-p:active{transform:scale(.98)}
 .ibtn{width:40px;height:40px;border:0;background:0;cursor:pointer;border-radius:50%;display:inline-flex;align-items:center;justify-content:center}
 @media(min-width:960px){.nlink,.btn-p{display:inline-flex}.mob{display:none!important}}
 .hero{text-align:center;padding:48px 20px 0;max-width:720px;margin:0 auto}
 .badge{display:inline-block;background:var(--soft);color:var(--soft-t);font-size:.78rem;font-weight:700;padding:7px 14px;border-radius:999px;margin-bottom:16px}
 .hero h1{font-size:clamp(2rem,6.5vw,3.2rem);font-weight:800;line-height:1.08;letter-spacing:-.04em;margin:0 0 14px}
 .hero .sub{font-size:1.05rem;color:var(--muted);max-width:440px;margin:0 auto 24px}
-.cta{display:inline-flex;background:var(--p-deep);color:#E9D5FF;font-weight:700;padding:14px 28px;border-radius:999px}
+.cta{display:inline-flex;background:var(--p-deep);color:#E9D5FF;font-weight:700;padding:14px 28px;border-radius:999px;transition:filter .2s ease,transform .1s ease}
+.cta:hover{filter:brightness(.92)}.cta:active{transform:scale(.98)}
 .fan-w{position:relative;height:200px;margin:36px auto 0;max-width:880px;overflow:hidden}
 .fan{position:relative;width:100%;height:100%}
 .fc{position:absolute;bottom:8px;width:min(28vw,150px);aspect-ratio:4/3;border-radius:14px;overflow:hidden;box-shadow:0 10px 28px rgba(0,0,0,.16);background:#ddd}
@@ -66,18 +69,17 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 .srow p{font-size:.9rem;color:var(--muted)}
 .srow a{color:var(--p);font-weight:600;font-size:.88rem}
 
-/* ===== DISCOVER – exact GFM grid-in-grid ===== */
-.disc{padding:56px 0 72px;background:#fff}
+/* DISCOVER – GFM grid-in-grid + decompiled hover */
+.disc{padding:5rem 0 6rem;background:#fff}
 .disc .in{max-width:1120px;margin:0 auto;padding:0 20px}
 .disc h2{font-size:clamp(1.25rem,3.2vw,1.5rem);font-weight:800;margin:0 0 14px;letter-spacing:-.02em}
 .disc-tools{display:flex;align-items:center;gap:12px;margin-bottom:20px}
-.pill{display:inline-flex;align-items:center;gap:6px;font-size:.875rem;font-weight:600;padding:6px 16px;border-radius:24px;border:1px solid var(--border);background:#fff;font-family:inherit;cursor:pointer;color:var(--black)}
-.pill:hover{border-color:#bbb}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:.875rem;font-weight:600;padding:6px 16px;border-radius:24px;border:1px solid var(--border);background:#fff;font-family:inherit;cursor:pointer;color:var(--black);transition:border-color .15s,box-shadow .15s}
+.pill:hover{border-color:#bbb;box-shadow:0 2px 8px rgba(0,0,0,.06)}
 .discover-grid{display:grid;grid-template-columns:1fr;gap:16px}
-@media(min-width:860px){
-  .discover-grid{grid-template-columns:1fr 1fr;gap:16px;align-items:start}
-}
-.campaign-card{display:block;border-radius:12px;overflow:hidden;background:#fff}
+@media(min-width:860px){.discover-grid{grid-template-columns:1fr 1fr;gap:16px;align-items:start}}
+.campaign-card{display:block;border-radius:12px;overflow:hidden;background:#fff;border:1px solid #efefef;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease}
+.campaign-card:hover{transform:translateY(-4px);box-shadow:0 12px 24px rgba(0,0,0,.12)}
 .campaign-card .image-container{aspect-ratio:16/9;position:relative;overflow:hidden;background:#e8e8e8}
 .campaign-card .card-image{width:100%;height:100%;object-fit:cover}
 .donation-badge{position:absolute;left:10px;bottom:10px;background:rgba(0,0,0,.55);color:#fff;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:999px;line-height:1.3}
@@ -97,7 +99,7 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 @media(min-width:520px){.more-grid{grid-template-columns:repeat(2,1fr)}}
 @media(min-width:900px){.more-grid{grid-template-columns:repeat(3,1fr)}}
 
-.yel{background:var(--yellow);text-align:center;padding:64px 20px 88px;position:relative}
+.yel{background:var(--yellow);text-align:center;padding:5rem 20px 6.5rem;position:relative}
 .yel:after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:40px;background:#fff;border-radius:50% 50% 0 0/100% 100% 0 0}
 .yel h2{font-size:clamp(1.4rem,4vw,2rem);font-weight:800;color:var(--yellow-t);margin:0 auto 10px;max-width:520px}
 .yel p{color:#5a4a1a;max-width:460px;margin:0 auto}
@@ -146,7 +148,6 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
     </div>
   </div>
 </section>
-
 <section class="disc" id="disc">
   <div class="in">
     <h2>Discover fundraisers inspired by what you care about</h2>
@@ -157,7 +158,6 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
     <div class="more-grid" id="grid"></div>
   </div>
 </section>
-
 <section class="yel"><div class="badge" style="background:var(--yellow-t);color:var(--yellow)">We've got you covered.</div><h2>Get what you need to help your fundraiser succeed on HopeForUs</h2><p>From memorial tributes to medical emergencies. Whenever you need help, you can ask here.</p></section>
 <section class="tr"><div class="badge">We've got you covered.</div><h2>HopeForUs is a trusted leader in online fundraising.</h2><p>With simple pricing and a focus on trust & safety, you can raise money with peace of mind.</p></section>
 <footer class="ft">© 2026 HopeForUs</footer>
