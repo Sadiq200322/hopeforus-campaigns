@@ -16,7 +16,7 @@ const SAMPLES = [
     raised: 319167, goal: 400000, code: "SEB26",
     category: "medical",
     organizer: "Chanie Silver",
-    story: "Sebastian needs life-saving heart surgery at Boston Children's Hospital. Funds cover surgery, travel, and recovery.",
+    story: "Sebastian needs life-saving heart surgery. Funds cover surgery, travel, and recovery.",
     image: "https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800&h=450&fit=crop",
     media: ["https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800&h=450&fit=crop"],
     currency: "GBP", donations: 5200
@@ -41,7 +41,7 @@ const SAMPLES = [
     story: "Support the seal rescue center in Pieterburen so we can continue saving seals in need.",
     image: "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=800&h=450&fit=crop",
     media: ["https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=800&h=450&fit=crop"],
-    currency: "EUR", donations: 2840
+    currency: "EUR", donations: 24000
   },
   {
     id: "silver-rail",
@@ -52,7 +52,7 @@ const SAMPLES = [
     story: "Standing with a family after tragedy at Silver Rail. Donations support recovery, therapy, and care.",
     image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&h=450&fit=crop",
     media: ["https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&h=450&fit=crop"],
-    currency: "USD", donations: 4100
+    currency: "USD", donations: 6900
   },
   {
     id: "maya-nursing",
