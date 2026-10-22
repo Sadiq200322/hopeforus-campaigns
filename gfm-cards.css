@@ -1,0 +1,53 @@
+/* GoFundMe-style campaign cards for HopeForUs */
+.campaign-card{
+  display:block!important;
+  text-decoration:none!important;
+  border-radius:12px!important;
+  overflow:hidden!important;
+  background:#ffffff!important;
+  border:1px solid #dcdcdc!important;
+  box-shadow:0 4px 12px rgba(0,0,0,.08)!important;
+  transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease!important;
+  font-family:-apple-system,system-ui,'Inter',sans-serif!important;
+  color:#333!important;
+}
+.campaign-card:hover{
+  transform:translateY(-4px)!important;
+  box-shadow:0 12px 24px rgba(0,0,0,.12)!important;
+}
+.campaign-card .image-container{
+  width:100%!important;
+  height:200px!important;
+  aspect-ratio:auto!important;
+  position:relative!important;
+  overflow:hidden!important;
+  background:#e8e8e8!important;
+  border-bottom:1px solid #f0f0f0!important;
+}
+.campaign-card.mini .image-container{height:140px!important}
+.campaign-card.featured .image-container{height:240px!important}
+@media(max-width:640px){
+  .campaign-card .image-container{height:180px!important}
+  .campaign-card.featured .image-container{height:200px!important}
+  .campaign-card.mini .image-container{height:120px!important}
+}
+.campaign-card .card-image{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  display:block!important;
+}
+.campaign-card .card-content{
+  padding:16px!important;
+  background:#fff!important;
+}
+.campaign-card.mini .card-content{padding:12px!important}
+.campaign-card .card-title{
+  font-size:1rem!important;
+  font-weight:700!important;
+  line-height:1.3!important;
+  margin:0 0 12px!important;
+  color:#232323!important;
+}
+.campaign-card.mini .card-title{font-size:.84rem!important;margin:0 0 8px!important}
+.campaign-card.featured .card-title{font-size:1.05rem!important}
