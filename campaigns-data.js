@@ -1,101 +1,11 @@
 const SAMPLES = [
-  {
-    id: "plotzlich-papa",
-    title: "Plötzlich ohne Papa – Hilfe für eine werdende Mama & ihr Baby",
-    raised: 47034, goal: 60000, code: "PAPA26",
-    category: "memorial",
-    organizer: "Daniel Wagenbach",
-    story: "Our family needs support after an unexpected loss. Every contribution helps a young mother and her children through this difficult time.",
-    image: "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800&h=450&fit=crop",
-    media: ["https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800&h=450&fit=crop"],
-    currency: "EUR", donations: 1100
-  },
-  {
-    id: "sebastian-heart",
-    title: "Help Save Sebastian's Life – Urgent Heart Surgery Needed",
-    raised: 319167, goal: 400000, code: "SEB26",
-    category: "medical",
-    organizer: "Chanie Silver",
-    story: "Sebastian needs life-saving heart surgery. Funds cover surgery, travel, and recovery.",
-    image: "https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800&h=450&fit=crop",
-    media: ["https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800&h=450&fit=crop"],
-    currency: "GBP", donations: 5200
-  },
-  {
-    id: "ellie-cagnolina",
-    title: "Aiutami a Guarire per tornare dalla mia cagnolina Ellie",
-    raised: 32050, goal: 40000, code: "ELLIE26",
-    category: "medical",
-    organizer: "Maria Rossi",
-    story: "Help me heal so I can return home to my beloved dog Ellie.",
-    image: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800&h=450&fit=crop",
-    media: ["https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800&h=450&fit=crop"],
-    currency: "EUR", donations: 1700
-  },
-  {
-    id: "zeehonden",
-    title: "Red Zeehondencentrum Pieterburen – doneer nu!",
-    raised: 541465, goal: 2800000, code: "SEAL26",
-    category: "animals",
-    organizer: "Zeehondencentrum",
-    story: "Support the seal rescue center in Pieterburen so we can continue saving seals in need.",
-    image: "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=800&h=450&fit=crop",
-    media: ["https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=800&h=450&fit=crop"],
-    currency: "EUR", donations: 24000
-  },
-  {
-    id: "silver-rail",
-    title: "Support Family of Injured Silver Rail Child",
-    raised: 378566, goal: 400000, code: "RAIL26",
-    category: "emergency",
-    organizer: "Amy Reynolds",
-    story: "Standing with a family after tragedy at Silver Rail. Donations support recovery, therapy, and care.",
-    image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&h=450&fit=crop",
-    media: ["https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&h=450&fit=crop"],
-    currency: "USD", donations: 6900
-  },
-  {
-    id: "maya-nursing",
-    title: "Help Maya finish nursing school",
-    raised: 4100, goal: 8000, code: "MAYA26",
-    category: "education",
-    organizer: "Maya Chen",
-    story: "Support Maya as she completes her final year of nursing school.",
-    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=450&fit=crop",
-    media: ["https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=450&fit=crop"],
-    currency: "USD", donations: 89
-  },
-  {
-    id: "team-beta",
-    title: "Team Beta Travel Fund",
-    raised: 12500, goal: 20000, code: "BETA26",
-    category: "sports",
-    organizer: "Team Beta",
-    story: "Help our youth team travel to the national championship.",
-    image: "https://images.unsplash.com/photo-1461896836934-ffe607ba6851?w=800&h=450&fit=crop",
-    media: ["https://images.unsplash.com/photo-1461896836934-ffe607ba6851?w=800&h=450&fit=crop"],
-    currency: "USD", donations: 210
-  },
-  {
-    id: "community-kitchen",
-    title: "Rebuild our community kitchen after the fire",
-    raised: 18750, goal: 45000, code: "KITCH26",
-    category: "community",
-    organizer: "Neighborhood Collective",
-    story: "Our shared kitchen was destroyed. Help us rebuild a place for neighbors to cook and connect.",
-    image: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&h=450&fit=crop",
-    media: ["https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&h=450&fit=crop"],
-    currency: "USD", donations: 340
-  },
-  {
-    id: "john-memorial",
-    title: "In loving memory of John – support his family",
-    raised: 8200, goal: 15000, code: "JOHN26",
-    category: "memorial",
-    organizer: "Sarah Mitchell",
-    story: "Help us support John's family during this difficult time.",
-    image: "https://images.unsplash.com/photo-1490750965869-43174be27da4?w=800&h=450&fit=crop",
-    media: ["https://images.unsplash.com/photo-1490750965869-43174be27da4?w=800&h=450&fit=crop"],
-    currency: "USD", donations: 156
-  }
+  {id:"plotzlich-papa",title:"Plötzlich ohne Papa – Hilfe für eine werdende Mama & ihr Baby",raised:47034,goal:60000,code:"PAPA26",category:"memorial",organizer:"Daniel Wagenbach",story:"Our family needs support after an unexpected loss.",image:"https://images.unsplash.com/photo-1511895426328-dc8714191300?w=720&h=405&fit=crop&auto=format&q=75",media:[{type:"image",dataUrl:"https://images.unsplash.com/photo-1511895426328-dc8714191300?w=720&h=405&fit=crop&auto=format&q=75"},{type:"image",dataUrl:"https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=720&h=405&fit=crop&auto=format&q=75"},{type:"image",dataUrl:"https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=720&h=405&fit=crop&auto=format&q=75"}],currency:"EUR",donations:1100},
+  {id:"sebastian-heart",title:"Help Save Sebastian's Life – Urgent Heart Surgery Needed",raised:319167,goal:400000,code:"SEB26",category:"medical",organizer:"Chanie Silver",story:"Sebastian needs life-saving heart surgery.",image:"https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=720&h=405&fit=crop&auto=format&q=75",media:[{type:"image",dataUrl:"https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=720&h=405&fit=crop&auto=format&q=75"},{type:"image",dataUrl:"https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=720&h=405&fit=crop&auto=format&q=75"}],currency:"GBP",donations:5200},
+  {id:"ellie-cagnolina",title:"Aiutami a Guarire per tornare dalla mia cagnolina Ellie",raised:32050,goal:40000,code:"ELLIE26",category:"medical",organizer:"Maria Rossi",story:"Help me heal so I can return home to Ellie.",image:"https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=720&h=405&fit=crop&auto=format&q=75",media:[{type:"image",dataUrl:"https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=720&h=405&fit=crop&auto=format&q=75"},{type:"image",dataUrl:"https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=720&h=405&fit=crop&auto=format&q=75"}],currency:"EUR",donations:1700},
+  {id:"zeehonden",title:"Red Zeehondencentrum Pieterburen – doneer nu!",raised:541465,goal:2800000,code:"SEAL26",category:"animals",organizer:"Zeehondencentrum",story:"Support the seal rescue center.",image:"https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=720&h=405&fit=crop&auto=format&q=75",media:[{type:"image",dataUrl:"https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=720&h=405&fit=crop&auto=format&q=75"}],currency:"EUR",donations:24000},
+  {id:"silver-rail",title:"Support Family of Injured Silver Rail Child",raised:378566,goal:400000,code:"RAIL26",category:"emergency",organizer:"Amy Reynolds",story:"Standing with a family after tragedy.",image:"https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=720&h=405&fit=crop&auto=format&q=75",media:[{type:"image",dataUrl:"https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=720&h=405&fit=crop&auto=format&q=75"}],currency:"USD",donations:6900},
+  {id:"maya-nursing",title:"Help Maya finish nursing school",raised:4100,goal:8000,code:"MAYA26",category:"education",organizer:"Maya Chen",story:"Support Maya in her final year of nursing school.",image:"https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=720&h=405&fit=crop&auto=format&q=75",media:[{type:"image",dataUrl:"https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=720&h=405&fit=crop&auto=format&q=75"}],currency:"USD",donations:89},
+  {id:"team-beta",title:"Team Beta Travel Fund",raised:12500,goal:20000,code:"BETA26",category:"sports",organizer:"Team Beta",story:"Help our youth team travel to nationals.",image:"https://images.unsplash.com/photo-1461896836934-ffe607ba6851?w=720&h=405&fit=crop&auto=format&q=75",media:[{type:"image",dataUrl:"https://images.unsplash.com/photo-1461896836934-ffe607ba6851?w=720&h=405&fit=crop&auto=format&q=75"}],currency:"USD",donations:210},
+  {id:"community-kitchen",title:"Rebuild our community kitchen after the fire",raised:18750,goal:45000,code:"KITCH26",category:"community",organizer:"Neighborhood Collective",story:"Help us rebuild a place for neighbors to cook and connect.",image:"https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=720&h=405&fit=crop&auto=format&q=75",media:[{type:"image",dataUrl:"https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=720&h=405&fit=crop&auto=format&q=75"}],currency:"USD",donations:340},
+  {id:"john-memorial",title:"In loving memory of John – support his family",raised:8200,goal:15000,code:"JOHN26",category:"memorial",organizer:"Sarah Mitchell",story:"Help us support John's family during this difficult time.",image:"https://images.unsplash.com/photo-1490750965869-43174be27da4?w=720&h=405&fit=crop&auto=format&q=75",media:[{type:"image",dataUrl:"https://images.unsplash.com/photo-1490750965869-43174be27da4?w=720&h=405&fit=crop&auto=format&q=75"},{type:"image",dataUrl:"https://images.unsplash.com/photo-1511895426328-dc8714191300?w=720&h=405&fit=crop&auto=format&q=75"}],currency:"USD",donations:156}
 ];
