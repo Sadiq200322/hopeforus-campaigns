@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Admin – HopeForUs</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,-apple-system,sans-serif;background:#f3f4f6;color:#1a1a1a;padding-bottom:40px}
+.top{background:#0c3d30;color:#c8f0a8;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.top a{color:#c8f0a8;text-decoration:none;font-weight:600;font-size:.9rem}
+.top strong{color:#fff}
+.tabs{display:flex;gap:6px;padding:12px 12px 0;overflow-x:auto}
+.tab{padding:10px 16px;border-radius:999px;border:1.5px solid #e0e0e0;background:#fff;font-weight:600;font-size:.85rem;cursor:pointer;white-space:nowrap;font-family:inherit}
+.tab.on{background:#02a95c;color:#fff;border-color:#02a95c}
+.panel{display:none;padding:16px;max-width:1100px;margin:0 auto}
+.panel.on{display:block}
+.card{background:#fff;border-radius:14px;border:1px solid #e8e8e8;padding:16px;margin-bottom:12px}
+.card h3{font-size:1rem;margin-bottom:8px}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #f0f0f0;vertical-align:top}
+th{color:#5c5c5c;font-weight:600}
+.btn{padding:8px 12px;border-radius:8px;border:none;font-weight:600;font-size:.8rem;cursor:pointer;font-family:inherit}
+.btn-g{background:#02a95c;color:#fff}.btn-r{background:#fee2e2;color:#991b1b}
+.badge{display:inline-block;padding:3px 8px;border-radius:999px;font-size:.75rem;font-weight:700}
+.badge.pending{background:#fef3c7;color:#92400e}.badge.approved{background:#d1fae5;color:#065f46}.badge.rejected{background:#fee2e2;color:#991b1b}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
+.stat div{background:#fff;border-radius:12px;padding:14px;border:1px solid #e8e8e8;text-align:center}
+.stat strong{display:block;font-size:1.4rem;font-weight:800}.stat span{font-size:.8rem;color:#5c5c5c}
+</style>
+</head>
+<body>
+<div class="top">
+  <strong>HopeForUs Admin</strong>
+  <div style="display:flex;gap:14px;align-items:center">
+    <a href="index.html">Site</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="#" id="lo">Log out</a>
+  </div>
+</div>
+<div class="tabs">
+  <button class="tab on" data-p="overview">Overview</button>
+  <button class="tab" data-p="users">Users</button>
+  <button class="tab" data-p="campaigns">Campaigns</button>
+  <button class="tab" data-p="withdraws">Withdrawals</button>
+</div>
+<div class="panel on" id="overview"></div>
+<div class="panel" id="users"></div>
+<div class="panel" id="campaigns"></div>
+<div class="panel" id="withdraws"></div>
+<script src="app.js"></script>
+<script>
+if(!HF.isAdmin()){location.href='login.html';}
+document.getElementById('lo').onclick=function(e){e.preventDefault();HF.logout();location.href='login.html'};
+document.querySelectorAll('.tab').forEach(function(t){
+  t.onclick=function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on')});
+    document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('on')});
+    t.classList.add('on');document.getElementById(t.dataset.p).classList.add('on');
+  };
+});
+function render(){
+  var users=HF.adminUsers();
+  var camps=HF.adminCampaigns();
+  var wd=HF.listWithdrawals();
+  document.getElementById('overview').innerHTML='<div class="stat"><div><strong>'+users.length+'</strong><span>Users</span></div><div><strong>'+camps.length+'</strong><span>Campaigns</span></div><div><strong>'+wd.filter(function(w){return w.status==="pending"}).length+'</strong><span>Pending withdraws</span></div><div><strong>'+wd.length+'</strong><span>All withdraws</span></div></div><div class="card"><h3>Quick actions</h3><p style="color:#5c5c5c;font-size:.9rem">Review campaigns, approve USDT/BTC withdrawals, and manage accounts from the tabs above.</p></div>';
+  var uh='<div class="card"><h3>All users</h3><div style="overflow-x:auto"><table><tr><th>Name</th><th>Email</th><th>Verified</th><th>Joined</th></tr>';
+  users.forEach(function(u){
+    uh+='<tr><td>'+u.name+(u.isAdmin?' <span class="badge approved">admin</span>':'')+'</td><td>'+u.email+'</td><td>'+(u.verified?'Yes':'No')+'</td><td>'+(u.created?new Date(u.created).toLocaleDateString():'—')+'</td></tr>';
+  });
+  document.getElementById('users').innerHTML=uh+'</table></div></div>';
+  var ch='<div class="card"><h3>Campaigns</h3><div style="overflow-x:auto"><table><tr><th>Title</th><th>Owner</th><th>Raised</th><th>Status</th><th></th></tr>';
+  camps.forEach(function(c){
+    var st=c.status||'active';
+    ch+='<tr><td>'+(c.title||c.id)+'</td><td>'+(c.ownerEmail||c.organizer||'—')+'</td><td>$'+Number(c.raised||0).toLocaleString()+'</td><td><span class="badge '+(st==='rejected'?'rejected':st==='pending'?'pending':'approved')+'">'+st+'</span></td><td><button class="btn btn-g" data-id="'+c.id+'" data-s="approved">Approve</button> <button class="btn btn-r" data-id="'+c.id+'" data-s="rejected">Reject</button></td></tr>';
+  });
+  document.getElementById('campaigns').innerHTML=ch+'</table></div></div>';
+  document.querySelectorAll('#campaigns .btn').forEach(function(b){
+    b.onclick=function(){HF.setCampaignStatus(b.dataset.id,b.dataset.s);render()};
+  });
+  var wh='<div class="card"><h3>Withdrawals (USDT / BTC only)</h3><div style="overflow-x:auto"><table><tr><th>User</th><th>Method</th><th>Amount</th><th>Address</th><th>Status</th><th></th></tr>';
+  wd.forEach(function(w){
+    wh+='<tr><td>'+w.email+'</td><td>'+w.method.toUpperCase()+' '+(w.network||'')+'</td><td>'+w.amount+'</td><td style="max-width:140px;word-break:break-all;font-size:.75rem">'+w.address+'</td><td><span class="badge '+w.status+'">'+w.status+'</span></td><td>';
+    if(w.status==='pending') wh+='<button class="btn btn-g" data-w="'+w.id+'" data-s="approved">Pay</button> <button class="btn btn-r" data-w="'+w.id+'" data-s="rejected">Reject</button>';
+    wh+='</td></tr>';
+  });
+  document.getElementById('withdraws').innerHTML=wh+'</table></div></div>';
+  document.querySelectorAll('#withdraws .btn').forEach(function(b){
+    b.onclick=function(){HF.setWithdrawStatus(b.dataset.w,b.dataset.s);render()};
+  });
+}
+render();
+</script>
+</body>
+</html>
