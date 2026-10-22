@@ -11,15 +11,19 @@
 body{font-family:var(--font);color:var(--black);background:#fff;line-height:1.45}
 a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 .hdr{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.98);border-bottom:1px solid #e8e8e8;height:64px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 16px}
-.hdr-l{justify-self:start;display:flex}.hdr-r{justify-self:end;display:flex;gap:8px;align-items:center}
-.logo{justify-self:center;display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:1.2rem}
-.logo img{width:28px;height:28px}
+.hdr-l{justify-self:start;display:flex;align-items:center;gap:4px}.hdr-r{justify-self:end;display:flex;gap:8px;align-items:center}
+.logo{justify-self:center;display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:1.15rem}
+.logo-mark{width:28px;height:28px;border-radius:50%;background:var(--p);flex-shrink:0;display:block}
 .nlink{font-size:.9rem;font-weight:600;padding:8px 12px;display:none;transition:color .15s}
 .nlink:hover{color:var(--p)}
 .btn-p{font-size:.88rem;font-weight:700;padding:9px 16px;border-radius:999px;background:var(--p);color:#fff;display:none;transition:filter .2s ease,transform .1s ease}
 .btn-p:hover{filter:brightness(.92)}.btn-p:active{transform:scale(.98)}
-.ibtn{width:40px;height:40px;border:0;background:0;cursor:pointer;border-radius:50%;display:inline-flex;align-items:center;justify-content:center}
-@media(min-width:960px){.nlink,.btn-p{display:inline-flex}.mob{display:none!important}}
+.ibtn{width:40px;height:40px;border:0;background:0;cursor:pointer;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:var(--black)}
+.ibtn:hover{background:#f3f4f6}
+@media(min-width:960px){
+  .nlink,.btn-p{display:inline-flex}
+  .mob,.mBtn{display:none!important}
+}
 .hero{text-align:center;padding:48px 20px 0;max-width:720px;margin:0 auto}
 .badge{display:inline-block;background:var(--soft);color:var(--soft-t);font-size:.78rem;font-weight:700;padding:7px 14px;border-radius:999px;margin-bottom:16px}
 .hero h1{font-size:clamp(2rem,6.5vw,3.2rem);font-weight:800;line-height:1.08;letter-spacing:-.04em;margin:0 0 14px}
@@ -69,13 +73,17 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 .srow p{font-size:.9rem;color:var(--muted)}
 .srow a{color:var(--p);font-weight:600;font-size:.88rem}
 
-/* DISCOVER – GFM grid-in-grid + decompiled hover */
+/* DISCOVER */
 .disc{padding:5rem 0 6rem;background:#fff}
 .disc .in{max-width:1120px;margin:0 auto;padding:0 20px}
-.disc h2{font-size:clamp(1.25rem,3.2vw,1.5rem);font-weight:800;margin:0 0 14px;letter-spacing:-.02em}
-.disc-tools{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.disc h2{font-size:clamp(1.25rem,3.2vw,1.5rem);font-weight:800;margin:0 0 14px;letter-spacing:-.02em;color:#232323}
+.disc-tools{display:flex;align-items:center;gap:12px;margin-bottom:20px;position:relative}
 .pill{display:inline-flex;align-items:center;gap:6px;font-size:.875rem;font-weight:600;padding:6px 16px;border-radius:24px;border:1px solid var(--border);background:#fff;font-family:inherit;cursor:pointer;color:var(--black);transition:border-color .15s,box-shadow .15s}
-.pill:hover{border-color:#bbb;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.pill:hover,.pill.open{border-color:#bbb;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.pill-menu{display:none;position:absolute;top:calc(100% + 8px);left:0;min-width:220px;background:#fff;border:1px solid #e8e8e8;border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.12);padding:8px;z-index:50}
+.pill-menu.open{display:block}
+.pill-menu button{display:block;width:100%;text-align:left;padding:10px 12px;border:0;background:0;font-family:inherit;font-size:.9rem;font-weight:600;border-radius:8px;cursor:pointer;color:var(--black)}
+.pill-menu button:hover,.pill-menu button.active{background:var(--soft);color:var(--p-dark)}
 .discover-grid{display:grid;grid-template-columns:1fr;gap:16px}
 @media(min-width:860px){.discover-grid{grid-template-columns:1fr 1fr;gap:16px;align-items:start}}
 .campaign-card{display:block;border-radius:12px;overflow:hidden;background:#fff;border:1px solid #efefef;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease}
@@ -86,11 +94,11 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 .campaign-card.featured .donation-badge{left:12px;bottom:12px;font-size:.78rem;padding:4px 11px}
 .card-content{padding:12px 2px 0}
 .campaign-card.featured .card-content{padding:14px 2px 0}
-.card-title{font-size:.95rem;font-weight:700;line-height:1.3;margin:0 0 10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-title{font-size:1rem;font-weight:700;line-height:1.25;letter-spacing:-.01em;margin:0 0 12px;color:#232323;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .campaign-card.featured .card-title{font-size:1.05rem;-webkit-line-clamp:3}
-.progress-track{height:6px;background:#e8e8e8;border-radius:4px;overflow:hidden;margin-bottom:6px}
+.progress-track{height:6px;background:#EBEBEB;border-radius:99px;overflow:hidden;margin-bottom:8px}
 .campaign-card.mini .progress-track{height:5px;margin-bottom:5px}
-.progress-fill{height:100%;background:var(--green);border-radius:4px}
+.progress-fill{height:100%;background:var(--green);border-radius:99px}
 .raised-label{font-size:.875rem;font-weight:600;color:var(--black)}
 .campaign-card.mini .raised-label{font-size:.8rem}
 .campaign-card.mini .card-title{font-size:.84rem;margin:0 0 8px}
@@ -107,29 +115,76 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 .tr h2{font-size:clamp(1.4rem,4vw,2rem);font-weight:800;margin:12px 0}
 .tr p{color:#C4B5FD}
 .ft{padding:32px 20px;border-top:1px solid #e8e8e8;text-align:center;font-size:.85rem;color:var(--muted)}
-.dr{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.4)}.dr.on{display:block}
-.pn{position:absolute;top:0;right:0;width:min(280px,86vw);height:100%;background:#fff;padding:20px}
-.pn a{display:block;padding:14px 0;font-weight:600;border-bottom:1px solid #f0f0f0}
+
+/* Mobile drawer */
+.dr{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.4)}
+.dr.on{display:block}
+.pn{position:absolute;top:0;right:0;width:min(300px,88vw);height:100%;background:#fff;padding:16px 20px;box-shadow:-8px 0 32px rgba(0,0,0,.12);transform:translateX(0);animation:slideIn .25s ease}
+@keyframes slideIn{from{transform:translateX(100%)}}
+.pn-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f0f0f0}
+.pn-head strong{font-size:1rem}
+.pn a{display:block;padding:14px 0;font-weight:600;border-bottom:1px solid #f0f0f0;font-size:.95rem}
+.pn a:hover{color:var(--p)}
+.close-btn{width:36px;height:36px;border:0;background:#f3f4f6;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;line-height:1}
 </style>
 </head>
 <body>
 <header class="hdr">
-  <div class="hdr-l"><button type="button" class="ibtn mob" aria-label="Search" onclick="document.getElementById('disc').scrollIntoView({behavior:'smooth'})"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="7"/><path d="M15 15l5 5"/></svg></button>
-  <a href="#disc" class="nlink">Search</a><a href="#disc" class="nlink">Donate</a><a href="create-campaign.html" class="nlink">Fundraise</a></div>
-  <a href="index.html" class="logo"><img src="logo-mark.svg" width="28" height="28" alt=""> HopeForUs</a>
-  <div class="hdr-r"><a href="#how" class="nlink">About</a><a href="login.html" class="nlink">Sign in</a><a href="create-campaign.html" class="btn-p">Start a HopeForUs</a>
-  <button type="button" class="ibtn" id="mBtn" aria-label="Menu"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></div>
+  <div class="hdr-l">
+    <button type="button" class="ibtn mob" aria-label="Search" onclick="document.getElementById('disc').scrollIntoView({behavior:'smooth'})">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="7"/><path d="M15 15l5 5"/></svg>
+    </button>
+    <a href="#disc" class="nlink">Search</a>
+    <a href="#disc" class="nlink">Donate</a>
+    <a href="create-campaign.html" class="nlink">Fundraise</a>
+  </div>
+  <a href="index.html" class="logo"><span class="logo-mark" aria-hidden="true"></span> HopeForUs</a>
+  <div class="hdr-r">
+    <a href="#how" class="nlink">About</a>
+    <a href="login.html" class="nlink">Sign in</a>
+    <a href="create-campaign.html" class="btn-p">Start a HopeForUs</a>
+    <button type="button" class="ibtn mBtn" id="mBtn" aria-label="Menu" aria-expanded="false">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </div>
 </header>
-<div class="dr" id="dr"><div class="pn"><a href="create-campaign.html">Start a HopeForUs</a><a href="#disc">Browse</a><a href="#how">How it works</a><a href="login.html">Sign in</a><a href="signup.html">Sign up</a></div></div>
-<section class="hero"><div class="badge">#1 crowdfunding platform</div><h1>Where successful fundraisers start</h1><p class="sub">Tell your story, set a goal, with guidance at every step. No fee to start.</p><a href="create-campaign.html" class="cta">Start a HopeForUs</a></section>
+
+<div class="dr" id="dr" role="dialog" aria-label="Menu">
+  <div class="pn">
+    <div class="pn-head">
+      <strong>Menu</strong>
+      <button type="button" class="close-btn" id="closeMenu" aria-label="Close">×</button>
+    </div>
+    <a href="create-campaign.html">Start a HopeForUs</a>
+    <a href="#disc" data-close>Browse fundraisers</a>
+    <a href="#how" data-close>How it works</a>
+    <a href="login.html">Sign in</a>
+    <a href="signup.html">Sign up</a>
+    <a href="dashboard.html">Dashboard</a>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="badge">#1 crowdfunding platform</div>
+  <h1>Where successful fundraisers start</h1>
+  <p class="sub">Tell your story, set a goal, with guidance at every step. No fee to start.</p>
+  <a href="create-campaign.html" class="cta">Start a HopeForUs</a>
+</section>
+
 <div class="fan-w"><div class="fan">
-<div class="fc"><img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&h=320&fit=crop" alt=""></div>
-<div class="fc"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=320&fit=crop" alt=""></div>
-<div class="fc"><img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=400&h=320&fit=crop" alt=""></div>
-<div class="fc"><img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=320&fit=crop" alt=""></div>
-<div class="fc"><img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=400&h=320&fit=crop" alt=""></div>
+  <div class="fc"><img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&h=320&fit=crop" alt=""></div>
+  <div class="fc"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=320&fit=crop" alt=""></div>
+  <div class="fc"><img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=400&h=320&fit=crop" alt=""></div>
+  <div class="fc"><img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=320&fit=crop" alt=""></div>
+  <div class="fc"><img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=400&h=320&fit=crop" alt=""></div>
 </div></div>
-<section class="stats"><div class="badge">No fee to start fundraising</div><h2>More than thousands raise support every week on HopeForUs</h2><p>Get started in just a few minutes — pick a title, write your story, and share it with the world.</p></section>
+
+<section class="stats">
+  <div class="badge">No fee to start fundraising</div>
+  <h2>More than thousands raise support every week on HopeForUs</h2>
+  <p>Get started in just a few minutes — pick a title, write your story, and share it with the world.</p>
+</section>
+
 <section class="how" id="how">
   <div class="how-in">
     <div class="how-img-wrap">
@@ -148,19 +203,41 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
     </div>
   </div>
 </section>
+
 <section class="disc" id="disc">
   <div class="in">
     <h2>Discover fundraisers inspired by what you care about</h2>
     <div class="disc-tools">
-      <button type="button" class="pill" id="worldPill">Happening worldwide <span aria-hidden="true">▾</span></button>
+      <button type="button" class="pill" id="worldPill" aria-haspopup="listbox" aria-expanded="false">
+        <span id="pillLabel">Happening worldwide</span> <span aria-hidden="true">▾</span>
+      </button>
+      <div class="pill-menu" id="pillMenu" role="listbox">
+        <button type="button" data-filter="all" class="active">Happening worldwide</button>
+        <button type="button" data-filter="medical">Medical</button>
+        <button type="button" data-filter="memorial">Memorial</button>
+        <button type="button" data-filter="animals">Animals</button>
+        <button type="button" data-filter="emergency">Emergency</button>
+        <button type="button" data-filter="education">Education</button>
+        <button type="button" data-filter="community">Community</button>
+      </div>
     </div>
     <div class="discover-grid" id="feat"></div>
     <div class="more-grid" id="grid"></div>
   </div>
 </section>
-<section class="yel"><div class="badge" style="background:var(--yellow-t);color:var(--yellow)">We've got you covered.</div><h2>Get what you need to help your fundraiser succeed on HopeForUs</h2><p>From memorial tributes to medical emergencies. Whenever you need help, you can ask here.</p></section>
-<section class="tr"><div class="badge">We've got you covered.</div><h2>HopeForUs is a trusted leader in online fundraising.</h2><p>With simple pricing and a focus on trust & safety, you can raise money with peace of mind.</p></section>
+
+<section class="yel">
+  <div class="badge" style="background:var(--yellow-t);color:var(--yellow)">We've got you covered.</div>
+  <h2>Get what you need to help your fundraiser succeed on HopeForUs</h2>
+  <p>From memorial tributes to medical emergencies. Whenever you need help, you can ask here.</p>
+</section>
+<section class="tr">
+  <div class="badge">We've got you covered.</div>
+  <h2>HopeForUs is a trusted leader in online fundraising.</h2>
+  <p>With simple pricing and a focus on trust & safety, you can raise money with peace of mind.</p>
+</section>
 <footer class="ft">© 2026 HopeForUs</footer>
+
 <script src="app.js"></script>
 <script src="campaigns-data.js"></script>
 <script src="how-works.js"></script>
@@ -169,37 +246,68 @@ if(typeof SAMPLES==="undefined")var SAMPLES=[];
 function esc(s){return String(s||"").replace(/&/g,"&").replace(/</g,"<")}
 function money(n,c){c=c||"USD";var s=Number(n).toLocaleString();return c==="EUR"?"€"+s:c==="GBP"?"£"+s:"$"+s}
 function fmtDon(n){n=Number(n)||0;if(n>=1000)return(n/1000).toFixed(1).replace(/\.0$/,"")+"K";return String(n)}
-document.getElementById("mBtn").onclick=function(){document.getElementById("dr").classList.add("on")};
-document.getElementById("dr").onclick=function(e){if(e.target===this)this.classList.remove("on")};
-(function(){
-  var list=[];try{list=JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")}catch(e){}
-  var map={};list.forEach(function(c,i){map[c.id]=i});
-  SAMPLES.forEach(function(s){if(map[s.id]===undefined)list.push(Object.assign({},s));else Object.assign(list[map[s.id]],s)});
-  try{localStorage.setItem("hopeforus_campaigns",JSON.stringify(list))}catch(e){}
-  var all=[],seen={};
-  list.concat(SAMPLES).forEach(function(c){
-    if(seen[c.id])return;seen[c.id]=1;
-    var src=c.image||(c.cover&&c.cover.dataUrl)||"";
-    if(!src)return;
-    all.push({c:c,src:src});
+
+/* Menu drawer */
+var dr=document.getElementById("dr");
+var mBtn=document.getElementById("mBtn");
+function openMenu(){dr.classList.add("on");mBtn.setAttribute("aria-expanded","true");document.body.style.overflow="hidden"}
+function closeMenu(){dr.classList.remove("on");mBtn.setAttribute("aria-expanded","false");document.body.style.overflow=""}
+mBtn.addEventListener("click",function(e){e.stopPropagation();openMenu()});
+document.getElementById("closeMenu").addEventListener("click",closeMenu);
+dr.addEventListener("click",function(e){if(e.target===dr)closeMenu()});
+dr.querySelectorAll("[data-close]").forEach(function(a){a.addEventListener("click",function(){closeMenu()})});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeMenu();closePill()}});
+
+/* Happening worldwide dropdown */
+var pill=document.getElementById("worldPill");
+var pillMenu=document.getElementById("pillMenu");
+var pillLabel=document.getElementById("pillLabel");
+var currentFilter="all";
+function closePill(){pillMenu.classList.remove("open");pill.classList.remove("open");pill.setAttribute("aria-expanded","false")}
+pill.addEventListener("click",function(e){
+  e.stopPropagation();
+  var open=pillMenu.classList.toggle("open");
+  pill.classList.toggle("open",open);
+  pill.setAttribute("aria-expanded",open?"true":"false");
+});
+pillMenu.querySelectorAll("button").forEach(function(btn){
+  btn.addEventListener("click",function(e){
+    e.stopPropagation();
+    currentFilter=btn.getAttribute("data-filter");
+    pillLabel.textContent=btn.textContent;
+    pillMenu.querySelectorAll("button").forEach(function(b){b.classList.remove("active")});
+    btn.classList.add("active");
+    closePill();
+    renderCampaigns();
   });
-  if(!all.length){document.getElementById("feat").innerHTML="";document.getElementById("grid").innerHTML="";return}
-  var featured=all.slice(0,5);
+});
+document.addEventListener("click",function(){closePill()});
+
+/* Campaigns */
+var ALL=[];
+function renderCampaigns(){
+  var filtered=currentFilter==="all"?ALL:ALL.filter(function(x){return (x.c.category||"")===currentFilter});
+  if(!filtered.length){
+    document.getElementById("feat").innerHTML="<p style='color:#5c5c5c;padding:24px 0'>No fundraisers in this category yet.</p>";
+    document.getElementById("grid").innerHTML="";
+    return;
+  }
+  var featured=filtered.slice(0,5);
   var f=featured[0],rest=featured.slice(1,5);
   var fc=f.c,fp=Math.min(100,Math.round((fc.raised||0)/(fc.goal||1)*100));
   var fh='<a class="campaign-card featured" href="campaign.html?id='+encodeURIComponent(fc.id)+'">'+ 
-    '<div class="image-container"><img class="card-image" src="'+f.src+'" alt="" onerror="this.closest(\'.campaign-card\').style.display=\'none\'"><span class="donation-badge">'+fmtDon(fc.donations||Math.round((fc.raised||0)/40))+' donations</span></div>'+
+    '<div class="image-container"><img class="card-image" src="'+f.src+'" alt="" onerror="this.closest(\'.campaign-card\').style.display=\'none\'"><span class="donation-badge">'+fmtDon(fc.donations||0)+' donations</span></div>'+
     '<div class="card-content"><h3 class="card-title">'+esc(fc.title)+'</h3><div class="progress-track"><div class="progress-fill" style="width:'+fp+'%"></div></div><span class="raised-label">'+money(fc.raised,fc.currency)+' raised</span></div></a>';
   fh+='<div class="mini-cards-grid">';
   rest.forEach(function(x){
     var c=x.c,p=Math.min(100,Math.round((c.raised||0)/(c.goal||1)*100));
     fh+='<a class="campaign-card mini" href="campaign.html?id='+encodeURIComponent(c.id)+'">'+ 
-      '<div class="image-container"><img class="card-image" src="'+x.src+'" alt="" onerror="this.closest(\'.campaign-card\').style.display=\'none\'"><span class="donation-badge">'+fmtDon(c.donations||Math.round((c.raised||0)/50))+' donations</span></div>'+
+      '<div class="image-container"><img class="card-image" src="'+x.src+'" alt="" onerror="this.closest(\'.campaign-card\').style.display=\'none\'"><span class="donation-badge">'+fmtDon(c.donations||0)+' donations</span></div>'+
       '<div class="card-content"><h3 class="card-title">'+esc(c.title)+'</h3><div class="progress-track"><div class="progress-fill" style="width:'+p+'%"></div></div><span class="raised-label">'+money(c.raised,c.currency)+' raised</span></div></a>';
   });
   fh+='</div>';
   document.getElementById("feat").innerHTML=fh;
-  var more=all.slice(5),html="";
+  var more=filtered.slice(5),html="";
   more.forEach(function(x){
     var c=x.c,p=Math.min(100,Math.round((c.raised||0)/(c.goal||1)*100));
     html+='<a class="campaign-card" href="campaign.html?id='+encodeURIComponent(c.id)+'">'+ 
@@ -207,6 +315,21 @@ document.getElementById("dr").onclick=function(e){if(e.target===this)this.classL
       '<div class="card-content"><h3 class="card-title">'+esc(c.title)+'</h3><div class="progress-track"><div class="progress-fill" style="width:'+p+'%"></div></div><span class="raised-label">'+money(c.raised,c.currency)+' raised</span></div></a>';
   });
   document.getElementById("grid").innerHTML=html;
+}
+
+(function(){
+  var list=[];try{list=JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")}catch(e){}
+  var map={};list.forEach(function(c,i){map[c.id]=i});
+  SAMPLES.forEach(function(s){if(map[s.id]===undefined)list.push(Object.assign({},s));else Object.assign(list[map[s.id]],s)});
+  try{localStorage.setItem("hopeforus_campaigns",JSON.stringify(list))}catch(e){}
+  var seen={};
+  list.concat(SAMPLES).forEach(function(c){
+    if(seen[c.id])return;seen[c.id]=1;
+    var src=c.image||(c.cover&&c.cover.dataUrl)||"";
+    if(!src)return;
+    ALL.push({c:c,src:src});
+  });
+  renderCampaigns();
 })();
 </script>
 </body>
