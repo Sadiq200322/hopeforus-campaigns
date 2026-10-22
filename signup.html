@@ -2,80 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign up – HopeForUs</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{min-height:100vh;font-family:Inter,system-ui,sans-serif;background:#f3f2f0;display:flex;align-items:center;justify-content:center;padding:20px;color:#1a1a1a}
-.card{background:#fff;border-radius:20px;padding:36px 28px 28px;width:100%;max-width:400px;box-shadow:0 16px 48px rgba(0,0,0,.1);position:relative}
-.x{position:absolute;top:14px;right:14px;width:36px;height:36px;border:0;background:0;border-radius:50%;font-size:1.2rem;color:#5c5c5c;cursor:pointer;text-decoration:none;display:grid;place-items:center}
-.mark{text-align:center;color:#7C3AED;margin-bottom:12px}
-h1{text-align:center;font-size:1.75rem;font-weight:800}
-.sub{text-align:center;color:#5c5c5c;margin:8px 0 22px;font-size:.95rem}
-.sbtn{width:100%;height:48px;border-radius:999px;border:1.5px solid #e5e5e5;background:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;font-family:inherit;cursor:pointer}
-.or{display:flex;align-items:center;gap:12px;color:#5c5c5c;font-size:.85rem;margin:14px 0}
-.or::before,.or::after{content:"";flex:1;height:1px;background:#e5e5e5}
-input{width:100%;height:48px;padding:0 14px;border:1.5px solid #e5e5e5;border-radius:12px;font-size:.95rem;font-family:inherit}
-input:focus{outline:none;border-color:#7C3AED}
-.pbtn{width:100%;height:48px;border-radius:999px;border:0;background:#4C1D95;color:#E9D5FF;font-weight:700;margin-top:12px;font-family:inherit;cursor:pointer}
-.err{color:#b91c1c;font-size:.85rem;margin-top:8px;display:none}
-.err.show{display:block}
-.inbox{margin-top:16px;background:#f3f2f0;border-radius:12px;padding:14px;display:none}
-.inbox.on{display:block}
-.codes{display:flex;gap:8px;margin-top:12px}
-.codes input{text-align:center;font-weight:800;font-size:1.15rem}
-.home{display:block;text-align:center;margin-top:16px;font-size:.9rem;color:#5c5c5c}
-</style>
+<meta http-equiv="refresh" content="0;url=create-campaign.html">
+<script>location.replace("create-campaign.html");</script>
 </head>
 <body>
-<div class="card">
-  <a href="index.html" class="x" aria-label="Close">×</a>
-  <div class="mark"><svg width="36" height="36" viewBox="0 0 32 32"><path fill="currentColor" d="M16 3c.6 2.4 1.4 4 3.2 5.2C21.4 9.6 24 10.2 27 10c-2.2 1.6-3.4 3.4-4 5.8-.6 2.6-.4 5 .8 7.4-2.6-.2-4.8.4-6.6 1.8-1.6 1.2-2.6 2.8-3.2 4.8-.6-2-1.6-3.6-3.2-4.8-1.8-1.4-4-2-6.6-1.8 1.2-2.4 1.4-4.8.8-7.4C4.4 13.4 3.2 11.6 1 10c3 .2 5.6-.4 7.8-1.8C10.6 7 11.4 5.4 12 3c.8 2.2 2 3.8 4 5.2z"/></svg></div>
-  <h1>Welcome</h1>
-  <p class="sub">Sign in to HopeForUs or sign up to continue.</p>
-  <div id="authForm">
-    <button type="button" class="sbtn" id="g">Sign in with Google</button>
-    <button type="button" class="sbtn" id="a">Continue with Apple</button>
-    <div class="or">or</div>
-    <input type="email" id="email" placeholder="Email address" autocomplete="email">
-    <p class="err" id="err"></p>
-    <button type="button" class="pbtn" id="go">Continue</button>
-  </div>
-  <div class="inbox" id="inbox">
-    <p style="font-size:.75rem;font-weight:700;color:#5c5c5c">INBOX</p>
-    <p style="margin-top:6px">Your HopeForUs code is <strong id="code" style="letter-spacing:.12em"></strong></p>
-    <div class="codes" id="codes"></div>
-    <button type="button" class="pbtn" id="verify">Verify &amp; start</button>
-  </div>
-  <a class="home" href="index.html">← Back to home</a>
-</div>
-<script>
-var pending=null;
-function code6(){return String(Math.floor(100000+Math.random()*900000))}
-function start(provider){
-  var email=document.getElementById("email").value.trim();
-  var err=document.getElementById("err");
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent="Enter a valid email address.";err.classList.add("show");return}
-  pending={email:email.toLowerCase(),provider:provider,name:email.split("@")[0],code:code6()};
-  document.getElementById("authForm").style.display="none";
-  document.getElementById("inbox").classList.add("on");
-  document.getElementById("code").textContent=pending.code;
-  var codes=document.getElementById("codes");codes.innerHTML="";
-  for(var i=0;i<6;i++){var inp=document.createElement("input");inp.maxLength=1;inp.inputMode="numeric";
-    inp.oninput=function(){var v=this.value.replace(/\D/g,"").slice(-1);this.value=v;if(v&&this.nextSibling)this.nextSibling.focus()};
-    codes.appendChild(inp)}
-}
-document.getElementById("go").onclick=function(){start("email")};
-document.getElementById("g").onclick=function(){start("google")};
-document.getElementById("a").onclick=function(){start("apple")};
-document.getElementById("verify").onclick=function(){
-  var code="";document.querySelectorAll("#codes input").forEach(function(n){code+=n.value});
-  if(!pending||code!==pending.code){alert("Code does not match.");return}
-  var user={id:"u_"+pending.email,email:pending.email,name:pending.name,provider:pending.provider};
-  localStorage.setItem("hopeforus_user",JSON.stringify(user));
-  location.href="create-campaign.html";
-};
-</script>
+<p style="font-family:system-ui;padding:24px">Starting your fundraiser… <a href="create-campaign.html">Continue</a></p>
 </body>
 </html>
