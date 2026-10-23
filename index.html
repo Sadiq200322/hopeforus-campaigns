@@ -193,22 +193,23 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 <section class="yel"><div class="badge" style="background:var(--yellow-t);color:#ffd863">Tips & tools</div><h2>Get what you need to help your fundraiser succeed</h2><p>Guidance, sharing tools, and a clear path to withdraw.</p></section>
 <section class="topics"><div class="in"><h2>Featured topics</h2><div class="topics-grid">
 <div class="topic-card dark"><span class="topic-badge">New</span><h3>Fundraise with smart coaching</h3><p>Guidance at every step.</p><a href="create-campaign.html">Learn more →</a></div>
-<div class="topic-card mint"><h3>Giving funds</h3><p>Support causes you care about.</p><a href="#disc">Explore →</a></div>
-<div class="topic-card lilac"><h3>Urgent relief</h3><p>Help families in crisis now.</p><a href="#disc">See fundraisers →</a></div>
+<div class="topic-card mint"><span class="topic-badge">New</span><h3>Giving funds</h3><p>Track progress with donors.</p></div>
+<div class="topic-card lilac"><span class="topic-badge">Urgent</span><h3>Crisis relief</h3><p>Support families in emergencies.</p></div>
 </div></div></section>
-<section class="tr"><h2>More than $50 million is raised every week</h2><p>Join donors and organizers who trust HopeForUs.</p></section>
-<footer class="ft">© HopeForUs · <a href="#">Terms</a> · <a href="#">Privacy</a></footer>
+<section class="tr"><div class="badge">We've got you covered.</div><h2>HopeForUs is a trusted leader in online fundraising.</h2><p>Simple pricing and a focus on trust & safety.</p></section>
+<footer class="ft">© 2026 HopeForUs</footer>
 <script src="ui.js"></script>
 <script src="app.js"></script>
 <script src="clear-test-data.js"></script>
 <script src="campaigns-data.js"></script>
 <script src="how-works.js"></script>
+<script src="discover.js"></script>
 <script>
-var ALL=[];
-var currentFilter="all";
-function esc(s){return String(s||"").replace(/&/g,"&").replace(/</g,"<").replace(/"/g,""")}
-function money(n,c){n=Number(n)||0;var s=n.toLocaleString();if(c==="EUR")return"€"+s;if(c==="GBP")return"£"+s;return"$"+s}
-function fmtDon(n){n=Number(n)||0;if(n>=1000)return(Math.round(n/100)/10)+"K";return String(n)}
+if(typeof SAMPLES==="undefined")var SAMPLES=[];
+function esc(s){return String(s||"").replace(/&/g,"&").replace(/</g,"<")}
+function money(n,c){c=c||"USD";var s=Number(n).toLocaleString();return c==="EUR"?"€"+s:c==="GBP"?"£"+s:"$"+s}
+function fmtDon(n){n=Number(n)||0;if(n>=1000)return(n/1000).toFixed(1).replace(/\.0$/,"")+"K";return String(n)}
+var ALL=[],currentFilter="all";
 function pickFilter(btn){
   currentFilter=(btn.getAttribute("data-filter")||"all").toLowerCase();
   document.getElementById("pillLabel").textContent=btn.textContent.trim();
@@ -218,52 +219,44 @@ function pickFilter(btn){
   document.getElementById("worldPill").classList.remove("open");
   renderCampaigns();
 }
+document.addEventListener("click",function(){
+  var m=document.getElementById("pillMenu"),p=document.getElementById("worldPill");
+  if(m)m.classList.remove("open");if(p)p.classList.remove("open");
+});
 function renderCampaigns(){
-  var filter=currentFilter||"all";
-  var filtered=ALL.filter(function(x){
-    if(!x||!x.c||!x.src)return false;
-    if(filter==="all")return true;
-    var cat=(x.c.category||"").toLowerCase();
-    return cat===filter||cat.indexOf(filter)!==-1;
-  }).slice(0,5);
-  var feat=document.getElementById("feat");
-  var grid=document.getElementById("grid");
-  if(grid)grid.innerHTML="";
+  var filtered=currentFilter==="all"?ALL:ALL.filter(function(x){return String(x.c.category||"").toLowerCase()===currentFilter});
   if(!filtered.length){
-    feat.innerHTML="<p style='color:#5c5c5c;padding:24px 0;text-align:center'>No fundraisers in this category yet. <a href='create-campaign.html' style='color:#7C3AED;font-weight:600'>Start one →</a></p>";
-    return;
+    document.getElementById("feat").innerHTML="<p style='color:#5c5c5c;padding:20px 0'>No fundraisers here yet. <a href='create-campaign.html' style='color:#7C3AED;font-weight:600'>Start one →</a></p>";
+    document.getElementById("grid").innerHTML="";return;
   }
-  function badge(c){
-    var d=Number(c.donations)||0;
-    if(d>0)return fmtDon(d)+" donations";
-    var r=Number(c.raised)||0;
-    if(r>0)return money(r,c.currency)+" raised";
-    return "";
-  }
-  function card(x,cls){
-    var c=x.c;
-    var p=Math.min(100,Math.round((Number(c.raised)||0)/Math.max(1,Number(c.goal)||1)*100));
-    var b=badge(c);
-    var bhtml=b?'<span class="donation-badge">'+b+'</span>':"";
-    return '<a class="campaign-card '+cls+'" href="campaign.html?id='+encodeURIComponent(c.id)+'"><div class="image-container"><img class="card-image" src="'+x.src+'" alt="" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=720&h=405&fit=crop&auto=format&q=70\'">'+bhtml+'</div><div class="card-content"><h3 class="card-title">'+esc(c.title)+'</h3><div class="progress-track"><div class="progress-fill" style="width:'+p+'%"></div></div><span class="raised-label">'+money(c.raised,c.currency)+' raised</span></div></a>';
-  }
-  var fh=card(filtered[0],"featured");
-  if(filtered.length>1){
+  var featured=filtered.slice(0,5),f=featured[0],rest=featured.slice(1,5);
+  var fc=f.c,fp=Math.min(100,Math.round((fc.raised||0)/(fc.goal||1)*100));
+  var fh='<a class="campaign-card featured" href="campaign.html?id='+encodeURIComponent(fc.id)+'"><div class="image-container"><img class="card-image" src="'+f.src+'" alt="" loading="eager" decoding="async" onerror="this.onerror=null;this.src=\'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=720&h=405&fit=crop&auto=format&q=70\'"><span class="donation-badge">'+fmtDon(fc.donations||0)+' donations</span></div><div class="card-content"><h3 class="card-title">'+esc(fc.title)+'</h3><div class="progress-track"><div class="progress-fill" style="width:'+fp+'%"></div></div><span class="raised-label">'+money(fc.raised,fc.currency)+' raised</span></div></a>';
+  if(rest.length){
     fh+='<div class="mini-cards-grid">';
-    filtered.slice(1,5).forEach(function(x){fh+=card(x,"mini")});
+    rest.forEach(function(x){
+      var c=x.c,p=Math.min(100,Math.round((c.raised||0)/(c.goal||1)*100));
+      fh+='<a class="campaign-card mini" href="campaign.html?id='+encodeURIComponent(c.id)+'"><div class="image-container"><img class="card-image" src="'+x.src+'" alt="" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=720&h=405&fit=crop&auto=format&q=70\'"><span class="donation-badge">'+fmtDon(c.donations||0)+' donations</span></div><div class="card-content"><h3 class="card-title">'+esc(c.title)+'</h3><div class="progress-track"><div class="progress-fill" style="width:'+p+'%"></div></div><span class="raised-label">'+money(c.raised,c.currency)+' raised</span></div></a>';
+    });
     fh+='</div>';
   }
-  feat.innerHTML=fh;
+  document.getElementById("feat").innerHTML=fh;
+  var more=filtered.slice(5),html="";
+  more.forEach(function(x){
+    var c=x.c,p=Math.min(100,Math.round((c.raised||0)/(c.goal||1)*100));
+    html+='<a class="campaign-card" href="campaign.html?id='+encodeURIComponent(c.id)+'"><div class="image-container"><img class="card-image" src="'+x.src+'" alt="" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=720&h=405&fit=crop&auto=format&q=70\'"><span class="donation-badge">'+fmtDon(c.donations||0)+' donations</span></div><div class="card-content"><h3 class="card-title">'+esc(c.title)+'</h3><div class="progress-track"><div class="progress-fill" style="width:'+p+'%"></div></div><span class="raised-label">'+money(c.raised,c.currency)+' raised</span></div></a>';
+  });
+  document.getElementById("grid").innerHTML=html;
 }
 (function(){
   var list=[];try{list=JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")}catch(e){}
   if(!Array.isArray(list))list=[];
   var map={};list.forEach(function(c,i){if(c&&c.id)map[c.id]=i});
-  if(typeof SAMPLES!=="undefined")SAMPLES.forEach(function(s){
+  SAMPLES.forEach(function(s){
     if(map[s.id]===undefined)list.push(Object.assign({},s));
     else{
       var cur=list[map[s.id]]||{};
-      list[map[s.id]]=Object.assign({},cur,s,{category:s.category||cur.category||"community",image:cur.image||s.image,raised:Math.max(Number(cur.raised)||0,Number(s.raised)||0)});
+      list[map[s.id]]=Object.assign({},cur,s,{category:s.category||cur.category||"community",image:s.image||cur.image,raised:Math.max(Number(cur.raised)||0,Number(s.raised)||0)});
     }
   });
   try{localStorage.setItem("hopeforus_campaigns",JSON.stringify(list))}catch(e){}
@@ -275,10 +268,8 @@ function renderCampaigns(){
     if(!c.category)c.category="community";
     ALL.push({c:c,src:src});
   });
-  window.ALL=ALL;
   renderCampaigns();
 })();
 </script>
-<script src="discover.js"></script>
 </body>
 </html>
