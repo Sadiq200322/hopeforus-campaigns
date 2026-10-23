@@ -2,7 +2,7 @@ window.SAMPLES = [
   {
     id: "niki-ian-loss",
     title: "Support Niki And Her Boys After The Tragic Loss Of Ian",
-    image: "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=1200&q=80",
+    image: "https://yourimageshare.com/ib/E9vPBpDgFc",
     raised: 175580,
     goal: 200000,
     donations: 2782,
@@ -22,7 +22,7 @@ window.SAMPLES = [
   {
     id: "neuanfang-brand",
     title: "Gemeinsam stark – für einen Neuanfang nach dem Großbrand",
-    image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&q=80",
+    image: "https://yourimageshare.com/ib/54oMnEv1An",
     raised: 169324,
     goal: 200000,
     donations: 2246,
@@ -30,7 +30,7 @@ window.SAMPLES = [
     category: "emergency",
     organizer: "martin erd",
     beneficiary: "Manuel Endras",
-    story: "Eine fünfköpfige Familie hat durch einen Großbrand ihr Zuhause und die Werkstatt des selbstständigen Familienvaters verloren. In ihr neues Zuhause war die Familie erst vor wenigen Woch[...]",
+    story: "Eine fünfköpfige Familie hat durch einen Großbrand ihr Zuhause und die Werkstatt des selbstständigen Familienvaters verloren. In ihr neues Zuhause war die Familie erst vor wenigen Wochen eingezogen. Ihre kleine Werkstatt mit dem gesamten Werkzeug und Material wurde komplett zerstört. Jetzt brauchen sie Hilfe für die ersten Kosten, die Familie zu stabilisieren und wieder neu zu starten.",
     donors: [
       {name: "Simone Sommerlad", amount: 100, message: ""},
       {name: "Christian Martin", amount: 100, message: ""},
@@ -42,7 +42,7 @@ window.SAMPLES = [
   {
     id: "elena-peter-wedding",
     title: "Elena and Peter's Dream Wedding",
-    image: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=1200&q=80",
+    image: "https://yourimageshare.com/ib/ciLBrLAWbg",
     raised: 11096,
     goal: 16000,
     donations: 521,
@@ -50,7 +50,7 @@ window.SAMPLES = [
     category: "events",
     organizer: "keegan gordon",
     beneficiary: "Elena and Peter",
-    story: "Elena is 42, living with metastatic breast cancer, and has two young boys. Her fiancé Peter wants to marry her soon. After their engagement in 2022, Elena was diagnosed with metastatic br[...]",
+    story: "Elena is 42, living with metastatic breast cancer, and has two young boys. Her fiancé Peter wants to marry her soon. After their engagement in 2022, Elena was diagnosed with metastatic breast cancer. This fundraiser is for their dream wedding so they can create memories while she is still well enough to enjoy them.",
     donors: [
       {name: "Anonymous", amount: 142, message: ""},
       {name: "Kara Owen", amount: 50, message: ""},
@@ -62,7 +62,7 @@ window.SAMPLES = [
   {
     id: "hazel-cancer",
     title: "Hazel's Fight Isn't Over: Support Her Ongoing Treatment",
-    image: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=80",
+    image: "https://yourimageshare.com/ib/1Qnek15Lod",
     raised: 19650,
     goal: 55000,
     donations: 580,
@@ -70,7 +70,7 @@ window.SAMPLES = [
     category: "animals",
     organizer: "Annabel Margaret",
     beneficiary: "Hazel",
-    story: "Hazel is a 6-year-old German Shepherd fighting rare epithelial cancer that triggered an immune storm. She spent nine days in the ICU battling cancer, pneumonia, a third-degree AV block, me[...]",
+    story: "Hazel is a 6-year-old German Shepherd fighting rare epithelial cancer that triggered an immune storm. She spent nine days in the ICU battling cancer, pneumonia, a third-degree AV block, and more. This fundraiser helps cover advanced treatment and recovery costs.",
     donors: [
       {name: "Rebecca Moran", amount: 100, message: ""},
       {name: "Galina Haas", amount: 100, message: ""},
@@ -82,7 +82,7 @@ window.SAMPLES = [
   {
     id: "emaciated-puppies",
     title: "Help Two Emaciated Puppies Get Urgent Care",
-    image: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=1200&q=80",
+    image: "https://yourimageshare.com/ib/Sw16LqzPSX",
     raised: 7947,
     goal: 13000,
     donations: 155,
@@ -90,7 +90,7 @@ window.SAMPLES = [
     category: "animals",
     organizer: "Jewelia Bowden",
     beneficiary: "Two puppies",
-    story: "These two puppies are severely emaciated. Their owner passed away a couple of weeks ago. One was dragging a chain; the other was trying to eat old cat food in the dirt. They need urgent ve[...]",
+    story: "These two puppies are severely emaciated. Their owner passed away a couple of weeks ago. One was dragging a chain; the other was trying to eat old cat food in the dirt. They need urgent vet care and feeding support.",
     donors: [
       {name: "Anonymous", amount: 500, message: ""},
       {name: "Mahek Panchal", amount: 35, message: ""},
@@ -102,7 +102,7 @@ window.SAMPLES = [
   {
     id: "heehaw-donkey",
     title: "HeeHaw the donkey",
-    image: "https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?auto=format&fit=crop&w=1200&q=80",
+    image: "https://yourimageshare.com/ib/QV79yOju4R",
     raised: 166965,
     goal: 30000,
     donations: 2517,
@@ -110,7 +110,7 @@ window.SAMPLES = [
     category: "animals",
     organizer: "Hannah Israel",
     beneficiary: "HeeHaw foundation / farm animals",
-    story: "Bottle baby donkey HeeHaw was killed in his own pasture by trespassing officers. He was a loved family member who did many petting zoos and made many people smile. Donations support the fa[...]",
+    story: "Bottle baby donkey HeeHaw was killed in his own pasture by trespassing officers. He was a loved family member who did many petting zoos and made many people smile. Donations support the farm and animal rescue work.",
     donors: [
       {name: "Justice For HeeHaw Solana", amount: 11000, message: "Top donation"},
       {name: "Janet Steffy", amount: 50, message: ""},
@@ -127,7 +127,7 @@ window.SAMPLES = [
   {
     id: "leo-paws",
     title: "Help Leo Get Back on His Paws",
-    image: "https://images.unsplash.com/photo-1511044568932-338cba0ad803?auto=format&fit=crop&w=1200&q=80",
+    image: "https://yourimageshare.com/ib/sdhzXozedS",
     raised: 3513,
     goal: 4200,
     donations: 73,
@@ -135,7 +135,7 @@ window.SAMPLES = [
     category: "animals",
     organizer: "Elyza Crane",
     beneficiary: "Leo",
-    story: "Elyza is a first-year veterinary student at Virginia Tech. Her cat Leo suffered a broken leg in three places and needs about $4,000 orthopedic surgery. Leo came into her life during freshm[...]",
+    story: "Elyza is a first-year veterinary student at Virginia Tech. Her cat Leo suffered a broken leg in three places and needs orthopedic surgery. Leo came into her life during freshman year and has become family.",
     donors: [
       {name: "Anonymous", amount: 1000, message: ""},
       {name: "Abigail Childress", amount: 100, message: ""},
@@ -147,7 +147,7 @@ window.SAMPLES = [
   {
     id: "minis-dog-attack",
     title: "Help Keep Our Minis Safe After a Devastating Dog Attack",
-    image: "https://images.unsplash.com/photo-1551730459-92db2a308d85?auto=format&fit=crop&w=1200&q=80",
+    image: "https://yourimageshare.com/ib/U3gib66UDA",
     raised: 4491,
     goal: 9000,
     donations: 75,
@@ -155,7 +155,7 @@ window.SAMPLES = [
     category: "animals",
     organizer: "Nancy Sliwerski",
     beneficiary: "Mister Buddy, Zeus, Honeybun",
-    story: "On October 3, 2026, miniature horses suffered a violent dog attack. Mister Buddy was brutally mauled by two dogs while protecting paddock mates Zeus and Honeybun. Thanks to caretakers Mike[...]",
+    story: "On October 3, 2026, miniature horses suffered a violent dog attack. Mister Buddy was brutally mauled by two dogs while protecting paddock mates Zeus and Honeybun. Thanks to caretakers Mike and the farm team, the animals were saved.",
     donors: [
       {name: "Caitlin Gately", amount: 100, message: ""},
       {name: "Jody Coughlin", amount: 100, message: ""},
