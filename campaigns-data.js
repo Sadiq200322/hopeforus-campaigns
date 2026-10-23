@@ -42,7 +42,7 @@ window.SAMPLES = [
   {
     id: "elena-peter-wedding",
     title: "Elena and Peter's Dream Wedding",
-    image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=720&h=405&fit=crop&auto=format&q=80",
+    image: "https://images.gofundme.com/N-ERPiMCs0FQnOV85mzYphBSAN4=/720x405/https://d2g8igdw686xgo.cloudfront.net/109189423_1792454434412001_r.jpg",
     raised: 11096,
     goal: 16000,
     donations: 521,
@@ -82,7 +82,7 @@ window.SAMPLES = [
   {
     id: "emaciated-puppies",
     title: "Help Two Emaciated Puppies Get Urgent Care",
-    image: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=720&h=405&fit=crop&auto=format&q=80",
+    image: "https://images.gofundme.com/tQmZKUl5PB3dB9eu80fMBtG4QgY=/720x405/https://d2g8igdw686xgo.cloudfront.net/109266103_1792636279179897_r.png",
     raised: 7947,
     goal: 13000,
     donations: 155,
@@ -90,7 +90,7 @@ window.SAMPLES = [
     category: "animals",
     organizer: "Jewelia Bowden",
     beneficiary: "Two puppies",
-    story: "These two puppies are severely emaciated. Their owner passed away a couple of weeks ago. One was dragging a chain; the other was trying to eat old cat food in the dirt. They need urgent veterinary care: examinations, bloodwork, parasite testing, possible hospitalization, IV fluids, deworming, and careful refeeding. If both need several days of emergency care, costs could reach $5,000–$10,000 or more. Any amount helps cover exams, testing, hospitalization, medications, and recovery supplies.",
+    story: "These two puppies are severely emaciated. Their owner passed away a couple of weeks ago. One was dragging a chain; the other was trying to eat old cat food in the dirt. They need urgent veterinary care: examinations, bloodwork, parasite testing, possible hospitalization, IV fluids, deworming, and careful refeeding to avoid refeeding syndrome. If both need several days of emergency care, costs could reach $5,000–$10,000 or more. Any amount helps cover exams, testing, hospitalization, medications, and recovery supplies.",
     donors: [
       {name: "Anonymous", amount: 500, message: ""},
       {name: "Mahek Panchal", amount: 35, message: ""},
@@ -102,7 +102,7 @@ window.SAMPLES = [
   {
     id: "heehaw-donkey",
     title: "HeeHaw the donkey",
-    image: "https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=720&h=405&fit=crop&auto=format&q=80",
+    image: "https://images.gofundme.com/IuMBZOx6MhB4IyhDMHcroW-jESo=/720x405/https://d2g8igdw686xgo.cloudfront.net/107576699_1788113359380436_r.jpg",
     raised: 166965,
     goal: 30000,
     donations: 2517,
@@ -110,7 +110,7 @@ window.SAMPLES = [
     category: "animals",
     organizer: "Hannah Israel",
     beneficiary: "HeeHaw foundation / farm animals",
-    story: "Bottle baby donkey HeeHaw was killed in his own pasture by trespassing officers. He was a loved family member who did many petting zoos and made many people smile. Donations support the farm, care of the animals, and a HeeHaw foundation—not personal needs.",
+    story: "Bottle baby donkey HeeHaw was killed in his own pasture by trespassing officers. He was a loved family member who did many petting zoos and made many people smile. Donations support the farm, care of the animals, and a HeeHaw foundation—not personal needs. Update: mural from donors. Words of support from Robert Victor, Emily Robinson, K Thomas, Edward & Melanee Moore, Monique Ruiz and many others.",
     donors: [
       {name: "Justice For HeeHaw Solana", amount: 11000, message: "Top donation"},
       {name: "Janet Steffy", amount: 50, message: ""},
@@ -127,7 +127,7 @@ window.SAMPLES = [
   {
     id: "leo-paws",
     title: "Help Leo Get Back on His Paws",
-    image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=720&h=405&fit=crop&auto=format&q=80",
+    image: "https://images.gofundme.com/mwxJ4WXhb3SV5o8aqf7hpDUYYzA=/720x405/https://d2g8igdw686xgo.cloudfront.net/109217339_1792523237291507_r.jpg",
     raised: 3513,
     goal: 4200,
     donations: 73,
@@ -155,7 +155,7 @@ window.SAMPLES = [
     category: "animals",
     organizer: "Nancy Sliwerski",
     beneficiary: "Mister Buddy, Zeus, Honeybun",
-    story: "On October 3, 2026, miniature horses suffered a violent dog attack. Mister Buddy was brutally mauled by two dogs while protecting paddock mates Zeus and Honeybun. Thanks to caretakers and two veterinary teams, Buddy survived. Funds help build a secure night shed for all three minis and improve paddock fencing so another attack is less likely.",
+    story: "On October 3, 2026, miniature horses suffered a violent dog attack. Mister Buddy was brutally mauled by two dogs while protecting paddock mates Zeus and Honeybun. Thanks to caretakers Mike and Jean and two veterinary teams, Buddy survived. Funds help build a secure night shed for all three minis and improve paddock fencing so another attack is less likely. Every donation helps create a safer home for these precious animals.",
     donors: [
       {name: "Caitlin Gately", amount: 100, message: ""},
       {name: "Jody Coughlin", amount: 100, message: ""},
