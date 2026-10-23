@@ -22,7 +22,7 @@ window.SAMPLES = [
   {
     id: "neuanfang-brand",
     title: "Gemeinsam stark – für einen Neuanfang nach dem Großbrand",
-    image: "https://images.gofundme.com/PpRPhKjntxJIZyBcAnwTtTWQU8A=/720x405/https://d2g8igdw686xgo.cloudfront.net/109136805_179235186744853_r.png",
+    image: "https://yourimageshare.com/ib/54oMnEv1An",
     raised: 169324,
     goal: 200000,
     donations: 2246,
@@ -42,7 +42,7 @@ window.SAMPLES = [
   {
     id: "elena-peter-wedding",
     title: "Elena and Peter's Dream Wedding",
-    image: "https://images.gofundme.com/N-ERPiMCs0FQnOV85mzYphBSAN4=/720x405/https://d2g8igdw686xgo.cloudfront.net/109189423_1792454434412001_r.jpg",
+    image: "https://yourimageshare.com/ib/ciLBrLAWbg",
     raised: 11096,
     goal: 16000,
     donations: 521,
@@ -62,7 +62,7 @@ window.SAMPLES = [
   {
     id: "hazel-cancer",
     title: "Hazel's Fight Isn't Over: Support Her Ongoing Treatment",
-    image: "https://images.gofundme.com/WBqqiNx7Uq-zW5AbLa6PtNbmUUM=/720x405/https://d2g8igdw686xgo.cloudfront.net/108728167_1791300471189696_r.jpg",
+    image: "https://yourimageshare.com/ib/1Qnek15Lod",
     raised: 19650,
     goal: 55000,
     donations: 580,
@@ -82,7 +82,7 @@ window.SAMPLES = [
   {
     id: "emaciated-puppies",
     title: "Help Two Emaciated Puppies Get Urgent Care",
-    image: "https://images.gofundme.com/tQmZKUl5PB3dB9eu80fMBtG4QgY=/720x405/https://d2g8igdw686xgo.cloudfront.net/109266103_1792636279179897_r.png",
+    image: "https://yourimageshare.com/ib/Sw16LqzPSX",
     raised: 7947,
     goal: 13000,
     donations: 155,
@@ -102,7 +102,7 @@ window.SAMPLES = [
   {
     id: "heehaw-donkey",
     title: "HeeHaw the donkey",
-    image: "https://images.gofundme.com/IuMBZOx6MhB4IyhDMHcroW-jESo=/720x405/https://d2g8igdw686xgo.cloudfront.net/107576699_1788113359380436_r.jpg",
+    image: "https://yourimageshare.com/ib/QV79yOju4R",
     raised: 166965,
     goal: 30000,
     donations: 2517,
@@ -127,7 +127,7 @@ window.SAMPLES = [
   {
     id: "leo-paws",
     title: "Help Leo Get Back on His Paws",
-    image: "https://images.gofundme.com/mwxJ4WXhb3SV5o8aqf7hpDUYYzA=/720x405/https://d2g8igdw686xgo.cloudfront.net/109217339_1792523237291507_r.jpg",
+    image: "https://yourimageshare.com/ib/sdhzXozedS",
     raised: 3513,
     goal: 4200,
     donations: 73,
@@ -147,7 +147,7 @@ window.SAMPLES = [
   {
     id: "minis-dog-attack",
     title: "Help Keep Our Minis Safe After a Devastating Dog Attack",
-    image: "https://images.gofundme.com/P-wVz9DJRXSuWh7Ekw93piM0lTM=/720x405/https://d2g8igdw686xgo.cloudfront.net/108950459_1792367519611708_r.jpg",
+    image: "https://yourimageshare.com/ib/U3gib66UDA",
     raised: 4491,
     goal: 9000,
     donations: 75,
