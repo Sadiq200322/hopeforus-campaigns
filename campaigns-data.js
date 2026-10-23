@@ -2,7 +2,7 @@ window.SAMPLES = [
   {
     id: "niki-ian-loss",
     title: "Support Niki And Her Boys After The Tragic Loss Of Ian",
-    image: "https://images.gofundme.com/nrQWnMf845VmhTzzw91PH1JxEIM=/720x405/https://d2g8igdw686xgo.cloudfront.net/109150901_1792439865613752_r.jpg",
+    image: "https://images.gofundme.com/nrQWnMf845VmhTzzw91PH1JxEIM=/1200x900/https://d2g8igdw686xgo.cloudfront.net/109150901_1792439865613752_r.jpg",
     raised: 175580,
     goal: 200000,
     donations: 2782,
