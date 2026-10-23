@@ -207,7 +207,7 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 if(typeof SAMPLES==="undefined")var SAMPLES=[];
 function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;")}
 function money(n,c){c=c||"USD";var s=Number(n).toLocaleString();return c==="EUR"?"€"+s:c==="GBP"?"£"+s:"$"+s}
-function fmtDon(n){n=Number(n)||0;if(n>=1000)return(n/1000).toFixed(1).replace(/\.0$/,"")+"K";return String(n)}
+function fmtDon(n){n=Number(n)||0;if(n>=1000)return(n/1000).toFixed(1).replace(/\.0$/,'')+"K";return String(n)}
 var ALL=[],currentFilter="all";
 function resolveCampaignImage(c){
   if(!c) return "";
@@ -223,6 +223,17 @@ function resolveCampaignImage(c){
   }
   if(c.cover && c.cover.dataUrl && c.cover.dataUrl.trim()) return c.cover.dataUrl.trim();
   return "";
+}
+function normalizeCampaignList(list){
+  if(!Array.isArray(list)) return [];
+  return list.filter(function(c){return !!(c && c.id)}).map(function(c){
+    var img = resolveCampaignImage(c);
+    return Object.assign({}, c, {
+      image: img || c.image || "",
+      category: c.category || "community",
+      media: Array.isArray(c.media) ? c.media : []
+    });
+  });
 }
 function pickFilter(btn){
   currentFilter=(btn.getAttribute("data-filter")||"all").toLowerCase();
@@ -263,23 +274,26 @@ function renderCampaigns(){
   document.getElementById("grid").innerHTML=html;
 }
 (function(){
-  var list=[];try{list=JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")}catch(e){}
-  if(!Array.isArray(list))list=[];
-  var map={};list.forEach(function(c,i){if(c&&c.id)map[c.id]=i});
+  var saved=[];
+  try{saved=JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")}catch(e){}
+  var list=normalizeCampaignList(saved);
+  var map={};
+  list.forEach(function(c){if(c&&c.id)map[c.id]=1;});
   SAMPLES.forEach(function(s){
-    if(map[s.id]===undefined)list.push(Object.assign({},s));
-    else{
-      var cur=list[map[s.id]]||{};
-      list[map[s.id]]=Object.assign({},cur,s,{category:s.category||cur.category||"community",image:resolveCampaignImage(Object.assign({},cur,s))||cur.image||s.image||"",media:Array.isArray(cur.media)&&cur.media.length?cur.media:(Array.isArray(s.media)?s.media:[]),raised:Math.max(Number(cur.raised)||0,Number(s.raised)||0)});
+    if(!s||!s.id) return;
+    if(!map[s.id]){
+      list.push(Object.assign({}, s, { category: s.category || "community", image: s.image || "", media: Array.isArray(s.media) ? s.media : [] }));
+      map[s.id]=1;
     }
   });
   try{localStorage.setItem("hopeforus_campaigns",JSON.stringify(list))}catch(e){}
   var seen={};
   list.forEach(function(c){
-    if(!c||!c.id||seen[c.id])return;seen[c.id]=1;
+    if(!c||!c.id||seen[c.id]) return;
+    seen[c.id]=1;
     var src=resolveCampaignImage(c);
-    if(!src)return;
-    if(!c.category)c.category="community";
+    if(!src) return;
+    if(!c.category) c.category="community";
     ALL.push({c:c,src:src});
   });
   renderCampaigns();
