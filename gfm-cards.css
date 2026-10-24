@@ -1,58 +1,39 @@
-/* GoFundMe-style discover section – centered like GFM */
+/* GoFundMe-scale discover cards
+   Desktop: featured left + 2x2 minis right
+   Card size target ~260-280px wide, ~340-360px tall overall row
+*/
 
-.disc{
-  padding:3.5rem 0 4rem!important;
-}
 .disc .in{
-  max-width:1000px!important;
+  max-width:1040px!important;
   margin:0 auto!important;
-  padding:0 24px!important;
-  width:100%!important;
-  box-sizing:border-box!important;
-}
-
-/* Title centered */
-.disc h2{
-  text-align:center!important;
-  font-size:clamp(1.25rem,3.5vw,1.6rem)!important;
-  font-weight:800!important;
-  margin:0 0 20px!important;
-  color:#232323!important;
-}
-
-/* Filter row: dropdown left, like GFM (within centered container) */
-.disc-tools{
-  display:flex!important;
-  align-items:center!important;
-  justify-content:flex-start!important;
-  gap:12px!important;
-  margin:0 0 18px!important;
-  position:relative!important;
-  z-index:20!important;
-  width:100%!important;
+  padding:0 20px!important;
 }
 
 .discover-grid{
   display:grid!important;
   grid-template-columns:1fr!important;
-  gap:14px!important;
+  gap:12px!important;
   width:100%!important;
-  max-width:100%!important;
-  margin:0 auto!important;
   align-items:start!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
 }
 @media(min-width:900px){
   .discover-grid{
-    grid-template-columns:1.2fr 1fr!important;
-    gap:14px!important;
+    grid-template-columns:minmax(280px,380px) minmax(280px,380px)!important;
+    gap:12px!important;
     align-items:stretch!important;
+    max-width:780px!important;
+    width:100%!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
   }
 }
 
 .mini-cards-grid{
   display:grid!important;
   grid-template-columns:1fr 1fr!important;
-  gap:14px!important;
+  gap:12px!important;
   width:100%!important;
   height:100%!important;
 }
@@ -79,11 +60,11 @@
 @media(min-width:900px){
   .campaign-card.featured{
     height:100%!important;
-    max-height:380px!important;
+    max-height:360px!important;
   }
   .campaign-card.mini{
     height:100%!important;
-    max-height:183px!important;
+    max-height:174px!important;
   }
 }
 .campaign-card:hover{
@@ -100,21 +81,40 @@
   flex:1 1 auto!important;
   min-height:0!important;
 }
+
 .campaign-card.featured .image-container{
   flex:1 1 auto!important;
-  min-height:160px!important;
+  min-height:180px!important;
+  max-height:280px!important;
 }
+@media(min-width:900px){
+  .campaign-card.featured .image-container{
+    max-height:none!important;
+    min-height:0!important;
+  }
+}
+
 .campaign-card.mini .image-container{
   flex:1 1 auto!important;
-  min-height:70px!important;
+  min-height:80px!important;
+  max-height:110px!important;
 }
+@media(min-width:900px){
+  .campaign-card.mini .image-container{
+    max-height:none!important;
+    min-height:0!important;
+  }
+}
+
 @media(max-width:899px){
   .campaign-card.featured .image-container{
     height:200px!important;
+    max-height:200px!important;
     flex:0 0 200px!important;
   }
   .campaign-card.mini .image-container{
     height:110px!important;
+    max-height:110px!important;
     flex:0 0 110px!important;
   }
 }
@@ -148,7 +148,7 @@
   padding:6px 8px 8px!important;
 }
 .campaign-card .card-title{
-  font-size:.85rem!important;
+  font-size:.82rem!important;
   font-weight:700!important;
   line-height:1.25!important;
   margin:0 0 6px!important;
@@ -159,11 +159,12 @@
   overflow:hidden!important;
 }
 .campaign-card.featured .card-title{
-  font-size:.9rem!important;
+  font-size:.88rem!important;
 }
 .campaign-card.mini .card-title{
-  font-size:.75rem!important;
+  font-size:.72rem!important;
   margin:0 0 4px!important;
+  -webkit-line-clamp:2!important;
 }
 
 .progress-track{
