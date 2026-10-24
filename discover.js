@@ -8,7 +8,18 @@
       '<span class="si" aria-label="TikTok"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="#000" d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.45 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.54-.15 1.22-.14 1.81.23 1.64 1.94 3.02 3.56 2.87 1.12-.07 2.2-.66 2.81-1.58.23-.33.39-.72.41-1.12.1-2.72.07-5.44.08-8.16z"/></svg></span>';
   });
   var st=document.createElement("style");
-  st.textContent=".si{width:40px;height:40px;border-radius:50%;background:#f3f4f6;display:inline-flex;align-items:center;justify-content:center;overflow:hidden}.si svg{display:block}.more-grid{display:none!important}.discover-grid{display:grid;grid-template-columns:1fr;gap:16px}@media(min-width:860px){.discover-grid{grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}}.mini-cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}";
+  st.textContent=
+    ".si{width:40px;height:40px;border-radius:50%;background:#f3f4f6;display:inline-flex;align-items:center;justify-content:center;overflow:hidden}"+
+    ".si svg{display:block}"+
+    ".more-grid{display:none!important}"+
+    ".discover-grid{display:grid!important;grid-template-columns:1fr!important;gap:16px!important;width:100%!important;align-items:stretch!important}"+
+    "@media(min-width:860px){.discover-grid{grid-template-columns:1.35fr 1fr!important;gap:16px!important}}"+
+    ".mini-cards-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important;width:100%!important;height:100%!important}"+
+    ".campaign-card{display:flex!important;flex-direction:column!important;height:100%!important}"+
+    ".campaign-card .image-container{flex:1 1 auto;min-height:140px}"+
+    ".campaign-card.featured .image-container{min-height:280px}"+
+    ".campaign-card.mini .image-container{flex:0 0 auto;height:120px;min-height:120px}"+
+    "@media(min-width:860px){.campaign-card.featured .image-container{min-height:320px}.campaign-card.mini .image-container{height:130px;min-height:130px}}";
   document.head.appendChild(st);
 
   if(typeof money!=="function"){
@@ -18,7 +29,7 @@
     window.fmtDon=function(n){n=Number(n)||0;if(n>=1000)return(Math.round(n/100)/10)+"K";return String(n)};
   }
   if(typeof esc!=="function"){
-    window.esc=function(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")};
+    window.esc=function(s){return String(s||"").replace(/&/g,"&").replace(/</g,"<").replace(/"/g,""")};
   }
 
   window.currentFilter=window.currentFilter||"all";
