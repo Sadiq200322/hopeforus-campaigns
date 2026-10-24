@@ -11,15 +11,7 @@
   st.textContent=
     ".si{width:40px;height:40px;border-radius:50%;background:#f3f4f6;display:inline-flex;align-items:center;justify-content:center;overflow:hidden}"+
     ".si svg{display:block}"+
-    ".more-grid{display:none!important}"+
-    ".discover-grid{display:grid!important;grid-template-columns:1fr!important;gap:16px!important;width:100%!important;align-items:stretch!important}"+
-    "@media(min-width:860px){.discover-grid{grid-template-columns:1.35fr 1fr!important;gap:16px!important}}"+
-    ".mini-cards-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important;width:100%!important;height:100%!important}"+
-    ".campaign-card{display:flex!important;flex-direction:column!important;height:100%!important}"+
-    ".campaign-card .image-container{flex:1 1 auto;min-height:140px}"+
-    ".campaign-card.featured .image-container{min-height:280px}"+
-    ".campaign-card.mini .image-container{flex:0 0 auto;height:120px;min-height:120px}"+
-    "@media(min-width:860px){.campaign-card.featured .image-container{min-height:320px}.campaign-card.mini .image-container{height:130px;min-height:130px}}";
+    ".more-grid{display:none!important}";
   document.head.appendChild(st);
 
   if(typeof money!=="function"){
