@@ -9,6 +9,18 @@
   padding:0 20px!important;
 }
 
+/* Center the filter dropdown above the cards */
+.disc-tools{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:12px!important;
+  margin:0 0 18px!important;
+  position:relative!important;
+  z-index:20!important;
+  width:100%!important;
+}
+
 .discover-grid{
   display:grid!important;
   grid-template-columns:1fr!important;
