@@ -1,1 +1,143 @@
-PLACEHOLDER_HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>HopeForUs – Where successful fundraisers start</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gfm-cards.css">
+<link rel="stylesheet" href="mobile.css">
+<link rel="stylesheet" href="home.css">
+</head>
+<body>
+<header class="hdr">
+<div class="hdr-l">
+<button type="button" class="ibtn mob" aria-label="Search" onclick="document.getElementById('disc').scrollIntoView({behavior:'smooth'})"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"></circle><path d="M16 16l5 5"></path></svg></button>
+<a href="#disc" class="nlink">Search</a><a href="#disc" class="nlink">Donate</a><a href="create-campaign.html" class="nlink">Fundraise</a>
+</div>
+<a href="index.html" class="logo"><img src="logo-mark.svg" width="28" height="28" alt=""> HopeForUs</a>
+<div class="hdr-r">
+<a href="#how" class="nlink">About</a><a href="login.html" class="nlink">Sign in</a><a href="create-campaign.html" class="btn-p">Start a HopeForUs</a>
+<button type="button" class="ibtn js-menu" id="mBtn" aria-label="Menu" onclick="var d=document.getElementById('dr');d.classList.add('on');document.body.style.overflow='hidden'"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+</div>
+</header>
+<div class="dr" id="dr" onclick="if(event.target===this){this.classList.remove('on');document.body.style.overflow=''}">
+<div class="pn" onclick="event.stopPropagation()">
+<div class="pn-head"><strong>Menu</strong><button type="button" class="close-btn" onclick="document.getElementById('dr').classList.remove('on');document.body.style.overflow=''">×</button></div>
+<a href="create-campaign.html">Start a HopeForUs</a>
+<a href="#disc" onclick="document.getElementById('dr').classList.remove('on');document.body.style.overflow=''">Browse fundraisers</a>
+<a href="#how" onclick="document.getElementById('dr').classList.remove('on');document.body.style.overflow=''">How it works</a>
+<a href="login.html">Sign in</a><a href="create-campaign.html">Sign up</a><a href="dashboard.html">Dashboard</a>
+</div>
+</div>
+<section class="hero"><div class="badge">#1 crowdfunding platform</div><h1>Where successful fundraisers start</h1><p class="sub">Tell your story, set a goal, with guidance at every step. No fee to start fundraising.</p><a class="cta" href="create-campaign.html">Start today</a></section>
+<section class="how" id="how">
+<div class="how-in">
+<div class="how-img-wrap">
+<button type="button" class="how-pause" id="howPause" aria-label="Pause"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6V5zm8 0h4v14h-4V5z"/></svg></button>
+<div class="how-card">
+<div class="how-slide on" data-step="0"><div class="phone-ui"><div class="lbl">Create fundraiser</div><div class="goal-amt">$6,000</div></div></div>
+<div class="how-slide" data-step="1"><div class="phone-ui"><div class="lbl">Ready to share</div><div class="social-icons"><span class="si"></span><span class="si"></span><span class="si"></span><span class="si"></span></div><button type="button" class="sbtn">Share fundraiser</button></div></div>
+<div class="how-slide" data-step="2"><div class="phone-ui"><div class="lbl">Receive funds</div></div></div>
+</div>
+</div>
+<div class="how-steps">
+<div class="srow active" data-step="0"><strong>1. Create</strong><p>Start your fundraiser in minutes</p><div class="prog"></div></div>
+<div class="srow" data-step="1"><strong>2. Share</strong><p>Spread the word with friends</p><div class="prog"></div></div>
+<div class="srow" data-step="2"><strong>3. Receive</strong><p>Get donations securely</p><div class="prog"></div></div>
+</div>
+</div>
+</section>
+<section class="disc" id="disc">
+<div class="in">
+<h2>Discover fundraisers inspired by what you care about</h2>
+<p class="sub">Happening worldwide</p>
+<div class="disc-tools">
+<button type="button" class="pill" id="worldPill" onclick="event.stopPropagation();var m=document.getElementById('pillMenu');m.classList.toggle('open');this.classList.toggle('open')"><span id="pillLabel">Happening worldwide</span><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 4l4 4 4-4"/></svg></button>
+<div class="pill-menu" id="pillMenu" onclick="event.stopPropagation()">
+<button type="button" data-filter="all" onclick="pickCat(this)">Happening worldwide</button>
+<button type="button" data-filter="memorial" onclick="pickCat(this)">Memorial</button>
+<button type="button" data-filter="medical" onclick="pickCat(this)">Medical</button>
+<button type="button" data-filter="emergency" onclick="pickCat(this)">Emergency</button>
+<button type="button" data-filter="community" onclick="pickCat(this)">Community</button>
+<button type="button" data-filter="sports" onclick="pickCat(this)">Sports</button>
+</div>
+</div>
+<div class="discover-grid" id="feat"></div>
+<div class="more-grid" id="grid"></div>
+</div>
+</section>
+<section class="yel"><div class="badge" style="background:var(--yellow-t);color:#ffd863">Tips & tools</div><h2>Get what you need to help your fundraiser succeed</h2><p>Guidance, sharing tools, and campaign support all in one place.</p></section>
+<section class="topics"><div class="in"><h2>Featured topics</h2><div class="topics-grid">
+<div class="topic-card dark"><span class="topic-badge">New</span><h3>Fundraise with smart coaching</h3><p>Guidance at every step.</p><a href="create-campaign.html">Learn more →</a></div>
+<div class="topic-card mint"><span class="topic-badge">New</span><h3>Giving funds</h3><p>Track progress with donors.</p></div>
+<div class="topic-card lilac"><span class="topic-badge">Urgent</span><h3>Crisis relief</h3><p>Support families in emergencies.</p></div>
+</div></div></section>
+<section class="tr"><div class="badge">We've got you covered.</div><h2>HopeForUs is a trusted leader in online fundraising.</h2><p>Simple pricing and a focus on trust & safety.</p></section>
+<footer class="ft">© 2026 HopeForUs</footer>
+<script src="ui.js"></script>
+<script src="app.js"></script>
+<script src="clear-test-data.js"></script>
+<script src="campaigns-data.js"></script>
+<script src="how-works.js"></script>
+<script src="discover.js"></script>
+<script>
+window.ALL=window.ALL||[];
+window.currentFilter="all";
+function pickCat(btn){
+  window.currentFilter=btn.getAttribute("data-filter")||"all";
+  var lab=document.getElementById("pillLabel");if(lab)lab.textContent=btn.textContent.trim();
+  document.querySelectorAll("#pillMenu [data-filter]").forEach(function(b){b.classList.remove("active")});
+  btn.classList.add("active");
+  var menu=document.getElementById("pillMenu");if(menu)menu.classList.remove("open");
+  var pill=document.getElementById("worldPill");if(pill)pill.classList.remove("open");
+  if(typeof window.renderCampaigns==="function")window.renderCampaigns();
+}
+document.addEventListener("click",function(){
+  var m=document.getElementById("pillMenu");if(m)m.classList.remove("open");
+  var p=document.getElementById("worldPill");if(p)p.classList.remove("open");
+});
+(function(){
+  function resolveCampaignImage(c){
+    if(!c)return"";
+    if(typeof c.image==="string"&&c.image.trim())return c.image.trim();
+    if(c.media&&c.media.length){
+      for(var i=0;i<c.media.length;i++){
+        var m=c.media[i];
+        if(typeof m==="string"&&m.trim())return m.trim();
+        if(m&&m.dataUrl&&String(m.dataUrl).trim())return m.dataUrl.trim();
+        if(m&&m.url&&String(m.url).trim())return m.url.trim();
+      }
+    }
+    if(c.cover&&c.cover.dataUrl)return c.cover.dataUrl;
+    return"";
+  }
+  var list=[];
+  try{list=JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")||[]}catch(e){list=[]}
+  if(!Array.isArray(list))list=[];
+  var map={};list.forEach(function(c){if(c&&c.id)map[c.id]=1});
+  if(typeof SAMPLES!=="undefined"){
+    SAMPLES.forEach(function(s){
+      if(!s||!s.id)return;
+      if(!map[s.id]){
+        list.push(Object.assign({},s,{category:s.category||"community",image:s.image||"",media:Array.isArray(s.media)?s.media:[]}));
+        map[s.id]=1;
+      }
+    });
+  }
+  try{localStorage.setItem("hopeforus_campaigns",JSON.stringify(list))}catch(e){}
+  window.ALL=[];
+  var seen={};
+  list.forEach(function(c){
+    if(!c||!c.id||seen[c.id])return;
+    seen[c.id]=1;
+    var src=resolveCampaignImage(c);
+    if(!src)return;
+    if(!c.category)c.category="community";
+    window.ALL.push({c:c,src:src});
+  });
+  if(typeof window.renderCampaigns==="function")window.renderCampaigns();
+})();
+</script>
+</body>
+</html>
