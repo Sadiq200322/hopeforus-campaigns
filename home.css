@@ -90,18 +90,18 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 .yel:after{content:'';position:absolute;left:-15%;right:-15%;bottom:-2px;height:80px;background:#fff;border-radius:50% 50% 0 0/100% 100% 0 0}
 .yel h2{font-size:clamp(1.3rem,4vw,2rem);font-weight:800;color:var(--yellow-t);margin:0 auto 10px;max-width:520px;position:relative;z-index:1}
 .yel p{color:#5a4a1a;max-width:460px;margin:0 auto;position:relative;z-index:1}
-.topics{padding:40px 16px 56px;background:#fff}.topics .in{max-width:1120px;margin:0 auto}
-.topics h2{font-size:1.25rem;font-weight:800;margin:0 0 16px}
-.topics-grid{display:grid;gap:14px}
-@media(min-width:700px){.topics-grid{grid-template-columns:1.4fr 1fr 1fr}}
-.topic-card{border-radius:16px;overflow:hidden;min-height:160px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:18px;color:#fff}
+.topics{padding:32px 16px 40px;background:#fff}.topics .in{max-width:960px;margin:0 auto}
+.topics h2{font-size:1.1rem;font-weight:800;margin:0 0 12px;text-align:center}
+.topics-grid{display:grid;gap:12px}
+@media(min-width:700px){.topics-grid{grid-template-columns:1fr 1fr 1fr}}
+.topic-card{border-radius:12px;overflow:hidden;min-height:0;position:relative;display:flex;flex-direction:column;justify-content:center;padding:14px 16px;color:#fff}
 .topic-card.dark{background:linear-gradient(135deg,#2d1b4e,#4c1d95)}
 .topic-card.mint{background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:#064e3b}
 .topic-card.lilac{background:linear-gradient(135deg,#ede9fe,#c4b5fd);color:#4c1d95}
-.topic-badge{position:absolute;top:12px;left:12px;background:#c4b5fd;color:#4c1d95;font-size:.7rem;font-weight:700;padding:4px 10px;border-radius:999px}
-.topic-card h3{font-size:1.05rem;font-weight:800;margin:0 0 6px}
-.topic-card p{font-size:.85rem;opacity:.9;margin:0 0 10px;line-height:1.4}
-.topic-card a{font-weight:700;font-size:.85rem;color:inherit}
+.topic-badge{position:absolute;top:10px;left:10px;background:#c4b5fd;color:#4c1d95;font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:999px}
+.topic-card h3{font-size:.95rem;font-weight:800;margin:0 0 4px}
+.topic-card p{font-size:.8rem;opacity:.9;margin:0 0 6px;line-height:1.35}
+.topic-card a{font-weight:700;font-size:.8rem;color:inherit}
 .tr{background:var(--p-deep);color:#fff;padding:48px 20px;text-align:center}
 .tr h2{font-size:clamp(1.3rem,4vw,2rem);font-weight:800;margin:12px 0}
 .tr p{color:#C4B5FD}
