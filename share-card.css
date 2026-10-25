@@ -1,0 +1,29 @@
+.share-wrap{background:#f5f5f7;border-radius:20px;padding:20px}
+.share-card{display:grid;grid-template-columns:1fr 1.1fr;gap:0;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);border:1px solid #eee}
+@media(max-width:640px){.share-card{grid-template-columns:1fr}}
+.share-card .sc-left{padding:20px 18px;display:flex;flex-direction:column;gap:10px}
+.share-card .sc-brand{display:flex;align-items:center;gap:6px;color:#00a964}
+.share-card .sc-brand svg{width:22px;height:22px}
+.share-card .sc-title{font-weight:800;font-size:1.05rem;line-height:1.25;color:#1a1a1a}
+.share-card .sc-meta{font-size:.85rem;color:#6b7280}
+.share-card .sc-meta strong{color:#374151;font-weight:600}
+.share-card .sc-right{position:relative;min-height:180px;background:#e8e8e8}
+.share-card .sc-right img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0}
+.share-card .sc-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;padding:14px;gap:8px;background:linear-gradient(to top,rgba(0,0,0,.35),transparent 50%)}
+.share-card .sc-ring-wrap{position:absolute;left:14px;bottom:14px;width:72px;height:72px}
+.share-card .sc-ring{width:72px;height:72px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.12);position:relative}
+.share-card .sc-ring svg{width:64px;height:64px;transform:rotate(-90deg)}
+.share-card .sc-ring .pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;color:#1a1a1a}
+.share-card .sc-raised{background:#d1fae5;color:#065f46;font-weight:700;font-size:.8rem;padding:6px 12px;border-radius:999px}
+.share-card .sc-donate-badge{background:#fde68a;color:#92400e;font-weight:700;font-size:.8rem;padding:6px 12px;border-radius:999px}
+.share-card .sc-heart{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.1);color:#7C3AED}
+.share-card .sc-heart svg{width:18px;height:18px}
+.share-icons{display:flex;gap:10px;margin-top:16px;justify-content:center;flex-wrap:wrap}
+.share-icons button,.share-icons a{width:40px;height:40px;border-radius:50%;border:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s,box-shadow .15s;text-decoration:none}
+.share-icons button:hover,.share-icons a:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.share-icons .si-link{background:#e5e7eb;color:#374151}
+.share-icons .si-fb{background:#1877F2;color:#fff}
+.share-icons .si-wa{background:#25D366;color:#fff}
+.share-icons .si-ms{background:#0084FF;color:#fff}
+.share-icons .si-li{background:#0A66C2;color:#fff}
+.share-icons svg{width:18px;height:18px}
