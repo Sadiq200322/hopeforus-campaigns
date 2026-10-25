@@ -77,7 +77,6 @@ h1{font-size:clamp(1.35rem,4vw,1.85rem);font-weight:800;line-height:1.2;margin:1
   <button type="button" class="btn-s" id="mShare">Share</button>
 </div>
 <script src="campaigns-data.js"></script>
-<script src="app.js"></script>
 <script>
 if(typeof SAMPLES==="undefined")var SAMPLES=[];
 function getId(){var q=new URLSearchParams(location.search);return q.get("id")||q.get("c")||""}
@@ -108,7 +107,13 @@ function findC(id){
   return c?{c:c,list:list}:null;
 }
 function pct(r,g){return g?Math.min(100,Math.round(r/g*100)):0}
-function esc(s){return String(s||"").replace(/&/g,"&").replace(/</g,"<").replace(/>/g,">").replace(/"/g,""")}
+function esc(s){
+  return String(s==null?"":s)
+    .split("&").join("&")
+    .split("<").join("<")
+    .split(">").join(">")
+    .split('"').join(""");
+}
 function money(n,c){c=c||"USD";var s=Number(n||0).toLocaleString();return c==="EUR"?"€"+s:c==="GBP"?"£"+s:"$"+s}
 var id=getId(),found=findC(id),gIdx=0,gItems=[];
 if(!found){document.getElementById("page").innerHTML="<p style=\"padding:40px 0\">Campaign not found. <a href=\"index.html\">Home</a></p>"}else{render(found)}
