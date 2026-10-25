@@ -10,7 +10,7 @@
 html,body{overflow-x:hidden;max-width:100vw}
 body{font-family:'Inter',system-ui,sans-serif;color:#1a1a1a;background:#fff;line-height:1.5}
 a{color:inherit;text-decoration:none}img,video{max-width:100%;display:block}
-.wrap{max-width:1100px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right)) 80px max(16px,env(safe-area-inset-left))}
+.wrap{max-width:1100px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right)) 100px max(16px,env(safe-area-inset-left))}
 .hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #eee;position:sticky;top:0;background:#fff;z-index:50}
 .logo{font-weight:800;font-size:1.1rem;display:flex;align-items:center;gap:8px}
 .logo img{width:28px;height:28px}
@@ -34,8 +34,7 @@ a{color:inherit;text-decoration:none}img,video{max-width:100%;display:block}
 .thumbs img,.thumbs video{width:100%;height:100%;object-fit:cover;display:block}
 h1{font-size:clamp(1.35rem,4vw,1.85rem);font-weight:800;line-height:1.2;margin:12px 0 8px;word-break:break-word}
 .meta{color:#5c5c5c;font-size:.9rem;margin-bottom:12px}
-.story{font-size:.95rem;color:#333;white-space:pre-wrap;word-break:break-word}
-.story.collapsed{max-height:120px;overflow:hidden}
+.story{font-size:.95rem;color:#333;white-space:pre-wrap;word-break:break-word;line-height:1.6}
 .card{border:1px solid #e5e5e5;border-radius:16px;padding:20px;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.06)}
 .amt{font-size:1.5rem;font-weight:800}
 .bar{height:8px;background:#eee;border-radius:99px;overflow:hidden;margin:10px 0}
@@ -45,8 +44,26 @@ h1{font-size:clamp(1.35rem,4vw,1.85rem);font-weight:800;line-height:1.2;margin:1
 .mbar{display:none;position:fixed;bottom:0;left:0;right:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #eee;gap:10px;z-index:60}
 .mbar .btn-d,.mbar .btn-s{margin:0;flex:1}
 @media(max-width:899px){.mbar{display:flex}.card .btn-d,.card .btn-s{display:none}}
-.upd{border-top:1px solid #f0f0f0;padding:14px 0}
-.dt{font-size:.8rem;color:#888;margin-bottom:4px}
+.donors{margin-top:28px;padding-top:20px;border-top:1px solid #f0f0f0}
+.donors h3{font-size:1.05rem;font-weight:700;margin-bottom:14px}
+.donor-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f5f5f5}
+.donor-av{width:36px;height:36px;border-radius:50%;background:#7C3AED;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0}
+.donor-info{flex:1;min-width:0}
+.donor-name{font-weight:600;font-size:.9rem}
+.donor-note{font-size:.78rem;color:#888}
+.donor-amt{font-weight:700;font-size:.9rem;white-space:nowrap}
+.org-box{margin-top:28px;padding-top:20px;border-top:1px solid #f0f0f0}
+.org-box h3{font-size:1.05rem;font-weight:700;margin-bottom:14px}
+.org-row{display:flex;gap:20px;flex-wrap:wrap}
+.org-card{flex:1;min-width:140px;padding:12px;border:1px solid #eee;border-radius:12px}
+.org-label{font-size:.75rem;color:#888;margin-bottom:4px}
+.org-name{font-weight:700}
+.org-loc{font-size:.8rem;color:#666;margin-top:2px}
+.msgs{margin-top:28px;padding-top:20px;border-top:1px solid #f0f0f0}
+.msgs h3{font-size:1.05rem;font-weight:700;margin-bottom:14px}
+.msg{padding:12px 0;border-bottom:1px solid #f5f5f5}
+.msg-name{font-weight:600;font-size:.9rem;margin-bottom:4px}
+.msg-text{font-size:.88rem;color:#444;line-height:1.5}
 </style>
 </head>
 <body>
@@ -65,14 +82,24 @@ h1{font-size:clamp(1.35rem,4vw,1.85rem);font-weight:800;line-height:1.2;margin:1
 if(typeof SAMPLES==="undefined")var SAMPLES=[];
 function getId(){var q=new URLSearchParams(location.search);return q.get("id")||q.get("c")||""}
 function loadList(){try{return JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")}catch(e){return[]}}
-function saveList(list){localStorage.setItem("hopeforus_campaigns",JSON.stringify(list))}
+function saveList(list){try{localStorage.setItem("hopeforus_campaigns",JSON.stringify(list))}catch(e){}}
 function findC(id){
   var list=loadList(),map={};list.forEach(function(c,i){if(c&&c.id)map[c.id]=i});
   SAMPLES.forEach(function(s){
     if(map[s.id]===undefined)list.push(Object.assign({},s));
     else{
       var cur=list[map[s.id]]||{};
-      list[map[s.id]]=Object.assign({},cur,s,{media:(cur.media&&cur.media.length)?cur.media:s.media,image:cur.image||s.image,category:s.category||cur.category});
+      list[map[s.id]]=Object.assign({},cur,s,{
+        media:(cur.media&&cur.media.length)?cur.media:s.media,
+        image:s.image||cur.image,
+        story:s.story||cur.story,
+        donors:s.donors||cur.donors,
+        messages:s.messages||cur.messages,
+        raised:s.raised!=null?s.raised:cur.raised,
+        goal:s.goal!=null?s.goal:cur.goal,
+        donations:s.donations!=null?s.donations:cur.donations,
+        category:s.category||cur.category
+      });
     }
   });
   try{saveList(list)}catch(e){}
@@ -82,10 +109,8 @@ function findC(id){
 }
 function pct(r,g){return g?Math.min(100,Math.round(r/g*100)):0}
 function esc(s){return String(s||"").replace(/&/g,"&").replace(/</g,"<").replace(/>/g,">").replace(/"/g,""")}
-function fmt(iso){try{return new Date(iso).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})}catch(e){return""}}
 function money(n,c){c=c||"USD";var s=Number(n||0).toLocaleString();return c==="EUR"?"€"+s:c==="GBP"?"£"+s:"$"+s}
-var id=getId(),found=findC(id),user=null,updatePhoto=null,gIdx=0,gItems=[];
-try{user=JSON.parse(localStorage.getItem("hopeforus_user")||"null")}catch(e){}
+var id=getId(),found=findC(id),gIdx=0,gItems=[];
 if(!found){document.getElementById("page").innerHTML="<p style=\"padding:40px 0\">Campaign not found. <a href=\"index.html\">Home</a></p>"}else{render(found)}
 function render(found){
   var c=found.c;document.title=(c.title||"Campaign")+" – HopeForUs";
@@ -116,17 +141,41 @@ function render(found){
       return '<button type="button" class="'+(i===gIdx?'on':'')+'" data-i="'+i+'">'+inn+'</button>';
     }).join('')+'</div>';
   }
+  var donorsHtml="";
+  if(c.donors&&c.donors.length){
+    donorsHtml='<div class="donors"><h3>'+(c.donations||c.donors.length)+' donations</h3>'+
+      c.donors.map(function(d){
+        var initial=(d.name||"A").charAt(0).toUpperCase();
+        return '<div class="donor-row"><div class="donor-av">'+esc(initial)+'</div>'+
+          '<div class="donor-info"><div class="donor-name">'+esc(d.name)+'</div>'+
+          (d.note?'<div class="donor-note">'+esc(d.note)+'</div>':'')+'</div>'+
+          '<div class="donor-amt">'+money(d.amount,c.currency)+'</div></div>';
+      }).join('')+'</div>';
+  }
+  var msgsHtml="";
+  if(c.messages&&c.messages.length){
+    msgsHtml='<div class="msgs"><h3>Words of support</h3>'+
+      c.messages.map(function(m){
+        return '<div class="msg"><div class="msg-name">'+esc(m.name)+'</div><div class="msg-text">'+esc(m.text)+'</div></div>';
+      }).join('')+'</div>';
+  }
+  var orgHtml='<div class="org-box"><h3>Organizer and beneficiary</h3><div class="org-row">'+
+    '<div class="org-card"><div class="org-label">Organizer</div><div class="org-name">'+esc(c.organizer||"Organizer")+'</div>'+
+    (c.organizerLocation?'<div class="org-loc">'+esc(c.organizerLocation)+'</div>':'')+'</div>'+
+    (c.beneficiary?'<div class="org-card"><div class="org-label">Beneficiary</div><div class="org-name">'+esc(c.beneficiary)+'</div></div>':'')+
+    '</div></div>';
   var html='<div class="grid"><div><div class="gallery">'+cover+dots+nav+'</div>'+thumbs+
     '<h1>'+esc(c.title)+'</h1><div class="meta">Organized by '+esc(c.organizer||'Organizer')+(c.category?' · '+esc(c.category):'')+'</div>'+
-    '<div class="story" id="storyBlock">'+esc(c.story||'')+'</div></div>'+
+    '<div class="story">'+esc(c.story||'No story yet.')+'</div>'+donorsHtml+msgsHtml+orgHtml+
+    '</div>'+
     '<div class="sticky"><div class="card"><div class="amt">'+money(raised,c.currency)+' raised</div>'+
     '<div class="bar"><div class="fill" style="width:'+p+'%"></div></div>'+
     '<div style="font-size:.9rem;color:#5c5c5c">'+p+'% of '+money(goal,c.currency)+' goal · '+(c.donations||0)+' donations</div>'+
     '<button type="button" class="btn-d" id="donateBtn">Donate now</button>'+
     '<button type="button" class="btn-s" id="shareBtn">Share</button></div></div></div>';
   document.getElementById("page").innerHTML=html;
+  function openDonate(){alert("Donate flow coming soon.");}
   var d1=document.getElementById("donateBtn"),d2=document.getElementById("mDonate");
-  function openDonate(){alert("Donate flow: add your tip code in the message when you give. Opening tip page…");window.open("https://kickbot.com/tips/HopeForUs","_blank","noopener")}
   if(d1)d1.onclick=openDonate;if(d2)d2.onclick=openDonate;
   function doShare(){
     var url=location.href;
