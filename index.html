@@ -1,2 +1,84 @@
 <!DOCTYPE html>
-<!-- FULL FILE LOADED FROM PATCH -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>HopeForUs – Where successful fundraisers start</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gfm-cards.css">
+<link rel="stylesheet" href="home.css">
+</head>
+<body>
+<header class="hdr">
+  <a href="index.html" class="logo"><img src="logo-mark.svg" alt=""> HopeForUs</a>
+  <div class="hdr-actions">
+    <a href="create-campaign.html" class="btn-p">Start a HopeForUs</a>
+    <button type="button" class="btn-ghost" id="menuBtn" aria-label="Menu">☰</button>
+  </div>
+</header>
+<div class="dr" id="drawer"><div class="pn"><div class="pn-head"><strong>Menu</strong><button type="button" id="closeDrawer">✕</button></div>
+  <a href="index.html" style="display:block;padding:12px 0;font-weight:600">Home</a>
+  <a href="create-campaign.html" style="display:block;padding:12px 0;font-weight:600">Start fundraising</a>
+  <a href="index.html#discover" style="display:block;padding:12px 0;font-weight:600">Discover</a>
+</div></div>
+<section class="hero">
+  <h1>Hope starts here.<br>Fundraisers that work.</h1>
+  <p>Start a campaign in minutes. Share with friends. Receive donations securely.</p>
+  <div class="hero-cta">
+    <a href="create-campaign.html" class="btn-p">Start a HopeForUs</a>
+    <a href="#discover" class="btn-outline">See campaigns</a>
+  </div>
+</section>
+<section class="how">
+  <div class="in">
+    <h2>Fundraising on HopeForUs is easy, powerful, and trusted</h2>
+    <div class="how-grid" id="howSteps"></div>
+  </div>
+</section>
+<section class="discover" id="discover">
+  <div class="in">
+    <h2>Discover fundraisers inspired by what you care about</h2>
+    <p class="sub">Happening worldwide</p>
+    <div class="disc-tools" style="position:relative">
+      <button type="button" class="pill" id="filterPill"><span id="pillLabel">Happening worldwide</span> ▾</button>
+      <div class="filter-menu" id="filterMenu">
+        <button type="button" data-filter="all" onclick="pickFilter(this)">Happening worldwide</button>
+        <button type="button" data-filter="memorial" onclick="pickFilter(this)">Memorial</button>
+        <button type="button" data-filter="medical" onclick="pickFilter(this)">Medical</button>
+        <button type="button" data-filter="emergency" onclick="pickFilter(this)">Emergency</button>
+        <button type="button" data-filter="community" onclick="pickFilter(this)">Community</button>
+        <button type="button" data-filter="sports" onclick="pickFilter(this)">Sports</button>
+      </div>
+    </div>
+    <div class="discover-grid" id="feat"></div>
+    <div class="more-grid" id="grid"></div>
+  </div>
+</section>
+<section class="yel"><div class="badge" style="background:var(--yellow-t);color:#ffd863">Tips & tools</div><h2>Get what you need to help your fundraiser succeed</h2><p>Guidance, sharing tools, and campaign support all in one place.</p></section>
+<section class="topics"><div class="in"><h2>Featured topics</h2><div class="topics-grid">
+<div class="topic-card dark"><span class="topic-badge">New</span><h3>Fundraise with smart coaching</h3><p>Guidance at every step.</p><a href="create-campaign.html">Learn more →</a></div>
+<div class="topic-card mint"><span class="topic-badge">New</span><h3>Giving funds</h3><p>Track progress with donors.</p></div>
+<div class="topic-card lilac"><span class="topic-badge">Urgent</span><h3>Crisis relief</h3><p>Support families in emergencies.</p></div>
+</div></div></section>
+<section class="tr"><div class="badge">We've got you covered.</div><h2>HopeForUs is a trusted leader in online fundraising.</h2><p>Simple pricing and a focus on trust & safety.</p></section>
+<footer class="ft">© 2026 HopeForUs</footer>
+<script src="ui.js"></script>
+<script src="app.js"></script>
+<script src="clear-test-data.js"></script>
+<script src="campaigns-data.js"></script>
+<script src="how-works.js"></script>
+<script src="discover.js"></script>
+<script>
+document.getElementById("menuBtn").onclick=function(){document.getElementById("drawer").classList.add("on")};
+document.getElementById("closeDrawer").onclick=function(){document.getElementById("drawer").classList.remove("on")};
+document.getElementById("drawer").onclick=function(e){if(e.target===this)this.classList.remove("on")};
+document.getElementById("filterPill").onclick=function(e){e.stopPropagation();document.getElementById("filterMenu").classList.toggle("on")};
+document.addEventListener("click",function(){var m=document.getElementById("filterMenu");if(m)m.classList.remove("on")});
+function pickFilter(btn){
+  document.getElementById("pillLabel").textContent=btn.textContent.trim();
+  document.getElementById("filterMenu").classList.remove("on");
+  if(typeof applyFilter==="function")applyFilter(btn.getAttribute("data-filter"));
+}
+</script>
+</body>
+</html>
