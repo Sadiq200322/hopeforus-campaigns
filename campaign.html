@@ -108,11 +108,12 @@ function findC(id){
 }
 function pct(r,g){return g?Math.min(100,Math.round(r/g*100)):0}
 function esc(s){
-  return String(s==null?"":s)
-    .split("&").join("&")
-    .split("<").join("<")
-    .split(">").join(">")
-    .split('"').join(""");
+  var t = String(s==null?"":s);
+  t = t.split(String.fromCharCode(38)).join(String.fromCharCode(38,97,109,112,59));
+  t = t.split(String.fromCharCode(60)).join(String.fromCharCode(38,108,116,59));
+  t = t.split(String.fromCharCode(62)).join(String.fromCharCode(38,103,116,59));
+  t = t.split(String.fromCharCode(34)).join(String.fromCharCode(38,113,117,111,116,59));
+  return t;
 }
 function money(n,c){c=c||"USD";var s=Number(n||0).toLocaleString();return c==="EUR"?"€"+s:c==="GBP"?"£"+s:"$"+s}
 var id=getId(),found=findC(id),gIdx=0,gItems=[];
