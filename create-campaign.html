@@ -6,37 +6,31 @@
 <title>Start a HopeForUs</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{--p:#7C3AED;--pd:#4C1D95;--soft:#EDE9FE;--ink:#1a1a1a;--muted:#5c5c5c;--line:#e5e5e5;--panel:#f3f2f0;--ok:#00a964}
-html,body{height:100%;font-family:Inter,system-ui,sans-serif;color:var(--ink);background:var(--panel);overflow-x:hidden}
-a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}
-.shell{min-height:100%;display:grid}
-@media(min-width:900px){.shell{grid-template-columns:minmax(240px,34%) 1fr}}
-.side{padding:20px 24px 40px}
-.side .logo{display:inline-flex;align-items:center;gap:8px;font-weight:800;color:var(--p)}
-.side .logo img{width:28px;height:28px}
-.side .stepn{margin-top:40px;font-size:.85rem;color:var(--muted);font-weight:600}
-.side h1{margin-top:10px;font-size:clamp(1.45rem,3.2vw,2rem);font-weight:800;line-height:1.15;max-width:280px}
-.side p{margin-top:10px;color:var(--muted);max-width:280px;font-size:.95rem}
-.main{background:#fff;min-height:70vh;display:flex;flex-direction:column;border-radius:20px 20px 0 0}
-@media(min-width:900px){.main{min-height:100vh;border-radius:20px 0 0 20px}}
+:root{--p:#7C3AED;--pd:#4C1D95;--soft:#EDE9FE;--ok:#00a964;--line:#e5e7eb;--muted:#6b7280;--panel:#f8fafc;--font:Inter,system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font);color:#111;background:#fff;line-height:1.45}
+a{color:inherit;text-decoration:none}button,input,select,textarea{font-family:inherit}
+.shell{display:grid;min-height:100vh}
+@media(min-width:900px){.shell{grid-template-columns:320px 1fr}}
+.side{background:linear-gradient(160deg,#4C1D95,#7C3AED);color:#fff;padding:28px 24px;display:none}
+@media(min-width:900px){.side{display:block}}
+.logo{display:inline-flex;align-items:center;gap:8px;font-weight:800;margin-bottom:28px}
+.logo img{width:28px;height:28px}
+.stepn{font-size:.8rem;opacity:.85;margin-bottom:10px}
+.side h1{font-size:1.5rem;font-weight:800;line-height:1.2;margin-bottom:10px}
+.side p{opacity:.9;font-size:.95rem}
+.main{display:flex;flex-direction:column;min-height:100vh}
 .topr{display:flex;justify-content:flex-end;padding:16px 20px;font-size:.9rem;font-weight:600}
-.body{flex:1;width:100%;max-width:720px;margin:0 auto;padding:8px 20px 100px}
+.body{flex:1;padding:8px 20px 88px;max-width:560px}
 h2{font-size:1rem;font-weight:700;margin-bottom:6px}
 .hint{font-size:.88rem;color:var(--muted);margin-bottom:16px}
-.row2{display:grid;gap:12px}
-@media(min-width:560px){.row2{grid-template-columns:1fr 1fr}}
+.row2{display:grid;gap:12px}@media(min-width:520px){.row2{grid-template-columns:1fr 1fr}}
 label.f{display:block;font-size:.8rem;color:var(--muted);margin-bottom:4px;font-weight:600}
-input,select,textarea{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font-size:.95rem;font-family:inherit;background:#fff}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--p)}
+input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:1rem}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.chip{height:40px;padding:0 16px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font-weight:600;font-size:.85rem}
-.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font-size:.85rem;font-weight:600;cursor:pointer}
+.chip.on{border-color:var(--p);background:var(--soft);color:var(--pd)}
 .choice{display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;padding:16px;border:1.5px solid var(--line);border-radius:14px;background:#fff;margin-bottom:10px}
-.choice.on{border-color:var(--ink)}
-.choice .ic{width:48px;height:48px;border-radius:12px;background:var(--panel);display:grid;place-items:center;flex-shrink:0;font-size:1.2rem}
-.choice strong{display:block;font-size:.95rem}
-.choice span{display:block;font-size:.85rem;color:var(--muted);margin-top:2px}
+.choice.on{border-color:var(--p);background:var(--soft)}
 .amt{display:flex;align-items:center;height:56px;border:1.5px solid var(--line);border-radius:14px;padding:0 14px;gap:8px}
 .amt input{border:0;padding:0;font-size:1.05rem;font-weight:600}
 .amt .cur{background:var(--panel);border-radius:8px;padding:4px 8px;font-size:.75rem;font-weight:700;color:var(--muted)}
@@ -46,7 +40,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--p)}
 .sw.on{background:var(--ok)}
 .sw i{position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15);transition:transform .2s}
 .sw.on i{transform:translateX(20px)}
-.foot{position:sticky;bottom:0;display:flex;align-items:center;gap:12px;padding:14px 20px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#fff}
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;gap:12px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#fff;box-shadow:0 -4px 16px rgba(0,0,0,.06)}
+@media(min-width:900px){.foot{left:320px}}
 .prog{display:none;flex:1;height:4px;background:var(--line);border-radius:99px;overflow:hidden}
 @media(min-width:560px){.prog{display:block}}
 .prog i{display:block;height:100%;background:var(--ok);width:0;transition:width .25s}
@@ -74,7 +69,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--p)}
     <div class="body" id="body"></div>
     <div class="foot">
       <div class="prog"><i id="prog"></i></div>
-      <button type="button" class="back" id="back" aria-label="Back">&#8592;</button>
+      <button type="button" class="back" id="back" aria-label="Back">\u2190</button>
       <button type="button" class="cont" id="cont">Continue</button>
     </div>
   </section>
