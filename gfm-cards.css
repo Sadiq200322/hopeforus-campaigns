@@ -52,16 +52,16 @@
 
 .more-grid{display:none!important}
 
-/* Card shell */
+/* Card shell - transparent */
 .campaign-card{
   display:flex!important;
   flex-direction:column!important;
   text-decoration:none!important;
   border-radius:12px!important;
   overflow:hidden!important;
-  background:#fff!important;
-  border:1px solid #e0e0e0!important;
-  box-shadow:0 1px 4px rgba(0,0,0,.06)!important;
+  background:transparent!important;
+  border:1px solid rgba(0,0,0,.08)!important;
+  box-shadow:none!important;
   transition:transform .2s ease,box-shadow .2s ease!important;
   font-family:-apple-system,system-ui,'Inter',sans-serif!important;
   color:#333!important;
@@ -81,23 +81,20 @@
 }
 .campaign-card:hover{
   transform:translateY(-2px)!important;
-  box-shadow:0 6px 16px rgba(0,0,0,.1)!important;
+  box-shadow:0 6px 16px rgba(0,0,0,.08)!important;
 }
 
-/* Images */
 .campaign-card .image-container{
   width:100%!important;
   position:relative!important;
   overflow:hidden!important;
   background:#e8e8e8!important;
   flex:1 1 auto!important;
-  min-height:0!important;
 }
-
 .campaign-card.featured .image-container{
   flex:1 1 auto!important;
-  min-height:180px!important;
-  max-height:280px!important;
+  min-height:160px!important;
+  max-height:220px!important;
 }
 @media(min-width:900px){
   .campaign-card.featured .image-container{
@@ -153,7 +150,7 @@
 
 .campaign-card .card-content{
   padding:8px 10px 10px!important;
-  background:#fff!important;
+  background:transparent!important;
   flex:0 0 auto!important;
 }
 .campaign-card.mini .card-content{
@@ -199,3 +196,7 @@
 .campaign-card.mini .raised-label{
   font-size:.68rem!important;
 }
+
+/* transparent campaign cards */
+.campaign-card,.campaign-card .card-content{background:transparent!important;box-shadow:none!important;}
+.campaign-card{border:1px solid rgba(0,0,0,.08)!important;}
