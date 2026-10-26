@@ -23,14 +23,21 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 .story.clamp{-webkit-line-clamp:6;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
 .read-more{background:none;border:none;color:var(--p);font-weight:700;font-size:.9rem;margin-top:8px;padding:0}
 .side{position:sticky;top:80px}
-.card{border:1px solid var(--border);border-radius:16px;padding:20px;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.04)}
-.raised{font-size:1.5rem;font-weight:800}.goal{color:var(--muted);font-size:.9rem;margin-bottom:12px}
-.bar{height:8px;background:#eee;border-radius:99px;overflow:hidden;margin-bottom:16px}
-.fill{height:100%;background:var(--green);border-radius:99px}
-.btn-donate{display:block;width:100%;background:var(--green);color:#fff;border:none;font-weight:800;padding:14px;border-radius:999px;font-size:1rem;margin-bottom:10px;text-align:center}
-.btn-share{display:block;width:100%;background:#fff;color:var(--black);border:2px solid #ddd;font-weight:700;padding:12px;border-radius:999px;font-size:.95rem;text-align:center}
+.card{border:1px solid var(--border);border-radius:20px;padding:18px;background:#fff;box-shadow:0 8px 28px rgba(0,0,0,.06)}
+.raise-row{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.ring{width:64px;height:64px;flex-shrink:0;position:relative}
+.ring svg{width:64px;height:64px;transform:rotate(-90deg)}
+.ring-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:800;color:#111}
+.raise-meta{flex:1;min-width:0}
+.raised{font-size:1.25rem;font-weight:800;line-height:1.2}
+.raised span{font-weight:600;color:#6b7280;font-size:1rem}
+.recent-line{font-size:.85rem;color:#6b7280;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.btn-donate{display:block;width:100%;background:#c8f542;color:#0a2e0a;border:none;font-weight:800;padding:14px 12px;border-radius:999px;font-size:1rem;text-align:center}
+.btn-share{display:block;width:100%;background:#0f3d2e;color:#c8f542;border:none;font-weight:800;padding:14px 12px;border-radius:999px;font-size:1rem;text-align:center}
 .donors{margin-top:16px}.donor{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:.88rem}
 .donor:last-child{border:0}.d-av{width:36px;height:36px;border-radius:50%;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:.8rem}
+@media(max-width:899px){.side{position:static}.card{margin-top:8px}}
 .ft{text-align:center;padding:24px;color:var(--muted);font-size:.85rem;border-top:1px solid #eee}
 </style>
 </head>
@@ -40,45 +47,49 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 <footer class="ft">© 2026 HopeForUs</footer>
 <script src="campaigns-data.js"></script>
 <script>
-function esc(s){var a=String.fromCharCode(38);return String(s||"").replace(/&/g,a+"amp;").replace(/</g,a+"lt;").replace(/>/g,a+"gt;").replace(/"/g,a+"quot;")}
-function money(n,c){c=c||"USD";var s=Number(n||0).toLocaleString();return c==="EUR"?"€"+s:c==="GBP"?"£"+s:"$"+s}
-var ICON={heart:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>'};
 (function(){
-var id=new URLSearchParams(location.search).get("id");
+function esc(s){var a=String.fromCharCode(38);return String(s||"").replace(/&/g,a+"amp;").replace(/</g,a+"lt;").replace(/>/g,a+"gt;").replace(/"/g,a+"quot;")}
+function money(n,c){c=c||"USD";var s=Number(n||0).toLocaleString();return c==="EUR"?"\u20ac"+s:c==="GBP"?"\u00a3"+s:"$"+s}
+var params=new URLSearchParams(location.search);
+var id=params.get("id")||"";
+var list=[];
+try{list=JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")||[]}catch(e){}
+if(!Array.isArray(list))list=[];
 var c=null;
-if(typeof SAMPLES!=="undefined"){for(var i=0;i<SAMPLES.length;i++){if(SAMPLES[i].id===id){c=SAMPLES[i];break;}}}
-if(!c){try{var list=JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]");for(var j=0;j<list.length;j++){if(list[j].id===id){c=list[j];break;}}}catch(e){}}
-if(!c){document.getElementById("app").innerHTML="<p style='padding:40px'>Campaign not found. <a href='index.html' style='color:#7C3AED'>Back home</a></p>";return;}
-var raised=Number(c.raised)||0,goal=Number(c.goal)||1,p=Math.min(100,Math.round(raised/goal*100));
-var story=c.story||c.description||"";
+for(var i=0;i<list.length;i++){if(list[i]&&list[i].id===id){c=list[i];break}}
+if(!c&&typeof SAMPLES!=="undefined"){
+  for(var j=0;j<SAMPLES.length;j++){if(SAMPLES[j]&&SAMPLES[j].id===id){c=SAMPLES[j];break}}
+}
+if(!c){
+  document.getElementById("app").innerHTML='<p style="padding:40px">Campaign not found. <a href="index.html" style="color:#7C3AED">Back home</a></p>';
+  return;
+}
+var raised=Number(c.raised)||0,goal=Math.max(1,Number(c.goal)||1);
+var p=Math.min(100,Math.round(raised/goal*100));
+var story=c.story||"";
 var shareUrl=location.href;
-var shareText=encodeURIComponent(c.title||"Support this fundraiser");
 var shareEnc=encodeURIComponent(shareUrl);
-var ringCirc=2*Math.PI*28;
-var ringOff=ringCirc*(1-Math.min(1,p/100));
 var donors=(c.donors||[]).slice(0,8).map(function(d){
   var n=(d.name||"A").charAt(0).toUpperCase();
   return '<div class="donor"><div class="d-av">'+n+'</div><div><strong>'+esc(d.name)+'</strong><div style="color:#666">'+money(d.amount,c.currency)+(d.message?' · '+esc(d.message):'')+'</div></div></div>';
 }).join("");
+var ringCirc=2*Math.PI*26;
+var ringOff=ringCirc*(1-Math.min(1,p/100));
+var topDonor=(c.donors&&c.donors[0])?c.donors[0]:null;
+var recentTxt=topDonor?(esc(topDonor.name||"Someone")+" donated "+money(topDonor.amount,c.currency)):((c.donations||0)+" donations");
 var shareCard='<div class="section"><h3>Sharing helps more than you think</h3><p style="font-size:.9rem;color:#5c5c5c;margin-bottom:16px;line-height:1.5">On average, <strong>each share can inspire $50</strong> in donations by helping this fundraiser reach more people.</p>'+
-  '<div class="share-wrap"><div class="share-card">'+
-  '<div class="sc-left"><div class="sc-brand"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16.8 5.6 21.2 8 14 2 9.2h7.6z"/></svg></div>'+
-  '<div class="sc-title">'+esc(c.title)+'</div>'+
-  '<div class="sc-meta">Organized for<br><strong>'+esc(c.beneficiary||c.organizer||"this fundraiser")+'</strong></div></div>'+
-  '<div class="sc-right">'+(c.image?'<img src="'+c.image+'" alt="">':'')+
-  '<div class="sc-heart">'+ICON.heart+'</div>'+
-  '<div class="sc-overlay"><div class="sc-ring-wrap"><div class="sc-ring">'+
-  '<svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="none" stroke="#e5e7eb" stroke-width="6"/><circle cx="32" cy="32" r="28" fill="none" stroke="#00a964" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+ringCirc.toFixed(1)+'" stroke-dashoffset="'+ringOff.toFixed(1)+'"/></svg>'+
-  '<span class="pct">'+p+'%</span></div></div>'+
-  '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">'+
-  '<span class="sc-raised">'+money(raised,c.currency)+' raised</span>'+
-  '<span class="sc-donate-badge">Donate now!</span></div></div></div></div>'+
-  '<div class="share-icons">'+
-  '<button type="button" class="si-link" id="scCopy" title="Copy link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></button>'+
-  '<a class="si-fb" href="https://www.facebook.com/sharer/sharer.php?u='+shareEnc+'" target="_blank" rel="noopener" title="Facebook"><svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.8-4.7 4.54-4.7 1.32 0 2.7.24 2.7.24v2.97h-1.52c-1.5 0-1.97.93-1.97 1.89v2.26h3.35l-.54 3.49h-2.81V24C19.61 23.1 24 18.1 24 12.07z"/></svg></a>'+
-  '<a class="si-wa" href="https://wa.me/?text='+shareText+'%20'+shareEnc+'" target="_blank" rel="noopener" title="WhatsApp"><svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.11 1.52 5.85L.05 24l6.34-1.66A11.94 11.94 0 0012 24c6.63 0 12-5.37 12-12S18.63 0 12 0zm5.15 16.4c-.25.7-1.44 1.32-2.01 1.41-.51.08-1.16.11-1.87-.12-.43-.14-.98-.33-1.69-.63-2.98-1.29-4.93-4.29-5.08-4.49-.15-.2-1.22-1.61-1.22-3.07 0-1.46.77-2.18 1.04-2.48.28-.3.6-.37.8-.37h.57c.18 0 .43-.08.67.5.25.59.85 2.05.92 2.2.07.15.12.32.02.52-.1.2-.15.33-.3.5-.15.17-.32.39-.45.52-.15.14-.3.3-.13.6.17.29.76 1.26 1.64 2.04 1.13 1.01 2.08 1.32 2.38 1.47.29.15.47.13.64-.07.17-.2.74-.86.94-1.16.2-.3.4-.25.67-.15.27.09 1.73.81 2.03.96.3.15.5.22.57.35.08.12.08.71-.17 1.41z"/></svg></a>'+
-  '<a class="si-ms" href="https://www.facebook.com/dialog/send?link='+shareEnc+'&app_id=291494419107518&redirect_uri='+shareEnc+'" target="_blank" rel="noopener" title="Messenger"><svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M12 0C5.37 0 0 4.97 0 11.11c0 3.5 1.72 6.62 4.41 8.65V24l4.04-2.22c1.1.3 2.27.47 3.55.47 6.63 0 12-4.97 12-11.11S18.63 0 12 0zm1.2 15l-3.06-3.26L4.5 15l6.55-6.95L14.2 11.3 19.5 9l-6.3 6z"/></svg></a>'+
-  '<a class="si-li" href="https://www.linkedin.com/sharing/share-offsite/?url='+shareEnc+'" target="_blank" rel="noopener" title="LinkedIn"><svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 110-4.12 2.06 2.06 0 010 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.73V1.73C24 .77 23.21 0 22.23 0z"/></svg></a>'+
+  '<div class="share-card-box" style="background:#f3f4f6;border-radius:16px;padding:16px">'+
+  '<div style="display:flex;gap:12px;align-items:flex-start;background:#fff;border-radius:12px;padding:12px;margin-bottom:12px">'+
+  (c.image?'<img src="'+c.image+'" alt="" style="width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0">':'')+
+  '<div style="min-width:0"><div style="font-weight:800;font-size:.95rem;line-height:1.3;margin-bottom:4px">'+esc(c.title)+'</div>'+
+  '<div style="font-size:.8rem;color:#6b7280">Organized for '+esc(c.beneficiary||c.organizer||"")+' · '+p+'% · '+money(raised,c.currency)+' raised</div>'+
+  '<div style="display:flex;gap:8px;margin-top:10px">'+
+  '<button type="button" id="scCopy" style="width:36px;height:36px;border-radius:50%;border:1px solid #e5e7eb;background:#fff;display:inline-flex;align-items:center;justify-content:center" title="Copy link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 4h4v4M14 4l-6 6M6 10H4v4h4"/></svg></button>'+
+  '</div></div></div>'+
+  '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">'+
+  '<a href="https://www.facebook.com/sharer/sharer.php?u='+shareEnc+'" target="_blank" rel="noopener" title="Facebook" style="width:40px;height:40px;border-radius:50%;background:#1877f2;color:#fff;display:inline-flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07C0 18.1 4.39 23.09 10.13 24v-8.44H7.08v-3.49h3.04v-2.66c0-3.02 1.79-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.95h-1.51c-1.49 0-1.95.93-1.95 1.89v2.28h3.32l-.53 3.49h-2.79V24C19.61 23.09 24 18.1 24 12.07z"/></svg></a>'+
+  '<a href="https://wa.me/?text='+shareEnc+'" target="_blank" rel="noopener" title="WhatsApp" style="width:40px;height:40px;border-radius:50%;background:#25d366;color:#fff;display:inline-flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.12 1.52 5.85L.05 24l6.34-1.66A11.94 11.94 0 0012 24c6.63 0 12-5.37 12-12S18.63 0 12 0zm5.15 16.4c-.25.7-1.44 1.32-2.01 1.41-.51.08-1.16.11-1.87-.12-.43-.14-.98-.33-1.69-.63-2.98-1.29-4.93-4.29-5.08-4.49-.15-.2-1.22-1.61-1.22-3.07 0-1.46.77-2.18 1.04-2.48.28-.3.6-.37.8-.37h.57c.18 0 .43-.08.67.5.25.59.85 2.05.92 2.2.07.15.12.32.02.52-.1.2-.15.33-.3.5-.15.17-.32.39-.45.52-.15.14-.3.3-.13.6.17.29.76 1.26 1.64 2.04 1.13 1.01 2.08 1.32 2.38 1.47.29.15.47.13.64-.07.17-.2.74-.86.94-1.16.2-.3.4-.25.67-.15.27.09 1.73.81 2.03.96.3.15.5.22.57.35.08.12.08.71-.17 1.41z"/></svg></a>'+
+  '<a href="https://www.linkedin.com/sharing/share-offsite/?url='+shareEnc+'" target="_blank" rel="noopener" title="LinkedIn" style="width:40px;height:40px;border-radius:50%;background:#0a66c2;color:#fff;display:inline-flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 110-4.12 2.06 2.06 0 010 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.73V1.73C24 .77 23.21 0 22.23 0z"/></svg></a>'+
   '</div></div></div>';
 var html='<div class="main">'+
   (c.image?'<div class="hero-img"><img src="'+c.image+'" alt=""></div>':'')+
@@ -88,11 +99,11 @@ var html='<div class="main">'+
   (donors?'<div class="section"><h3>Recent donations</h3><div class="donors">'+donors+'</div></div>':'')+
   '</div>'+
   '<aside class="side"><div class="card">'+
-  '<div class="raised">'+money(raised,c.currency)+' raised</div>'+
-  '<div class="goal">of '+money(goal,c.currency)+' goal · '+p+'%</div>'+
-  '<div class="bar"><div class="fill" style="width:'+p+'%"></div></div>'+
-  '<button type="button" class="btn-donate" id="donateBtn">Donate now</button>'+
-  '<button type="button" class="btn-share" id="shareBtn">Share</button>'+
+  '<div class="raise-row"><div class="ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="#e8e8e8" stroke-width="6"/><circle cx="32" cy="32" r="26" fill="none" stroke="#34d399" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+ringCirc.toFixed(1)+'" stroke-dashoffset="'+ringOff.toFixed(1)+'"/></svg><div class="ring-pct">'+p+'%</div></div>'+
+  '<div class="raise-meta"><div class="raised">'+money(raised,c.currency)+' raised <span>of '+money(goal,c.currency)+'</span></div>'+
+  '<div class="recent-line">'+recentTxt+'</div></div></div>'+
+  '<div class="btn-row"><button type="button" class="btn-donate" id="donateBtn">Donate</button>'+
+  '<button type="button" class="btn-share" id="shareBtn">Share</button></div>'+
   (donors?'<div class="donors">'+donors+'</div>':'')+
   '</div></aside>';
 document.getElementById("app").innerHTML=html;
