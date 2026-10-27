@@ -7,6 +7,6 @@
 
 window.HOPEFORUS_EMAILJS = {
   publicKey: "YOUR_PUBLIC_KEY",
-  serviceId: "YOUR_SERVICE_ID",
+  serviceId: "service_w6qtun6",
   templateId: "YOUR_TEMPLATE_ID"
 };
