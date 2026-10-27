@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Donate – HopeForUs</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--p:#7C3AED;--p-dark:#4C1D95;--font:Inter,system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:#fafafa;color:#1a1a1a;line-height:1.5;min-height:100vh}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#fff;border-bottom:1px solid #eee}
+.logo{font-weight:800;font-size:1.1rem}
+.back{background:none;border:0;color:var(--p);font-weight:600;font-size:.9rem;cursor:pointer}
+.wrap{max-width:480px;margin:0 auto;padding:24px 16px 40px}
+h1{font-size:1.4rem;font-weight:800;margin-bottom:4px}
+.camp{color:#5c5c5c;font-size:.95rem;margin-bottom:20px}
+label{display:block;font-size:.8rem;font-weight:600;color:#5c5c5c;margin:14px 0 6px}
+input{width:100%;height:50px;padding:0 14px;border:1.5px solid #e5e5e5;border-radius:12px;font-size:1rem;font-family:inherit;background:#fff}
+input:focus{outline:none;border-color:var(--p)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.chips button{border:1.5px solid #e5e5e5;background:#fff;border-radius:999px;padding:10px 16px;font-weight:700;font-size:.95rem;cursor:pointer}
+.chips button.on{border-color:var(--p);background:#EDE9FE;color:var(--p-dark)}
+.err{color:#b91c1c;font-size:.85rem;margin-top:8px;display:none}
+.err.show{display:block}
+.go{width:100%;height:52px;border:0;border-radius:999px;background:var(--p);color:#fff;font-weight:800;font-size:1rem;margin-top:20px;cursor:pointer}
+.go:disabled{opacity:.6}
+.note{font-size:.75rem;color:#9ca3af;text-align:center;margin-top:14px}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <a href="index.html" class="logo">HopeForUs</a>
+  <button class="back" id="backBtn">← Back</button>
+</header>
+<div class="wrap">
+  <h1>Donate</h1>
+  <p class="camp" id="campTitle">Loading…</p>
+  <label>Amount (USD)</label>
+  <div class="chips" id="chips">
+    <button type="button" data-amt="10">$10</button>
+    <button type="button" data-amt="25">$25</button>
+    <button type="button" data-amt="50">$50</button>
+    <button type="button" data-amt="100">$100</button>
+  </div>
+  <input type="number" id="amount" min="1" step="1" value="10" placeholder="Enter amount">
+  <label>Email (for receipt)</label>
+  <input type="email" id="email" placeholder="you@email.com" autocomplete="email">
+  <label>Name (optional)</label>
+  <input type="text" id="name" placeholder="Your name">
+  <p class="err" id="err"></p>
+  <button type="button" class="go" id="goBtn">Continue to pay</button>
+  <p class="note">Payment by card (Apple Pay if available). Processed securely by Tribute.</p>
+</div>
+<script src="campaigns-data.js"></script>
+<script src="tribute-config.js"></script>
+<script>
+(function(){
+var params = new URLSearchParams(location.search);
+var id = params.get("id") || "";
+var list = [];
+try { list = JSON.parse(localStorage.getItem("hopeforus_campaigns") || "[]") || []; } catch(e) {}
+var c = null;
+for (var i = 0; i < list.length; i++) { if (list[i] && list[i].id === id) { c = list[i]; break; } }
+if (!c && typeof SAMPLES !== "undefined") {
+  for (var j = 0; j < SAMPLES.length; j++) { if (SAMPLES[j] && SAMPLES[j].id === id) { c = SAMPLES[j]; break; } }
+}
+if (!c) {
+  document.getElementById("campTitle").textContent = "Campaign not found.";
+  document.getElementById("goBtn").disabled = true;
+  return;
+}
+document.getElementById("campTitle").textContent = c.title || "";
+document.getElementById("backBtn").onclick = function() { location.href = "campaign.html?id=" + encodeURIComponent(id); };
+
+var u = null;
+try { u = JSON.parse(localStorage.getItem("hopeforus_user") || "null"); } catch(e) {}
+if (u && u.email) document.getElementById("email").value = u.email;
+if (u && u.name) document.getElementById("name").value = u.name;
+
+document.querySelectorAll("#chips button").forEach(function(b) {
+  b.onclick = function() {
+    document.querySelectorAll("#chips button").forEach(function(x) { x.classList.remove("on"); });
+    b.classList.add("on");
+    document.getElementById("amount").value = b.getAttribute("data-amt");
+  };
+});
+
+async function createTributeOrder(amountUsd, donorEmail, donorName) {
+  var cfg = window.HOPEFORUS_TRIBUTE || {};
+  if (!cfg.apiKey || cfg.apiKey.indexOf("YOUR_") === 0) {
+    alert("Tribute API key not configured.");
+    return null;
+  }
+  var amountCents = Math.round(Number(amountUsd) * 100);
+  if (amountCents < 100) amountCents = 100;
+  var body = {
+    currency: "usd",
+    amount: amountCents,
+    title: (c.title || "HopeForUs Campaign").slice(0, 90),
+    description: ("Donation to campaign " + (c.id || "") + " — " + (c.title || "")).slice(0, 280),
+    comment: "campaign:" + (c.id || "") + (c.code ? "|code:" + c.code : ""),
+    customerId: "camp_" + (c.id || ""),
+    email: donorEmail || undefined,
+    successUrl: location.origin + "/campaign.html?id=" + encodeURIComponent(id) + "&donated=1",
+    failUrl: location.origin + "/campaign.html?id=" + encodeURIComponent(id) + "&donate_failed=1",
+    period: "onetime",
+    preferredPaymentMethods: [{type:"card"},{type:"apple_pay"}]
+  };
+  if (cfg.shopId) body.shopId = cfg.shopId;
+  try {
+    var res = await fetch(cfg.apiBase + "/shop/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Api-Key": cfg.apiKey },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      var errText = await res.text();
+      console.error("Tribute error", res.status, errText);
+      alert("Could not create payment (" + res.status + ").");
+      return null;
+    }
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+    alert("Network error creating payment.");
+    return null;
+  }
+}
+
+document.getElementById("goBtn").onclick = async function() {
+  var btn = this;
+  var amt = parseFloat(document.getElementById("amount").value);
+  var email = (document.getElementById("email").value || "").trim();
+  var name = (document.getElementById("name").value || "").trim();
+  var err = document.getElementById("err");
+  err.classList.remove("show");
+  if (isNaN(amt) || amt < 1) { err.textContent = "Enter at least $1."; err.classList.add("show"); return; }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = "Enter a valid email or leave blank."; err.classList.add("show"); return; }
+  btn.disabled = true;
+  btn.textContent = "Creating payment…";
+  var order = await createTributeOrder(amt, email, name);
+  btn.disabled = false;
+  btn.textContent = "Continue to pay";
+  if (order && (order.paymentUrl || order.webappPaymentUrl)) {
+    try {
+      var pend = JSON.parse(localStorage.getItem("hopeforus_pending_donations") || "[]");
+      pend.push({ campaignId: c.id, orderUuid: order.uuid, amount: amt, email: email, at: Date.now() });
+      localStorage.setItem("hopeforus_pending_donations", JSON.stringify(pend));
+    } catch (e) {}
+    location.href = order.paymentUrl || order.webappPaymentUrl;
+  }
+};
+})();
+</script>
+</body>
+</html>
