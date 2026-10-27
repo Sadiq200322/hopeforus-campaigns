@@ -6,7 +6,7 @@
 <title>Campaign – HopeForUs</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--p:#7C3AED;--p-dark:#5B21B6;--green:#00a964;--black:#1a1a1a;--muted:#5c5c5c;--border:#e5e5e5;--font:Inter,system-ui,sans-serif}
+:root{--p:#7C3AED;--p-dark:#4C1D95;--p-light:#EDE9FE;--black:#1a1a1a;--muted:#5c5c5c;--border:#e5e5e5;--font:Inter,system-ui,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font);color:var(--black);background:#fff;line-height:1.5}
 a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}img{max-width:100%;display:block}
@@ -35,8 +35,8 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 .raised span{font-weight:600;color:#6b7280;font-size:1rem}
 .recent-line{font-size:.85rem;color:#6b7280;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.btn-donate{display:block;width:100%;background:#c8f542;color:#0a2e0a;border:none;font-weight:800;padding:14px 12px;border-radius:999px;font-size:1rem;text-align:center}
-.btn-share{display:block;width:100%;background:#0f3d2e;color:#c8f542;border:none;font-weight:800;padding:14px 12px;border-radius:999px;font-size:1rem;text-align:center}
+.btn-donate{display:block;width:100%;background:var(--p);color:#fff;border:none;font-weight:800;padding:14px 12px;border-radius:999px;font-size:1rem;text-align:center}
+.btn-share{display:block;width:100%;background:var(--p-dark);color:#E9D5FF;border:none;font-weight:800;padding:14px 12px;border-radius:999px;font-size:1rem;text-align:center}
 @media(max-width:899px){
   .side{position:fixed;left:14px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));top:auto;z-index:60;padding:0;margin:0;width:auto}
   .card{border-radius:20px;border:1px solid #e8e8e8;box-shadow:0 12px 40px rgba(0,0,0,.18);padding:12px 14px}
@@ -59,7 +59,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 .sc-inner{background:#fff;border-radius:16px;overflow:hidden;position:relative;display:grid;grid-template-columns:1.1fr 1fr;min-height:200px;box-shadow:0 4px 16px rgba(0,0,0,.06)}
 @media(max-width:560px){.sc-inner{grid-template-columns:1fr}}
 .sc-left{padding:18px 16px 16px;display:flex;flex-direction:column;justify-content:space-between;position:relative;z-index:2}
-.sc-logo{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:.85rem;color:#00a964;margin-bottom:10px}
+.sc-logo{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:.85rem;color:var(--p);margin-bottom:10px}
 .sc-title{font-weight:800;font-size:1.05rem;line-height:1.25;margin-bottom:10px}
 .sc-org{font-size:.85rem;color:#6b7280}
 .sc-org strong{display:block;color:#374151;font-weight:700}
@@ -70,8 +70,8 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 .sc-pct{width:56px;height:56px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 2px 10px rgba(0,0,0,.12)}
 .sc-pct svg{position:absolute;inset:0;width:56px;height:56px;transform:rotate(-90deg)}
 .sc-pct span{font-size:.75rem;font-weight:800;position:relative;z-index:1}
-.sc-raised{background:#c8f542;color:#0a2e0a;font-weight:800;font-size:.8rem;padding:6px 12px;border-radius:999px;white-space:nowrap}
-.sc-donow{background:#ffd54f;color:#3d2e00;font-weight:800;font-size:.78rem;padding:6px 12px;border-radius:999px;white-space:nowrap}
+.sc-raised{background:var(--p);color:#fff;font-weight:800;font-size:.8rem;padding:6px 12px;border-radius:999px;white-space:nowrap}
+.sc-donow{background:var(--p-light);color:var(--p-dark);font-weight:800;font-size:.78rem;padding:6px 12px;border-radius:999px;white-space:nowrap}
 .sc-icons{display:flex;gap:10px;justify-content:center;padding:14px 0 4px;flex-wrap:wrap}
 .sc-icons a,.sc-icons button{width:40px;height:40px;border-radius:50%;border:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#fff}
 .sc-icons .ic-copy{background:#e5e7eb;color:#374151}
@@ -93,7 +93,18 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 <script src="tribute-config.js"></script>
 <script>
 (function(){
-// Session-aware header: no "Start a HopeForUs" spam when already signed in
+// Clear old test accounts/campaigns on first load of this version (proof of refresh)
+try {
+  if (!localStorage.getItem('hopeforus_cleared_v2')) {
+    localStorage.removeItem('hopeforus_users');
+    localStorage.removeItem('hopeforus_user');
+    localStorage.removeItem('hopeforus_campaigns');
+    localStorage.removeItem('hopeforus_otp');
+    localStorage.removeItem('hopeforus_pending_donations');
+    localStorage.setItem('hopeforus_cleared_v2', '1');
+  }
+} catch(e) {}
+
 var u=null;try{u=JSON.parse(localStorage.getItem("hopeforus_user")||"null")}catch(e){}
 var ha=document.getElementById("hdrActions");
 if(u&&u.email){
@@ -148,14 +159,14 @@ var shareCard=
   '<div class="sc-frame">'+
   '<div class="sc-inner">'+
   '<div class="sc-left">'+
-  '<div><div class="sc-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="#00a964"><path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16.8 5.6 21.2 8 14 2 9.2h7.6z"/></svg> HopeForUs</div>'+
+  '<div><div class="sc-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="#7C3AED"><path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16.8 5.6 21.2 8 14 2 9.2h7.6z"/></svg> HopeForUs</div>'+
   '<div class="sc-title">'+esc(c.title)+'</div></div>'+
   '<div class="sc-org">Organized for<strong>'+esc(c.beneficiary||c.organizer||"")+'</strong></div>'+
   '</div>'+
   '<div class="sc-right">'+(img?'<img src="'+img+'" alt="">':'')+
-  '<div class="sc-heart"><svg width="18" height="18" viewBox="0 0 24 24" fill="#f59e0b"><path d="M12 21s-7-4.35-9.5-8.5C.5 9 2.5 5 6.5 5c2 0 3.5 1.2 5.5 3.2C14 6.2 15.5 5 17.5 5c4 0 6 4 4 7.5C19 16.65 12 21 12 21z"/></svg></div>'+
+  '<div class="sc-heart"><svg width="18" height="18" viewBox="0 0 24 24" fill="#7C3AED"><path d="M12 21s-7-4.35-9.5-8.5C.5 9 2.5 5 6.5 5c2 0 3.5 1.2 5.5 3.2C14 6.2 15.5 5 17.5 5c4 0 6 4 4 7.5C19 16.65 12 21 12 21z"/></svg></div>'+
   '<div class="sc-overlay">'+
-  '<div class="sc-pct"><svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="22" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="28" cy="28" r="22" fill="none" stroke="#00a964" stroke-width="5" stroke-linecap="round" stroke-dasharray="'+scCirc.toFixed(1)+'" stroke-dashoffset="'+scOff.toFixed(1)+'"/></svg><span>'+p+'%</span></div>'+
+  '<div class="sc-pct"><svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="22" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="28" cy="28" r="22" fill="none" stroke="#7C3AED" stroke-width="5" stroke-linecap="round" stroke-dasharray="'+scCirc.toFixed(1)+'" stroke-dashoffset="'+scOff.toFixed(1)+'"/></svg><span>'+p+'%</span></div>'+
   '<span class="sc-raised">'+money(raised,c.currency)+' raised</span>'+
   '<span class="sc-donow">Donate now!</span>'+
   '</div></div></div>'+
@@ -174,7 +185,7 @@ var html='<div class="main">'+
   (donors?'<div class="section"><h3>'+(c.donations||donorsArr.length)+' donations</h3><div class="donors">'+donors+'</div></div>':'')+
   '</div>'+
   '<aside class="side"><div class="card">'+
-  '<div class="raise-row"><div class="ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="#e8e8e8" stroke-width="6"/><circle cx="32" cy="32" r="26" fill="none" stroke="#34d399" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+ringCirc.toFixed(1)+'" stroke-dashoffset="'+ringOff.toFixed(1)+'"/></svg><div class="ring-pct">'+p+'%</div></div>'+
+  '<div class="raise-row"><div class="ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="#e8e8e8" stroke-width="6"/><circle cx="32" cy="32" r="26" fill="none" stroke="#7C3AED" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+ringCirc.toFixed(1)+'" stroke-dashoffset="'+ringOff.toFixed(1)+'"/></svg><div class="ring-pct">'+p+'%</div></div>'+
   '<div class="raise-meta"><div class="raised">'+money(raised,c.currency)+' raised <span>of '+moneyShort(goal,c.currency)+'</span></div>'+
   '<div class="recent-line">'+recentTxt+'</div></div></div>'+
   '<div class="btn-row"><button type="button" class="btn-donate" id="donateBtn">Donate</button>'+
@@ -195,7 +206,7 @@ async function createTributeOrder(amountUsd, donorEmail, donorName) {
     return null;
   }
   var amountCents = Math.round(Number(amountUsd) * 100);
-  if (amountCents < 100) amountCents = 100; // min ~$1
+  if (amountCents < 100) amountCents = 100;
   var body = {
     currency: 'usd',
     amount: amountCents,
@@ -247,9 +258,7 @@ document.getElementById("donateBtn").onclick = async function() {
   btn.disabled = false;
   btn.textContent = 'Donate';
   if (order && (order.paymentUrl || order.webappPaymentUrl)) {
-    // Prefer web payment URL
     var payUrl = order.paymentUrl || order.webappPaymentUrl;
-    // Optionally store local pending donation
     try {
       var pend = JSON.parse(localStorage.getItem('hopeforus_pending_donations') || '[]');
       pend.push({ campaignId: c.id, orderUuid: order.uuid, amount: amt, email: email, at: Date.now() });
