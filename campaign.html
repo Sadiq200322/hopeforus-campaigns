@@ -215,58 +215,12 @@ var html='<div class="main">'+
   '<div class="raise-row"><div class="ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="#e8e8e8" stroke-width="6"/><circle cx="32" cy="32" r="26" fill="none" stroke="#7C3AED" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+ringCirc.toFixed(1)+'" stroke-dashoffset="'+ringOff.toFixed(1)+'"/></svg><div class="ring-pct">'+p+'%</div></div>'+
   '<div class="raise-meta"><div class="raised">'+money(raised,c.currency)+' raised <span>of '+moneyShort(goal,c.currency)+'</span></div>'+
   '<div class="recent-line">'+recentTxt+'</div></div></div>'+
-  '<div class="btn-row"><button type="button" class="btn-donate" id="donateBtn">Donate</button>'+
+  '<div class="btn-row"><a href="donate.html?id='+encodeURIComponent(id)+'" class="btn-donate">Donate</a>'+
   '<button type="button" class="btn-share" id="shareBtn">Share</button></div>'+
   '</div></aside>';
 document.getElementById("app").innerHTML=html;
 var rm=document.getElementById("readMore");
 if(rm){var st=document.getElementById("story");st.classList.add("clamp");rm.onclick=function(){st.classList.toggle("clamp");rm.textContent=st.classList.contains("clamp")?"Read more":"Show less";};}
-
-async function createTributeOrder(amountUsd, donorEmail, donorName) {
-  var cfg = window.HOPEFORUS_TRIBUTE || {};
-  if (!cfg.apiKey || cfg.apiKey.indexOf('YOUR_') === 0) {
-    alert('Tribute API key not configured. Update tribute-config.js');
-    return null;
-  }
-  var amountCents = Math.round(Number(amountUsd) * 100);
-  if (amountCents < 100) amountCents = 100;
-  var body = {
-    currency: 'usd',
-    amount: amountCents,
-    title: (c.title || 'HopeForUs Campaign').slice(0, 90),
-    description: ('Donation to campaign ' + (c.id || '') + ' — ' + (c.title || '')).slice(0, 280),
-    comment: 'campaign:' + (c.id || '') + (c.code ? '|code:' + c.code : ''),
-    customerId: 'camp_' + (c.id || ''),
-    email: donorEmail || undefined,
-    successUrl: location.href + (location.href.indexOf('?') > -1 ? '&' : '?') + 'donated=1',
-    failUrl: location.href + (location.href.indexOf('?') > -1 ? '&' : '?') + 'donate_failed=1',
-    period: 'onetime',
-    preferredPaymentMethods: [{type:'card'},{type:'apple_pay'}]
-  };
-  if (cfg.shopId) body.shopId = cfg.shopId;
-  try {
-    var res = await fetch(cfg.apiBase + '/shop/orders', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Api-Key': cfg.apiKey
-      },
-      body: JSON.stringify(body)
-    });
-    if (!res.ok) {
-      var errText = await res.text();
-      console.error('Tribute error', res.status, errText);
-      alert('Could not create payment (' + res.status + '). Check console / API key / CORS.');
-      return null;
-    }
-    var data = await res.json();
-    return data;
-  } catch (e) {
-    console.error(e);
-    alert('Network error creating payment. Tribute API may block browser requests (CORS).');
-    return null;
-  }
-}
 
 function showToast(msg){
   var t=document.getElementById("copyToast");
@@ -287,78 +241,9 @@ function copyLink(){
 }
 var sc=document.getElementById("scCopy");
 if(sc)sc.onclick=copyLink;
-
-var overlay=document.getElementById("donateOverlay");
-var amtInput=document.getElementById("donateAmount");
-var emailInput=document.getElementById("donateEmail");
-var nameInput=document.getElementById("donateName");
-var errEl=document.getElementById("donateErr");
-var goBtn=document.getElementById("donateGo");
-if(u&&u.email)emailInput.value=u.email;
-if(u&&u.name)nameInput.value=u.name;
-document.getElementById("donateCampTitle").textContent=c.title||"";
-
-document.querySelectorAll("#amtChips button").forEach(function(b){
-  b.onclick=function(){
-    document.querySelectorAll("#amtChips button").forEach(function(x){x.classList.remove("on")});
-    b.classList.add("on");
-    amtInput.value=b.getAttribute("data-amt");
-  };
-});
-document.getElementById("donateBtn").onclick=function(){
-  overlay.classList.add("on");
-  errEl.classList.remove("show");
-};
-document.getElementById("donateCancel").onclick=function(){overlay.classList.remove("on");};
-overlay.onclick=function(e){if(e.target===overlay)overlay.classList.remove("on");};
-
-goBtn.onclick=async function(){
-  var amt=parseFloat(amtInput.value);
-  var email=(emailInput.value||"").trim();
-  var name=(nameInput.value||"").trim();
-  errEl.classList.remove("show");
-  if(isNaN(amt)||amt<1){errEl.textContent="Enter at least $1.";errEl.classList.add("show");return;}
-  if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){errEl.textContent="Enter a valid email or leave blank.";errEl.classList.add("show");return;}
-  goBtn.disabled=true;goBtn.textContent="Creating payment…";
-  var order=await createTributeOrder(amt,email,name);
-  goBtn.disabled=false;goBtn.textContent="Continue to pay";
-  if(order&&(order.paymentUrl||order.webappPaymentUrl)){
-    try{
-      var pend=JSON.parse(localStorage.getItem("hopeforus_pending_donations")||"[]");
-      pend.push({campaignId:c.id,orderUuid:order.uuid,amount:amt,email:email,at:Date.now()});
-      localStorage.setItem("hopeforus_pending_donations",JSON.stringify(pend));
-    }catch(e){}
-    location.href=order.paymentUrl||order.webappPaymentUrl;
-  }
-};
-
 document.getElementById("shareBtn").onclick=copyLink;
 })();
 </script>
-<div class="donate-overlay" id="donateOverlay">
-  <div class="donate-sheet">
-    <h2>Donate</h2>
-    <p class="sub" id="donateCampTitle"></p>
-    <label>Amount (USD)</label>
-    <div class="amt-chips" id="amtChips">
-      <button type="button" data-amt="10">$10</button>
-      <button type="button" data-amt="25">$25</button>
-      <button type="button" data-amt="50">$50</button>
-      <button type="button" data-amt="100">$100</button>
-    </div>
-    <input type="number" id="donateAmount" min="1" step="1" placeholder="Or enter amount" value="10">
-    <label>Email (for receipt)</label>
-    <input type="email" id="donateEmail" placeholder="you@email.com" autocomplete="email">
-    <label>Name (optional)</label>
-    <input type="text" id="donateName" placeholder="Your name">
-    <p class="donate-err" id="donateErr"></p>
-    <div class="donate-actions">
-      <button type="button" class="donate-cancel" id="donateCancel">Cancel</button>
-      <button type="button" class="donate-go" id="donateGo">Continue to pay</button>
-    </div>
-    <p style="font-size:.75rem;color:#9ca3af;margin-top:12px;text-align:center">Payment by card (Apple Pay if available). Processed securely by Tribute.</p>
-  </div>
-</div>
 <div class="copy-toast" id="copyToast">Link copied</div>
 </body>
 </html>
