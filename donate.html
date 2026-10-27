@@ -14,7 +14,10 @@ body{font-family:var(--font);background:#fafafa;color:#1a1a1a;line-height:1.5;mi
 .back{background:none;border:0;color:var(--p);font-weight:600;font-size:.9rem;cursor:pointer}
 .wrap{max-width:480px;margin:0 auto;padding:24px 16px 40px}
 h1{font-size:1.4rem;font-weight:800;margin-bottom:4px}
-.camp{color:#5c5c5c;font-size:.95rem;margin-bottom:20px}
+.camp{color:#5c5c5c;font-size:.95rem;margin-bottom:12px}
+.banner{background:#FEF3C7;border:1px solid #F59E0B;color:#92400E;padding:12px 14px;border-radius:12px;font-size:.85rem;margin-bottom:16px;display:none}
+.banner.show{display:block}
+.banner strong{display:block;margin-bottom:4px}
 label{display:block;font-size:.8rem;font-weight:600;color:#5c5c5c;margin:14px 0 6px}
 input{width:100%;height:50px;padding:0 14px;border:1.5px solid #e5e5e5;border-radius:12px;font-size:1rem;font-family:inherit;background:#fff}
 input:focus{outline:none;border-color:var(--p)}
@@ -36,6 +39,10 @@ input:focus{outline:none;border-color:var(--p)}
 <div class="wrap">
   <h1>Donate</h1>
   <p class="camp" id="campTitle">Loading…</p>
+  <div class="banner" id="shopBanner">
+    <strong>Tribute Shop required</strong>
+    Create a Shop in the Tribute mini-app (Settings or main menu → Shop / Create Shop). Then refresh this page. Dynamic amounts and card payments work only after a shop exists.
+  </div>
   <label>Amount (USD)</label>
   <div class="chips" id="chips">
     <button type="button" data-amt="10">$10</button>
@@ -50,7 +57,7 @@ input:focus{outline:none;border-color:var(--p)}
   <input type="text" id="name" placeholder="Your name">
   <p class="err" id="err"></p>
   <button type="button" class="go" id="goBtn">Continue to pay</button>
-  <p class="note">Payment by card (Apple Pay if available). Processed securely by Tribute.</p>
+  <p class="note">Payment by card (Apple Pay if available). Processed securely by Tribute. Each donation is tagged with the campaign ID so you can track who gave and to which campaign.</p>
 </div>
 <script src="campaigns-data.js"></script>
 <script src="tribute-config.js"></script>
@@ -86,29 +93,57 @@ document.querySelectorAll("#chips button").forEach(function(b) {
   };
 });
 
+var cachedShopId = null;
+
 async function getShopId(cfg) {
   if (cfg.shopId) return cfg.shopId;
+  if (cachedShopId) return cachedShopId;
   try {
     var res = await fetch(cfg.apiBase + "/shops", {
-      headers: { "Api-Key": cfg.apiKey }
+      headers: { "Api-Key": cfg.apiKey, "Accept": "application/json" }
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.warn("GET /shops failed", res.status);
+      return null;
+    }
     var shops = await res.json();
-    if (Array.isArray(shops) && shops.length && shops[0].id) return shops[0].id;
-  } catch (e) {}
+    if (Array.isArray(shops) && shops.length && shops[0].id) {
+      cachedShopId = shops[0].id;
+      return cachedShopId;
+    }
+  } catch (e) {
+    console.warn("shops fetch error", e);
+  }
   return null;
 }
 
+// Pre-check shop on load
+(async function checkShop() {
+  var cfg = window.HOPEFORUS_TRIBUTE || {};
+  if (!cfg.apiKey) return;
+  var sid = await getShopId(cfg);
+  var banner = document.getElementById("shopBanner");
+  if (!sid) {
+    banner.classList.add("show");
+  }
+})();
+
 async function createTributeOrder(amountUsd, donorEmail, donorName) {
   var cfg = window.HOPEFORUS_TRIBUTE || {};
-  if (!cfg.apiKey || cfg.apiKey.indexOf("YOUR_") === 0 || cfg.apiKey.length < 30) {
-    alert("Tribute API key missing or looks truncated. Update tribute-config.js with the full key from Tribute → Settings → API Keys.");
+  if (!cfg.apiKey) {
+    alert("Tribute API key not configured.");
     return null;
   }
   var amountCents = Math.round(Number(amountUsd) * 100);
   if (amountCents < 100) amountCents = 100;
   var shopId = await getShopId(cfg);
+  if (!shopId) {
+    alert("No Tribute Shop found.\n\nCreate a Shop in the Tribute mini-app first (look for Shop / Create Shop). Then try again.\n\nDocs: https://wiki.tribute.tg/for-shops/api");
+    document.getElementById("shopBanner").classList.add("show");
+    return null;
+  }
   var body = {
+    shopId: shopId,
     currency: "usd",
     amount: amountCents,
     title: (c.title || "HopeForUs Campaign").slice(0, 90),
@@ -121,27 +156,26 @@ async function createTributeOrder(amountUsd, donorEmail, donorName) {
     period: "onetime",
     preferredPaymentMethods: [{type:"card"},{type:"apple_pay"}]
   };
-  if (shopId) body.shopId = shopId;
   try {
     var res = await fetch(cfg.apiBase + "/shop/orders", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Api-Key": cfg.apiKey },
+      headers: { "Content-Type": "application/json", "Api-Key": cfg.apiKey, "Accept": "application/json" },
       body: JSON.stringify(body)
     });
     if (!res.ok) {
       var errText = await res.text();
       console.error("Tribute error", res.status, errText);
       var msg = "Could not create payment (" + res.status + ").\n";
-      if (res.status === 401 || res.status === 403) msg += "API key invalid or missing permission.\n";
-      if (res.status === 404) msg += "No shop found or wrong endpoint. Make sure you have created a shop in Tribute and the API key is complete.\n";
-      try { var j = JSON.parse(errText); if (j.message) msg += j.message; } catch(e) { if (errText) msg += errText.slice(0, 200); }
+      if (res.status === 404) msg += "Shop not found. Create a Shop in Tribute first.\n";
+      if (res.status === 401 || res.status === 403) msg += "API key rejected.\n";
+      try { var j = JSON.parse(errText); if (j.message) msg += j.message; } catch(e) { if (errText) msg += errText.slice(0, 300); }
       alert(msg);
       return null;
     }
     return await res.json();
   } catch (e) {
     console.error(e);
-    alert("Network error creating payment (possible CORS block). Tribute may not allow browser requests from this domain.");
+    alert("Network / CORS error. Tribute may block direct browser requests from this domain. A small backend proxy will be needed.");
     return null;
   }
 }
@@ -163,7 +197,7 @@ document.getElementById("goBtn").onclick = async function() {
   if (order && (order.paymentUrl || order.webappPaymentUrl)) {
     try {
       var pend = JSON.parse(localStorage.getItem("hopeforus_pending_donations") || "[]");
-      pend.push({ campaignId: c.id, orderUuid: order.uuid, amount: amt, email: email, at: Date.now() });
+      pend.push({ campaignId: c.id, orderUuid: order.uuid, amount: amt, email: email, name: name, at: Date.now() });
       localStorage.setItem("hopeforus_pending_donations", JSON.stringify(pend));
     } catch (e) {}
     location.href = order.paymentUrl || order.webappPaymentUrl;
