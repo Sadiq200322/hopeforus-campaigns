@@ -85,6 +85,7 @@ th{color:#5c5c5c;font-weight:600}
   </div>
 </div>
 
+<script src="campaigns-data.js"></script>
 <script src="app.js"></script>
 <script>
 if(!HF.isAdmin()){
@@ -141,7 +142,6 @@ function openDetail(id){
   if(story) html+='<div class="modal-story">'+esc(story)+'</div>';
   else html+='<p style="color:#9ca3af;font-size:.9rem;margin-bottom:14px">No story provided.</p>';
 
-  // Extra photos
   if(media.length>1){
     html+='<div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:14px">';
     media.slice(1).forEach(function(m){
@@ -197,7 +197,6 @@ function saveDetail(approve){
     return;
   }
 
-  // Save link + status
   if(url){
     HF.setCampaignDonationLink(id,url);
   }
@@ -205,17 +204,21 @@ function saveDetail(approve){
     HF.setCampaignStatus(id,'approved');
   }
 
-  // Manual raised / donations update
-  var list=[];
-  try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
-  if(Array.isArray(list)){
-    var c=list.find(function(x){return x&&x.id===id});
-    if(c){
-      c.raised=raised;
-      c.donations=donations;
-      if(url)c.donationLink=url;
-      if(approve)c.status='approved';
-      localStorage.setItem('hopeforus_campaigns',JSON.stringify(list));
+  // Also update raised / donations via the helper (ensures promotion from samples)
+  if (HF.updateCampaignRaised) {
+    HF.updateCampaignRaised(id, raised, donations);
+  } else {
+    var list=[];
+    try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
+    if(Array.isArray(list)){
+      var c=list.find(function(x){return x&&x.id===id});
+      if(c){
+        c.raised=raised;
+        c.donations=donations;
+        if(url)c.donationLink=url;
+        if(approve)c.status='approved';
+        localStorage.setItem('hopeforus_campaigns',JSON.stringify(list));
+      }
     }
   }
 
@@ -268,7 +271,6 @@ function render(){
   });
   document.getElementById('campaigns').innerHTML=ch+'</table></div></div>';
 
-  // Clickable titles → detail
   document.querySelectorAll('.camp-title').forEach(function(el){
     el.onclick=function(){openDetail(el.dataset.id)};
   });
