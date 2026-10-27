@@ -88,7 +88,6 @@
     if(!ownsCampaign(c,u)) return {ok:false,err:'You can only delete your own campaigns'};
     var next=list.filter(function(x){return !x||x.id!==id});
     save(CAMPS_KEY,next);
-    // clean click stats for this code if present
     try{
       var code=(c.code||c.id||'').toString().toUpperCase();
       var clicks=load(CLICKS_KEY,{});
@@ -195,6 +194,15 @@
     c.status=status;c.reviewedAt=Date.now();
     save(CAMPS_KEY,list);return true;
   }
+  function setCampaignDonationLink(id, link){
+    var list=load(CAMPS_KEY,[]);
+    var c=list.find(function(x){return x.id===id});
+    if(!c) return false;
+    c.donationLink=String(link||'').trim();
+    c.reviewedAt=Date.now();
+    if(c.donationLink) c.status='approved';
+    save(CAMPS_KEY,list);return true;
+  }
 
   w.HF={
     hash:hash,users:users,session:session,setSession:setSession,logout:logout,
@@ -203,6 +211,7 @@
     shortLink:shortLink,realShareUrl:realShareUrl,trackClick:trackClick,getClicks:getClicks,clicksForUser:clicksForUser,
     requestWithdraw:requestWithdraw,listWithdrawals:listWithdrawals,setWithdrawStatus:setWithdrawStatus,
     isAdmin:isAdmin,adminUsers:adminUsers,adminCampaigns:adminCampaigns,setCampaignStatus:setCampaignStatus,
+    setCampaignDonationLink:setCampaignDonationLink,
     ADMIN_EMAIL:ADMIN_EMAIL
   };
 })(window);
