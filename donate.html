@@ -21,7 +21,7 @@ input:focus{outline:none;border-color:var(--p)}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
 .chips button{border:1.5px solid #e5e5e5;background:#fff;border-radius:999px;padding:10px 16px;font-weight:700;font-size:.95rem;cursor:pointer}
 .chips button.on{border-color:var(--p);background:#EDE9FE;color:var(--p-dark)}
-.err{color:#b91c1c;font-size:.85rem;margin-top:8px;display:none}
+.err{color:#b91c1c;font-size:.85rem;margin-top:8px;display:none;white-space:pre-wrap}
 .err.show{display:block}
 .go{width:100%;height:52px;border:0;border-radius:999px;background:var(--p);color:#fff;font-weight:800;font-size:1rem;margin-top:20px;cursor:pointer}
 .go:disabled{opacity:.6}
@@ -86,14 +86,28 @@ document.querySelectorAll("#chips button").forEach(function(b) {
   };
 });
 
+async function getShopId(cfg) {
+  if (cfg.shopId) return cfg.shopId;
+  try {
+    var res = await fetch(cfg.apiBase + "/shops", {
+      headers: { "Api-Key": cfg.apiKey }
+    });
+    if (!res.ok) return null;
+    var shops = await res.json();
+    if (Array.isArray(shops) && shops.length && shops[0].id) return shops[0].id;
+  } catch (e) {}
+  return null;
+}
+
 async function createTributeOrder(amountUsd, donorEmail, donorName) {
   var cfg = window.HOPEFORUS_TRIBUTE || {};
-  if (!cfg.apiKey || cfg.apiKey.indexOf("YOUR_") === 0) {
-    alert("Tribute API key not configured.");
+  if (!cfg.apiKey || cfg.apiKey.indexOf("YOUR_") === 0 || cfg.apiKey.length < 30) {
+    alert("Tribute API key missing or looks truncated. Update tribute-config.js with the full key from Tribute → Settings → API Keys.");
     return null;
   }
   var amountCents = Math.round(Number(amountUsd) * 100);
   if (amountCents < 100) amountCents = 100;
+  var shopId = await getShopId(cfg);
   var body = {
     currency: "usd",
     amount: amountCents,
@@ -107,7 +121,7 @@ async function createTributeOrder(amountUsd, donorEmail, donorName) {
     period: "onetime",
     preferredPaymentMethods: [{type:"card"},{type:"apple_pay"}]
   };
-  if (cfg.shopId) body.shopId = cfg.shopId;
+  if (shopId) body.shopId = shopId;
   try {
     var res = await fetch(cfg.apiBase + "/shop/orders", {
       method: "POST",
@@ -117,13 +131,17 @@ async function createTributeOrder(amountUsd, donorEmail, donorName) {
     if (!res.ok) {
       var errText = await res.text();
       console.error("Tribute error", res.status, errText);
-      alert("Could not create payment (" + res.status + ").");
+      var msg = "Could not create payment (" + res.status + ").\n";
+      if (res.status === 401 || res.status === 403) msg += "API key invalid or missing permission.\n";
+      if (res.status === 404) msg += "No shop found or wrong endpoint. Make sure you have created a shop in Tribute and the API key is complete.\n";
+      try { var j = JSON.parse(errText); if (j.message) msg += j.message; } catch(e) { if (errText) msg += errText.slice(0, 200); }
+      alert(msg);
       return null;
     }
     return await res.json();
   } catch (e) {
     console.error(e);
-    alert("Network error creating payment.");
+    alert("Network error creating payment (possible CORS block). Tribute may not allow browser requests from this domain.");
     return null;
   }
 }
