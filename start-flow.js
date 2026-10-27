@@ -166,7 +166,7 @@ function publish(){
   for(var i=0;i<media.length;i++){if(media[i].type==="image"&&media[i].dataUrl){cover=media[i].dataUrl;break}}
   if(!cover&&media[0])cover=media[0].dataUrl||"";
   var camp={
-    id:id,ownerId:user.id,organizer:user.name||user.email,title:draft.title.trim(),story:draft.story.trim(),
+    id:id,ownerId:user.id,ownerEmail:user.email,organizerEmail:user.email,organizer:user.name||user.email,title:draft.title.trim(),story:draft.story.trim(),
     country:draft.country,zip:draft.zip,category:draft.category||"Other",beneficiary:draft.beneficiary||"yourself",
     goal:goal,startGoal:startGoal(),autoGoal:draft.autoGoal,raised:0,donations:0,currency:"USD",
     image:cover,media:media,createdAt:new Date().toISOString()
