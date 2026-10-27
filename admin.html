@@ -22,7 +22,7 @@ table{width:100%;border-collapse:collapse;font-size:.85rem}
 th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #f0f0f0;vertical-align:top}
 th{color:#5c5c5c;font-weight:600}
 .btn{padding:8px 12px;border-radius:8px;border:none;font-weight:600;font-size:.8rem;cursor:pointer;font-family:inherit}
-.btn-g{background:#7C3AED;color:#fff}.btn-r{background:#fee2e2;color:#991b1b}
+.btn-g{background:#7C3AED;color:#fff}.btn-r{background:#fee2e2;color:#991b1b}.btn-o{background:#f3f4f6;color:#374151}
 .badge{display:inline-block;padding:3px 8px;border-radius:999px;font-size:.75rem;font-weight:700}
 .badge.pending{background:#fef3c7;color:#92400e}.badge.approved{background:#d1fae5;color:#065f46}.badge.rejected{background:#fee2e2;color:#991b1b}
 .stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
@@ -31,6 +31,27 @@ th{color:#5c5c5c;font-weight:600}
 .link-row{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
 .link-row input{flex:1;min-width:180px;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:.8rem}
 .pending-banner{background:#fef3c7;color:#92400e;padding:12px 16px;border-radius:12px;margin-bottom:12px;font-weight:600}
+.camp-title{color:#4C1D95;font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.camp-title:hover{color:#7C3AED}
+/* Detail modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:20px 12px;overflow-y:auto}
+.modal-bg.on{display:flex}
+.modal{background:#fff;border-radius:18px;max-width:640px;width:100%;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee;background:#fafafa}
+.modal-head strong{font-size:1rem}
+.modal-close{width:36px;height:36px;border:0;background:#f3f4f6;border-radius:50%;font-size:1.2rem;cursor:pointer;line-height:1}
+.modal-body{padding:16px}
+.modal-img{width:100%;max-height:280px;object-fit:cover;border-radius:12px;background:#eee;margin-bottom:14px}
+.modal-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;font-size:.85rem}
+.modal-meta div{background:#f9fafb;border-radius:10px;padding:10px}
+.modal-meta span{display:block;color:#6b7280;font-size:.75rem;margin-bottom:2px}
+.modal-story{font-size:.9rem;line-height:1.55;color:#333;white-space:pre-wrap;max-height:220px;overflow-y:auto;background:#fafafa;padding:12px;border-radius:10px;margin-bottom:16px}
+.modal-actions{display:flex;flex-direction:column;gap:10px}
+.modal-actions label{font-size:.8rem;font-weight:600;color:#5c5c5c}
+.modal-actions input{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:.9rem;font-family:inherit}
+.modal-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.modal-btns .btn{flex:1;min-width:100px;padding:12px}
+.hint{font-size:.78rem;color:#6b7280;margin-top:4px}
 </style>
 </head>
 <body>
@@ -52,6 +73,18 @@ th{color:#5c5c5c;font-weight:600}
 <div class="panel" id="users"></div>
 <div class="panel" id="campaigns"></div>
 <div class="panel" id="withdraws"></div>
+
+<!-- Campaign detail modal -->
+<div class="modal-bg" id="detailModal">
+  <div class="modal">
+    <div class="modal-head">
+      <strong id="dmTitle">Campaign</strong>
+      <button type="button" class="modal-close" id="dmClose">×</button>
+    </div>
+    <div class="modal-body" id="dmBody"></div>
+  </div>
+</div>
+
 <script src="app.js"></script>
 <script>
 if(!HF.isAdmin()){
@@ -65,27 +98,181 @@ document.querySelectorAll('.tab').forEach(function(t){
     t.classList.add('on');document.getElementById(t.dataset.p).classList.add('on');
   };
 });
-function esc(s){return String(s||'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');}
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function money(n,c){
+  n=Number(n)||0;c=c||'USD';
+  var pre=c==='EUR'?'€':c==='GBP'?'£':'$';
+  return pre+n.toLocaleString();
+}
+
+var currentDetailId=null;
+
+function openDetail(id){
+  var camps=HF.adminCampaigns();
+  var c=camps.find(function(x){return x&&x.id===id});
+  if(!c)return;
+  currentDetailId=id;
+  var st=c.status||'pending';
+  var img=c.image||'';
+  var media=c.media||[];
+  var story=c.story||c.description||'';
+  var raised=Number(c.raised)||0;
+  var goal=Number(c.goal)||0;
+  var donations=Number(c.donations)||0;
+  var link=c.donationLink||'';
+
+  document.getElementById('dmTitle').textContent=c.title||c.id;
+
+  var html='';
+  if(img) html+='<img class="modal-img" src="'+esc(img)+'" alt="">';
+  else if(media.length && media[0].dataUrl) html+='<img class="modal-img" src="'+esc(media[0].dataUrl)+'" alt="">';
+
+  html+='<div class="modal-meta">';
+  html+='<div><span>Owner</span><strong>'+esc(c.ownerEmail||c.organizer||'—')+'</strong></div>';
+  html+='<div><span>Status</span><span class="badge '+(st==='rejected'?'rejected':st==='pending'?'pending':'approved')+'">'+st+'</span></div>';
+  html+='<div><span>Goal</span><strong>'+money(goal,c.currency)+'</strong></div>';
+  html+='<div><span>Raised (on site)</span><strong>'+money(raised,c.currency)+'</strong> · '+donations+' donations</div>';
+  html+='<div><span>Category</span><strong>'+esc(c.category||'—')+'</strong></div>';
+  html+='<div><span>Created</span><strong>'+(c.createdAt?new Date(c.createdAt).toLocaleString():'—')+'</strong></div>';
+  html+='</div>';
+
+  if(story) html+='<div class="modal-story">'+esc(story)+'</div>';
+  else html+='<p style="color:#9ca3af;font-size:.9rem;margin-bottom:14px">No story provided.</p>';
+
+  // Extra photos
+  if(media.length>1){
+    html+='<div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:14px">';
+    media.slice(1).forEach(function(m){
+      if(m&&m.dataUrl) html+='<img src="'+esc(m.dataUrl)+'" style="height:80px;border-radius:8px;object-fit:cover">';
+    });
+    html+='</div>';
+  }
+
+  html+='<div class="modal-actions">';
+  html+='<label>Tribute donation link</label>';
+  html+='<input type="text" id="dmLink" value="'+esc(link)+'" placeholder="https://web.tribute.tg/d/...">';
+  html+='<p class="hint">Create the link in Tribute, paste it here, then Approve. Donate button becomes active.</p>';
+
+  html+='<label style="margin-top:8px">Update raised amount (manual)</label>';
+  html+='<div style="display:flex;gap:8px">';
+  html+='<input type="number" id="dmRaised" value="'+raised+'" min="0" step="1" style="flex:1" placeholder="Raised amount">';
+  html+='<input type="number" id="dmDonations" value="'+donations+'" min="0" step="1" style="width:110px" placeholder="# donations">';
+  html+='</div>';
+  html+='<p class="hint">Tribute does not auto-sync yet. Check Tribute dashboard and update these numbers when needed.</p>';
+
+  html+='<div class="modal-btns">';
+  html+='<button type="button" class="btn btn-g" id="dmSaveApprove">Save link + Approve</button>';
+  html+='<button type="button" class="btn btn-o" id="dmSaveOnly">Save only</button>';
+  html+='<button type="button" class="btn btn-r" id="dmReject">Reject</button>';
+  html+='</div>';
+  html+='</div>';
+
+  document.getElementById('dmBody').innerHTML=html;
+  document.getElementById('detailModal').classList.add('on');
+
+  document.getElementById('dmSaveApprove').onclick=function(){
+    saveDetail(true);
+  };
+  document.getElementById('dmSaveOnly').onclick=function(){
+    saveDetail(false);
+  };
+  document.getElementById('dmReject').onclick=function(){
+    HF.setCampaignStatus(id,'rejected');
+    closeDetail();
+    render();
+  };
+}
+
+function saveDetail(approve){
+  var id=currentDetailId;
+  if(!id)return;
+  var url=(document.getElementById('dmLink').value||'').trim();
+  var raised=parseFloat(document.getElementById('dmRaised').value)||0;
+  var donations=parseInt(document.getElementById('dmDonations').value,10)||0;
+
+  if(url && url.indexOf('http')!==0){
+    alert('Link must start with https://');
+    return;
+  }
+
+  // Save link + status
+  if(url){
+    HF.setCampaignDonationLink(id,url);
+  }
+  if(approve){
+    HF.setCampaignStatus(id,'approved');
+  }
+
+  // Manual raised / donations update
+  var list=[];
+  try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
+  if(Array.isArray(list)){
+    var c=list.find(function(x){return x&&x.id===id});
+    if(c){
+      c.raised=raised;
+      c.donations=donations;
+      if(url)c.donationLink=url;
+      if(approve)c.status='approved';
+      localStorage.setItem('hopeforus_campaigns',JSON.stringify(list));
+    }
+  }
+
+  closeDetail();
+  render();
+}
+
+function closeDetail(){
+  document.getElementById('detailModal').classList.remove('on');
+  currentDetailId=null;
+}
+document.getElementById('dmClose').onclick=closeDetail;
+document.getElementById('detailModal').onclick=function(e){
+  if(e.target===this)closeDetail();
+};
+
 function render(){
   var users=HF.adminUsers();
   var camps=HF.adminCampaigns();
   var wd=HF.listWithdrawals();
   var pending=camps.filter(function(c){return (c.status||'pending')==='pending' || !c.donationLink;});
-  document.getElementById('overview').innerHTML='<div class="stat"><div><strong>'+users.length+'</strong><span>Users</span></div><div><strong>'+camps.length+'</strong><span>Campaigns</span></div><div><strong>'+pending.length+'</strong><span>Need review</span></div><div><strong>'+wd.filter(function(w){return w.status==="pending"}).length+'</strong><span>Pending withdraws</span></div></div>'+(pending.length?'<div class="pending-banner">'+pending.length+' campaign'+(pending.length>1?'s':'')+' waiting for a donation link.</div>':'')+'<div class="card"><h3>Quick actions</h3><p style="color:#5c5c5c;font-size:.9rem">Review new campaigns, create a Tribute donation link, paste it below, and save. The Donate button will then go live.</p></div>';
+
+  document.getElementById('overview').innerHTML=
+    '<div class="stat">'+
+    '<div><strong>'+users.length+'</strong><span>Users</span></div>'+
+    '<div><strong>'+camps.length+'</strong><span>Campaigns</span></div>'+
+    '<div><strong>'+pending.length+'</strong><span>Need review</span></div>'+
+    '<div><strong>'+wd.filter(function(w){return w.status==="pending"}).length+'</strong><span>Pending withdraws</span></div>'+
+    '</div>'+
+    (pending.length?'<div class="pending-banner">'+pending.length+' campaign'+(pending.length>1?'s':'')+' waiting for a donation link.</div>':'')+
+    '<div class="card"><h3>Quick actions</h3><p style="color:#5c5c5c;font-size:.9rem">Click any campaign title to review photos + story, paste the Tribute link, and approve. Raised amounts are updated manually (Tribute does not auto-sync yet).</p></div>';
+
   var uh='<div class="card"><h3>All users</h3><div style="overflow-x:auto"><table><tr><th>Name</th><th>Email</th><th>Verified</th><th>Joined</th></tr>';
   users.forEach(function(u){
     uh+='<tr><td>'+esc(u.name)+(u.isAdmin?' <span class="badge approved">admin</span>':'')+'</td><td>'+esc(u.email)+'</td><td>'+(u.verified?'Yes':'No')+'</td><td>'+(u.created?new Date(u.created).toLocaleDateString():'—')+'</td></tr>';
   });
   document.getElementById('users').innerHTML=uh+'</table></div></div>';
+
   var ch='<div class="card"><h3>Campaigns</h3><div style="overflow-x:auto"><table><tr><th>Title</th><th>Owner</th><th>Status</th><th>Donation link</th><th></th></tr>';
   camps.forEach(function(c){
     var st=c.status||'pending';
     var link=c.donationLink||'';
-    ch+='<tr><td>'+esc(c.title||c.id)+'</td><td>'+esc(c.ownerEmail||c.organizer||'—')+'</td><td><span class="badge '+(st==='rejected'?'rejected':st==='pending'?'pending':'approved')+'">'+st+'</span></td>';
+    ch+='<tr>';
+    ch+='<td><span class="camp-title" data-id="'+esc(c.id)+'">'+esc(c.title||c.id)+'</span></td>';
+    ch+='<td>'+esc(c.ownerEmail||c.organizer||'—')+'</td>';
+    ch+='<td><span class="badge '+(st==='rejected'?'rejected':st==='pending'?'pending':'approved')+'">'+st+'</span></td>';
     ch+='<td><div class="link-row"><input type="text" class="dlink" data-id="'+esc(c.id)+'" value="'+esc(link)+'" placeholder="https://web.tribute.tg/d/..."><button class="btn btn-g" data-save="'+esc(c.id)+'">Save link</button></div></td>';
-    ch+='<td><button class="btn btn-g" data-id="'+esc(c.id)+'" data-s="approved">Approve</button> <button class="btn btn-r" data-id="'+esc(c.id)+'" data-s="rejected">Reject</button></td></tr>';
+    ch+='<td><button class="btn btn-g" data-id="'+esc(c.id)+'" data-s="approved">Approve</button> <button class="btn btn-r" data-id="'+esc(c.id)+'" data-s="rejected">Reject</button></td>';
+    ch+='</tr>';
   });
   document.getElementById('campaigns').innerHTML=ch+'</table></div></div>';
+
+  // Clickable titles → detail
+  document.querySelectorAll('.camp-title').forEach(function(el){
+    el.onclick=function(){openDetail(el.dataset.id)};
+  });
+
   document.querySelectorAll('#campaigns .btn[data-s]').forEach(function(b){
     b.onclick=function(){HF.setCampaignStatus(b.dataset.id,b.dataset.s);render()};
   });
@@ -100,6 +287,7 @@ function render(){
       render();
     };
   });
+
   var wh='<div class="card"><h3>Withdrawals</h3><div style="overflow-x:auto"><table><tr><th>User</th><th>Method</th><th>Amount</th><th>Address</th><th>Status</th><th></th></tr>';
   wd.forEach(function(w){
     wh+='<tr><td>'+esc(w.email)+'</td><td>'+esc(w.method.toUpperCase())+' '+esc(w.network||'')+'</td><td>'+w.amount+'</td><td style="max-width:140px;word-break:break-all;font-size:.75rem">'+esc(w.address)+'</td><td><span class="badge '+w.status+'">'+w.status+'</span></td><td>';
