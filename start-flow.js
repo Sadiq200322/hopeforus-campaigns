@@ -7,7 +7,7 @@ var lastEmailSent=false;
 var user=null;
 try{user=JSON.parse(localStorage.getItem("hopeforus_user")||"null")}catch(e){}
 function $(id){return document.getElementById(id)}
-function esc(s){var a=String.fromCharCode(38);return String(s||"").replace(/&/g,a+"amp;").replace(/</g,a+"lt;").replace(/>/g,a+"gt;").replace(/"/g,a+"quot;")}
+function esc(s){var a=String.fromCharCode(38);return String(s||"").replace(/&/g,a+"amp;").replace(/</g,a+"lt;").replace(/>/g,a+"gt;").replace(/\"/g,a+"quot;")}
 function goalNum(){var n=parseFloat(String(draft.goal).replace(/[^0-9.]/g,""));return isNaN(n)?0:n}
 function startGoal(){return Math.max(1,goalNum())}
 function makeCode(len){
@@ -112,6 +112,24 @@ function sendEmailCode(email,code,name){
     lastEmailSent=false;
     return Promise.resolve(false);
   }
+}
+function alertAdminNewCampaign(camp){
+  // Best-effort admin alert via EmailJS if configured. Does not block publish.
+  if(!emailjsReady()) return;
+  var cfg=window.HOPEFORUS_EMAILJS;
+  var adminEmail=(window.HF&&window.HF.ADMIN_EMAIL)||"admin@hopeforus.com";
+  try{
+    if(!window.__emailjs_inited){
+      emailjs.init({publicKey:cfg.publicKey});
+      window.__emailjs_inited=true;
+    }
+    emailjs.send(cfg.serviceId, cfg.templateId, {
+      to_email: adminEmail,
+      otp_code: "NEW",
+      user_name: "Admin",
+      site_name: "HopeForUs — New campaign: "+(camp.title||"")+" by "+(camp.ownerEmail||"")
+    }).catch(function(){});
+  }catch(e){}
 }
 function render(){
   $("stepn").textContent=(step+1)+" of "+STEPS;
@@ -262,7 +280,8 @@ function publish(){
     id:id,code:code,ownerId:user.id,ownerEmail:user.email,organizerEmail:user.email,organizer:user.name||user.email,title:draft.title.trim(),story:draft.story.trim(),
     country:draft.country,zip:draft.zip,category:draft.category||"Other",beneficiary:draft.beneficiary||"yourself",
     goal:goal,startGoal:startGoal(),autoGoal:draft.autoGoal,raised:0,donations:0,currency:"USD",
-    image:cover,media:media,createdAt:new Date().toISOString(),shareUrl:shortShareUrl(code)
+    image:cover,media:media,createdAt:new Date().toISOString(),shareUrl:shortShareUrl(code),
+    status:"pending",donationLink:""
   };
   var list=[];try{list=JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")}catch(e){}
   if(!Array.isArray(list))list=[];
@@ -283,8 +302,9 @@ function publish(){
       if(!trySave(list))return showErr("Storage full — try 1 smaller photo (under 1MB) and publish again.");
     }
   }
+  alertAdminNewCampaign(camp);
   try{localStorage.setItem("hopeforus_last_share",shortShareUrl(code))}catch(e){}
-  location.href="campaign.html?id="+encodeURIComponent(id)+"&code="+encodeURIComponent(code);
+  location.href="campaign.html?id="+encodeURIComponent(id)+"&code="+encodeURIComponent(code)+"&pending=1";
 }
 $("back").onclick=function(){
   if(step===0)return;
