@@ -1,20 +1,41 @@
 var CATS=["Animals","Business","Community","Competitions","Creative","Education","Emergencies","Environment","Events","Faith","Family","Funerals & Memorials","Medical","Monthly Bills","Newlyweds","Other","Sports","Travel","Volunteer","Wishes"];
-var STEPS=6;
+var STEPS=7;
 var step=0;
 var draft={country:"United States",zip:"",category:"",beneficiary:"",goal:"",autoGoal:true,title:"",story:"",media:[]};
+var pendingAuth={email:"",pass:"",name:"",code:"",sentAt:0};
 var user=null;
 try{user=JSON.parse(localStorage.getItem("hopeforus_user")||"null")}catch(e){}
 function $(id){return document.getElementById(id)}
 function esc(s){var a=String.fromCharCode(38);return String(s||"").replace(/&/g,a+"amp;").replace(/</g,a+"lt;").replace(/>/g,a+"gt;").replace(/"/g,a+"quot;")}
 function goalNum(){var n=parseFloat(String(draft.goal).replace(/[^0-9.]/g,""));return isNaN(n)?0:n}
 function startGoal(){return Math.max(1,goalNum())}
+function makeCode(len){
+  var chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  var out="";
+  for(var i=0;i<(len||6);i++) out+=chars.charAt(Math.floor(Math.random()*chars.length));
+  return out;
+}
+function makeShortCode(){
+  var list=[];try{list=JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")}catch(e){}
+  if(!Array.isArray(list))list=[];
+  var used={};
+  list.forEach(function(c){if(c&&c.code)used[String(c.code).toUpperCase()]=1});
+  var code,tries=0;
+  do{code=makeCode(6);tries++}while(used[code]&&tries<40);
+  return code;
+}
+function shortShareUrl(code){
+  var host=location.origin||"https://munowatchplus.watch";
+  return host+"/c/"+encodeURIComponent(String(code||"").toUpperCase());
+}
 var titles=[
   ["Let's begin your fundraising journey","We're here to guide you every step of the way."],
   ["Who are you fundraising for?","This helps us personalize your experience."],
   ["Set your goal","You can always change this later."],
-  ["Create your account","Save progress and manage your fundraiser."],
+  ["Create your account","We'll send a code to your email."],
+  ["Verify your email","Enter the 6-digit code we sent."],
   ["Confirm your details","Almost there."],
-  ["Tell your story","Photos and a short video help donors understand fast."]
+  ["Tell your story","Photos help donors understand fast."]
 ];
 function showErr(msg){var e=$("err");if(e){e.textContent=msg;e.classList.add("show")}}
 function isLoggedIn(){return !!(user&&user.email)}
@@ -53,13 +74,30 @@ function compressImage(file,maxW,quality){
     img.src=url;
   });
 }
+function sendEmailCode(email,code){
+  // Stores code locally. Real delivery needs EmailJS / backend (see note in UI).
+  try{
+    localStorage.setItem("hopeforus_otp",JSON.stringify({email:email.toLowerCase(),code:String(code),expires:Date.now()+15*60*1000}));
+  }catch(e){}
+  // Optional: EmailJS if keys are set on window
+  if(window.EMAILJS_SERVICE_ID && window.EMAILJS_TEMPLATE_ID && window.EMAILJS_PUBLIC_KEY && window.emailjs){
+    try{
+      return window.emailjs.send(window.EMAILJS_SERVICE_ID, window.EMAILJS_TEMPLATE_ID, {
+        to_email: email,
+        otp_code: code,
+        site_name: "HopeForUs"
+      }, window.EMAILJS_PUBLIC_KEY).then(function(){return true}).catch(function(){return false});
+    }catch(e){}
+  }
+  return Promise.resolve(false);
+}
 function render(){
   $("stepn").textContent=(step+1)+" of "+STEPS;
   $("stitle").textContent=titles[step][0];
   $("ssub").textContent=titles[step][1];
   $("prog").style.width=((step+1)/STEPS*100)+"%";
   $("back").disabled=step===0;
-  $("cont").textContent=step===5?"Publish":"Continue";
+  $("cont").textContent=step===6?"Publish":(step===4?"Verify":"Continue");
   if(isLoggedIn()){$("topr").innerHTML='<a href="dashboard.html">'+esc(user.name||user.email)+'</a>'}
   else{$("topr").innerHTML='<a href="login.html">Sign in</a>'}
   var el=$("body");
@@ -75,7 +113,7 @@ function render(){
       '</div>'+
       '<h2 style="margin-top:28px">What best describes why you\'re fundraising?</h2>'+
       '<div class="chips" id="chips"></div>';
-    var sel=$("country");["United States","Canada","United Kingdom","Australia","Germany","France","Other"].forEach(function(c){var o=document.createElement("option");o.value=c;o.textContent=c;if(c===draft.country)o.selected=true;sel.appendChild(o)});
+    var sel=$("country");["Uganda","Kenya","United States","Canada","United Kingdom","Australia","Germany","France","Other"].forEach(function(c){var o=document.createElement("option");o.value=c;o.textContent=c;if(c===draft.country)o.selected=true;sel.appendChild(o)});
     sel.onchange=function(){draft.country=this.value};
     $("zip").oninput=function(){draft.zip=this.value};
     var chips=$("chips");
@@ -101,25 +139,51 @@ function render(){
     $("goal").oninput=function(){draft.goal=this.value};
     $("sw").onclick=function(){draft.autoGoal=!draft.autoGoal;this.classList.toggle("on",draft.autoGoal)};
   } else if(step===3){
-    if(isLoggedIn()){step=5;render();return}
+    if(isLoggedIn()){step=6;render();return}
     el.innerHTML=
       '<div class="acct"><h2>Create your account</h2>'+
-      '<label class="f">Email</label><input id="email" type="email" placeholder="you@email.com">'+
+      '<label class="f">Email</label><input id="email" type="email" placeholder="you@email.com" value="'+esc(pendingAuth.email)+'">'+
       '<label class="f" style="margin-top:12px">Password</label><input id="pass" type="password" placeholder="At least 6 characters">'+
-      '<label class="f" style="margin-top:12px">Your name</label><input id="name" placeholder="First name">'+
-      '<p class="note">By continuing you agree to HopeForUs terms.</p></div>';
+      '<label class="f" style="margin-top:12px">Your name</label><input id="name" placeholder="First name" value="'+esc(pendingAuth.name)+'">'+
+      '<p class="note">We\'ll email a 6-digit code to verify it\'s you.</p></div>';
   } else if(step===4){
+    el.innerHTML=
+      '<div class="acct"><h2>Check your email</h2>'+
+      '<p style="font-size:.95rem;color:#5c5c5c;margin-bottom:14px">We sent a code to <strong>'+esc(pendingAuth.email)+'</strong></p>'+
+      '<label class="f">Verification code</label>'+
+      '<input id="otp" inputmode="numeric" maxlength="6" placeholder="6-digit code" style="letter-spacing:.2em;font-weight:700;font-size:1.2rem;text-align:center">'+
+      '<p class="note" id="otpHint" style="margin-top:12px">Code expires in 15 minutes. <button type="button" id="resend" style="background:none;border:0;color:#7C3AED;font-weight:700;cursor:pointer;font-size:inherit">Resend code</button></p>'+
+      '<p class="note" id="devCode" style="margin-top:8px;display:none;background:#f3f4f6;padding:10px;border-radius:10px;font-weight:600"></p>'+
+      '</div>';
+    setTimeout(function(){
+      var resend=$("resend");
+      if(resend)resend.onclick=function(){
+        pendingAuth.code=makeCode(6);
+        pendingAuth.sentAt=Date.now();
+        sendEmailCode(pendingAuth.email,pendingAuth.code).then(function(sent){
+          var d=$("devCode");
+          if(d){
+            if(!sent){d.style.display="block";d.innerHTML="Email service not connected yet. Your code is: <strong style=\"font-size:1.2rem;letter-spacing:.15em\">"+pendingAuth.code+"</strong>";}
+            else{d.style.display="block";d.textContent="Code resent. Check your inbox.";}
+          }
+        });
+      };
+      // Show code on screen until EmailJS is connected (so signup still works)
+      var d=$("devCode");
+      if(d&&pendingAuth.code){d.style.display="block";d.innerHTML="For now (until email is connected), use code: <strong style=\"font-size:1.2rem;letter-spacing:.15em\">"+pendingAuth.code+"</strong>";}
+    },50);
+  } else if(step===5){
     el.innerHTML=
       '<div class="acct"><h2>You\'re signed in</h2>'+
       '<p style="font-weight:600">Signed in as '+esc(user&&user.email?user.email:"")+'</p>'+
       '</div>';
-  } else if(step===5){
+  } else if(step===6){
     el.innerHTML=
       '<label class="f">Fundraiser title</label>'+
       '<input id="title" placeholder="Help Maya finish nursing school" value="'+esc(draft.title)+'">'+
       '<label class="f" style="margin-top:14px">Story</label>'+
       '<textarea id="story" rows="5" placeholder="What happened, and how will the funds help?">'+esc(draft.story)+'</textarea>'+
-      '<label class="f" style="margin-top:14px">Photos and video (required)</label>'+
+      '<label class="f" style="margin-top:14px">Photos (required)</label>'+
       '<input type="file" id="files" accept="image/*" multiple>'+
       '<p class="hint" id="mediaHint" style="margin-top:6px">Up to 4 photos. We compress them automatically.</p>'+
       '<div class="media-grid" id="mg"></div>';
@@ -147,29 +211,30 @@ function render(){
   el.appendChild(err);
 }
 function saveUser(email, pass, name){
-  user={id:"u_"+email.toLowerCase(),email:email.toLowerCase(),name:(name||email.split("@")[0]),password:pass,provider:"email"};
+  user={id:"u_"+email.toLowerCase(),email:email.toLowerCase(),name:(name||email.split("@")[0]),password:pass,provider:"email",verified:true};
   var users=[];try{users=JSON.parse(localStorage.getItem("hopeforus_users")||"[]")}catch(e){}
   if(!Array.isArray(users))users=[];
   users=users.filter(function(u){return u.email!==user.email});
   users.push(user);
   try{localStorage.setItem("hopeforus_users",JSON.stringify(users))}catch(e){}
-  try{localStorage.setItem("hopeforus_user",JSON.stringify({id:user.id,email:user.email,name:user.name,provider:"email"}))}catch(e){}
+  try{localStorage.setItem("hopeforus_user",JSON.stringify({id:user.id,email:user.email,name:user.name,provider:"email",verified:true}))}catch(e){}
 }
 function publish(){
   if(!isLoggedIn()){step=3;render();return}
   if(!draft.title.trim())return showErr("Add a title.");
-  if(!draft.media.length)return showErr("Add at least one photo or video.");
+  if(!draft.media.length)return showErr("Add at least one photo.");
   var goal=Math.max(1,goalNum());
   var id="c_"+Date.now().toString(36);
+  var code=makeShortCode();
   var media=draft.media.filter(Boolean).slice(0,4);
   var cover="";
   for(var i=0;i<media.length;i++){if(media[i].type==="image"&&media[i].dataUrl){cover=media[i].dataUrl;break}}
   if(!cover&&media[0])cover=media[0].dataUrl||"";
   var camp={
-    id:id,ownerId:user.id,ownerEmail:user.email,organizerEmail:user.email,organizer:user.name||user.email,title:draft.title.trim(),story:draft.story.trim(),
+    id:id,code:code,ownerId:user.id,ownerEmail:user.email,organizerEmail:user.email,organizer:user.name||user.email,title:draft.title.trim(),story:draft.story.trim(),
     country:draft.country,zip:draft.zip,category:draft.category||"Other",beneficiary:draft.beneficiary||"yourself",
     goal:goal,startGoal:startGoal(),autoGoal:draft.autoGoal,raised:0,donations:0,currency:"USD",
-    image:cover,media:media,createdAt:new Date().toISOString()
+    image:cover,media:media,createdAt:new Date().toISOString(),shareUrl:shortShareUrl(code)
   };
   var list=[];try{list=JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")}catch(e){}
   if(!Array.isArray(list))list=[];
@@ -190,12 +255,14 @@ function publish(){
       if(!trySave(list))return showErr("Storage full — try 1 smaller photo (under 1MB) and publish again.");
     }
   }
-  location.href="campaign.html?id="+encodeURIComponent(id);
+  try{localStorage.setItem("hopeforus_last_share",shortShareUrl(code))}catch(e){}
+  location.href="campaign.html?id="+encodeURIComponent(id)+"&code="+encodeURIComponent(code);
 }
 $("back").onclick=function(){
   if(step===0)return;
-  if(isLoggedIn()&&step===5){step=2;render();return}
-  if(step===5&&!isLoggedIn()){step=4;render();return}
+  if(isLoggedIn()&&step===6){step=2;render();return}
+  if(step===6&&!isLoggedIn()){step=5;render();return}
+  if(step===4){step=3;render();return}
   step--;
   render();
 };
@@ -207,15 +274,32 @@ $("cont").onclick=function(){
   if(step===1&&!draft.beneficiary)return showErr("Choose who you are fundraising for.");
   if(step===2&&goalNum()<=0)return showErr("Enter a goal amount.");
   if(step===3){
-    var email=($("email")&&$("email").value||"").trim();
+    var email=($("email")&&$("email").value||"").trim().toLowerCase();
     var pass=($("pass")&&$("pass").value||"");
     var name=($("name")&&$("name").value||"").trim();
     if(!email||email.indexOf("@")<0)return showErr("Enter a valid email.");
     if(pass.length<6)return showErr("Password must be at least 6 characters.");
-    saveUser(email,pass,name);
-    step=5;render();return;
+    pendingAuth={email:email,pass:pass,name:name,code:makeCode(6),sentAt:Date.now()};
+    sendEmailCode(email,pendingAuth.code).then(function(){
+      step=4;render();
+    });
+    return;
   }
-  if(step===5){publish();return}
+  if(step===4){
+    var otp=(($("otp")&&$("otp").value)||"").trim();
+    if(!otp||otp.length<4)return showErr("Enter the verification code.");
+    var ok=false;
+    if(pendingAuth.code && otp===pendingAuth.code) ok=true;
+    try{
+      var stored=JSON.parse(localStorage.getItem("hopeforus_otp")||"null");
+      if(stored&&stored.email===pendingAuth.email&&String(stored.code)===otp&&stored.expires>Date.now()) ok=true;
+    }catch(e){}
+    if(!ok)return showErr("Wrong or expired code. Try again or resend.");
+    saveUser(pendingAuth.email,pendingAuth.pass,pendingAuth.name);
+    try{localStorage.removeItem("hopeforus_otp")}catch(e){}
+    step=6;render();return;
+  }
+  if(step===6){publish();return}
   step++;
   render();
 };
