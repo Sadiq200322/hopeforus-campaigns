@@ -1,4 +1,4 @@
-/* HopeForUs UI — GFM-style nav + signed-in header */
+/* HopeForUs UI — clean GFM-style nav */
 (function(){
   var user=null;
   try{user=JSON.parse(localStorage.getItem("hopeforus_user")||"null")}catch(e){}
@@ -8,17 +8,21 @@
   var st=document.createElement("style");
   st.textContent=
     ".si svg{display:block}"+
-    ".hdr{display:flex!important;justify-content:center;position:sticky;top:0;z-index:100;background:rgba(255,255,255,.98);border-bottom:1px solid #e8e8e8;height:56px}"+
-    ".hdr-inner{width:100%;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;padding:0 12px;min-width:0;height:56px}"+
-    ".hdr-l{justify-self:start;display:flex;align-items:center;gap:2px}"+
-    ".hdr-r{justify-self:end;display:flex;align-items:center;gap:6px;min-width:0}"+
-    ".logo{justify-self:center;display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:1.1rem;text-decoration:none;color:#1a1a1a}"+
+    /* Header – fixed 3-zone layout */
+    ".hdr{position:sticky!important;top:0;z-index:100;background:rgba(255,255,255,.98)!important;border-bottom:1px solid #e8e8e8;height:56px;display:block!important}"+
+    ".hdr-inner{width:100%;max-width:1120px;margin:0 auto;height:56px;display:flex!important;align-items:center;justify-content:space-between;gap:12px;padding:0 16px;box-sizing:border-box}"+
+    ".hdr-l{display:flex;align-items:center;gap:2px;flex:1;min-width:0;justify-content:flex-start}"+
+    ".hdr-c{display:flex;align-items:center;justify-content:center;flex-shrink:0}"+
+    ".hdr-r{display:flex;align-items:center;gap:8px;flex:1;min-width:0;justify-content:flex-end}"+
+    ".logo{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:1.1rem;text-decoration:none;color:#1a1a1a;white-space:nowrap}"+
     ".logo img{width:26px;height:26px;flex-shrink:0}"+
-    ".nlink{font-size:.9rem;font-weight:600;padding:8px 12px;text-decoration:none;color:#1a1a1a;white-space:nowrap}"+
+    ".nlink{font-size:.9rem;font-weight:600;padding:8px 10px;text-decoration:none;color:#1a1a1a;white-space:nowrap}"+
     ".nlink:hover{color:#7C3AED}"+
-    ".btn-p{font-size:.88rem;font-weight:700;padding:9px 16px;border-radius:999px;background:#7C3AED;color:#fff;text-decoration:none;white-space:nowrap}"+
-    ".ibtn{width:44px;height:44px;border:0;background:0;cursor:pointer;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#1a1a1a}"+
-    ".desk-only{display:none}"+
+    ".btn-p{font-size:.85rem;font-weight:700;padding:9px 16px;border-radius:999px;background:#7C3AED;color:#fff;text-decoration:none;white-space:nowrap}"+
+    ".ibtn{width:44px;height:44px;border:0;background:0;cursor:pointer;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#1a1a1a;flex-shrink:0}"+
+    ".user-chip{display:inline-flex;align-items:center;gap:6px;background:#f3f4f6;border-radius:999px;padding:4px 10px 4px 12px;font-weight:600;font-size:.88rem;text-decoration:none;color:#1a1a1a;white-space:nowrap}"+
+    ".user-chip .av{width:26px;height:26px;border-radius:50%;background:#7C3AED;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}"+
+    ".desk-only{display:none!important}"+
     "@media(min-width:960px){"+
     "  .desk-only{display:inline-flex!important}"+
     "  .js-menu{display:none!important}"+
@@ -26,78 +30,67 @@
     "}"+
     "@media(max-width:959px){"+
     "  .desk-only{display:none!important}"+
-    "  .hdr .logo{font-size:1.05rem}"+
     "}"+
-    /* Drawer – GoFundMe style */
+    /* Drawer – clean GFM style */
     ".dr{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.4)}"+
     ".dr.on{display:block}"+
-    ".pn{position:absolute;top:0;right:0;width:min(360px,92vw);height:100%;background:#fff;padding:0;box-shadow:-8px 0 32px rgba(0,0,0,.15);overflow-y:auto;display:flex;flex-direction:column}"+
-    ".pn-head{display:flex;align-items:center;justify-content:flex-end;padding:12px 16px;border-bottom:1px solid #f0f0f0}"+
+    ".pn{position:absolute;top:0;right:0;width:min(340px,92vw);height:100%;background:#fff;box-shadow:-8px 0 32px rgba(0,0,0,.15);overflow-y:auto;display:flex;flex-direction:column}"+
+    ".pn-head{display:flex;align-items:center;justify-content:flex-end;padding:12px 16px}"+
     ".close-btn{width:40px;height:40px;border:0;background:transparent;border-radius:50%;cursor:pointer;font-size:1.5rem;color:#1a1a1a;line-height:1}"+
-    ".pn-body{padding:8px 0 24px;flex:1}"+
-    ".pn-item{display:block;padding:16px 24px;text-decoration:none;color:#1a1a1a;border:0;background:0;width:100%;text-align:left;cursor:pointer;font-family:inherit}"+
+    ".pn-body{padding:4px 0 8px;flex:1}"+
+    ".pn-item{display:block;padding:18px 24px;text-decoration:none;color:#1a1a1a;border:0;background:0;width:100%;text-align:left;cursor:pointer;font-family:inherit}"+
     ".pn-item:active,.pn-item:hover{background:#f7f7f7}"+
-    ".pn-item .t{font-size:1.05rem;font-weight:700;display:block;margin-bottom:2px}"+
+    ".pn-item .t{font-size:1.05rem;font-weight:700;display:block;margin-bottom:3px}"+
     ".pn-item .d{font-size:.85rem;color:#6b7280;line-height:1.35;display:block}"+
-    ".pn-item .row{display:flex;align-items:center;justify-content:space-between;gap:12px}"+
-    ".pn-item .chev{color:#9ca3af;font-size:1.1rem;flex-shrink:0}"+
-    ".pn-actions{padding:16px 24px 28px;display:flex;flex-direction:column;gap:10px;margin-top:auto;border-top:1px solid #f0f0f0}"+
+    ".pn-item .row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}"+
+    ".pn-item .chev{color:#9ca3af;font-size:1.15rem;flex-shrink:0;margin-top:2px}"+
+    ".pn-actions{padding:20px 24px 32px;display:flex;flex-direction:column;gap:10px;border-top:1px solid #f0f0f0}"+
     ".pn-cta{display:block;text-align:center;padding:14px 18px;border-radius:999px;background:#4C1D95;color:#E9D5FF;font-weight:700;text-decoration:none;font-size:.95rem}"+
     ".pn-ghost{display:block;text-align:center;padding:14px 18px;border-radius:999px;border:1.5px solid #d1d5db;background:#fff;color:#1a1a1a;font-weight:700;text-decoration:none;font-size:.95rem}"+
-    ".user-chip{display:inline-flex;align-items:center;gap:6px;background:#f3f4f6;border-radius:999px;padding:4px 10px 4px 12px;font-weight:600;font-size:.9rem;text-decoration:none;color:#1a1a1a}"+
-    ".user-chip span.av{width:26px;height:26px;border-radius:50%;background:#7C3AED;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}"+
     ".si{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.08)}";
   document.head.appendChild(st);
 
-  // Ensure header structure
+  // Rebuild header into clean 3-zone layout
   var hdr=document.querySelector(".hdr");
   if(hdr){
-    if(!hdr.querySelector(".hdr-inner")){
-      var wrap=document.createElement("div");wrap.className="hdr-inner";
-      while(hdr.firstChild)wrap.appendChild(hdr.firstChild);
-      hdr.appendChild(wrap);
-    }
-    var inner=hdr.querySelector(".hdr-inner");
-    var left=inner.querySelector(".hdr-l");
-    var right=inner.querySelector(".hdr-r");
-    if(!left){
-      left=document.createElement("div");left.className="hdr-l";
-      inner.insertBefore(left,inner.firstChild);
-    }
-    if(!right){
-      right=document.createElement("div");right.className="hdr-r";
-      inner.appendChild(right);
-    }
+    var logoHtml='<a href="index.html" class="logo"><img src="logo-mark.svg" width="26" height="26" alt=""> HopeForUs</a>';
+    // Try keep existing logo mark if present
+    var oldLogo=hdr.querySelector(".logo");
+    if(oldLogo) logoHtml=oldLogo.outerHTML;
 
-    // Left: search icon (mobile) + desk links
-    left.innerHTML=
+    var leftHtml=
       '<button type="button" class="ibtn mob" aria-label="Search" onclick="var e=document.getElementById(\'disc\');if(e)e.scrollIntoView({behavior:\'smooth\'})">'+
       '<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"></circle><path d="M16 16l5 5"></path></svg></button>'+
       '<a href="#disc" class="nlink desk-only">Search</a>'+
       '<a href="#disc" class="nlink desk-only">Donate</a>'+
       '<a href="create-campaign.html" class="nlink desk-only">Fundraise</a>';
 
-    // Right: desktop signed-in / guest + always hamburger on mobile
+    var rightHtml="";
     if(loggedIn){
-      right.innerHTML=
+      rightHtml=
         '<a href="dashboard.html" class="nlink desk-only">My campaigns</a>'+
-        '<a href="dashboard.html#withdraw" class="nlink desk-only">Withdraw</a>'+
         '<a href="create-campaign.html" class="btn-p desk-only">New fundraiser</a>'+
-        '<a href="dashboard.html" class="user-chip desk-only">'+name+
-        '<span class="av">'+name.charAt(0).toUpperCase()+'</span></a>'+
+        '<a href="dashboard.html" class="user-chip desk-only">'+name+'<span class="av">'+name.charAt(0).toUpperCase()+'</span></a>'+
         '<button type="button" class="ibtn js-menu" id="mBtn" aria-label="Menu">'+
         '<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>';
     }else{
-      right.innerHTML=
+      rightHtml=
         '<a href="#how" class="nlink desk-only">About</a>'+
         '<a href="login.html" class="nlink desk-only">Sign in</a>'+
         '<a href="create-campaign.html" class="btn-p desk-only">Start a HopeForUs</a>'+
         '<button type="button" class="ibtn js-menu" id="mBtn" aria-label="Menu">'+
         '<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>';
     }
+
+    hdr.innerHTML=
+      '<div class="hdr-inner">'+
+      '<div class="hdr-l">'+leftHtml+'</div>'+
+      '<div class="hdr-c">'+logoHtml+'</div>'+
+      '<div class="hdr-r">'+rightHtml+'</div>'+
+      '</div>';
   }
 
-  // Build / replace drawer
+  // Drawer – mirror GoFundMe: few clear items, not a long list
   var existing=document.getElementById("dr");
   if(existing)existing.remove();
 
@@ -110,22 +103,18 @@
     if(d){d.classList.add("on");document.body.style.overflow="hidden"}
   }
 
-  var drawer=document.createElement("div");
-  drawer.className="dr";
-  drawer.id="dr";
-  drawer.onclick=function(e){if(e.target===drawer)closeDrawer()};
-
-  var items="";
+  var items, actions;
   if(loggedIn){
     items=
-      '<a class="pn-item" href="dashboard.html"><span class="row"><span><span class="t">Manage your activity</span><span class="d">Campaigns, withdrawals, and share analytics</span></span><span class="chev">›</span></span></a>'+
-      '<a class="pn-item" href="dashboard.html"><span class="row"><span><span class="t">My campaigns</span><span class="d">View and manage your fundraisers</span></span><span class="chev">›</span></span></a>'+
-      '<a class="pn-item" href="dashboard.html"><span class="row"><span><span class="t">Donations & activity</span><span class="d">Track support and share clicks</span></span><span class="chev">›</span></span></a>'+
-      '<a class="pn-item" href="dashboard.html#withdraw"><span class="row"><span><span class="t">Withdraw</span><span class="d">USDT, BTC, MTN & Airtel Money</span></span><span class="chev">›</span></span></a>'+
+      '<a class="pn-item" href="dashboard.html"><span class="row"><span><span class="t">Manage your activity</span><span class="d">Campaigns, withdrawals, donations and share analytics</span></span><span class="chev">›</span></span></a>'+
       '<a class="pn-item" href="#disc" data-close="1"><span class="row"><span><span class="t">Donate</span><span class="d">Discover fundraisers to support</span></span><span class="chev">›</span></span></a>'+
       '<a class="pn-item" href="create-campaign.html"><span class="row"><span><span class="t">Fundraise</span><span class="d">Start fundraising, tips, and resources</span></span><span class="chev">›</span></span></a>'+
       '<a class="pn-item" href="#how" data-close="1"><span class="row"><span><span class="t">About</span><span class="d">How it works, pricing, and more</span></span><span class="chev">›</span></span></a>'+
       '<a class="pn-item" href="mailto:support@hopeforus.com"><span class="row"><span><span class="t">Help Center</span><span class="d">Technical support and help</span></span><span class="chev">›</span></span></a>';
+    actions=
+      '<a class="pn-cta" href="create-campaign.html">New fundraiser</a>'+
+      '<a class="pn-ghost" href="dashboard.html">My desk</a>'+
+      '<a class="pn-ghost" href="#" id="pnLogout">Log out</a>';
   }else{
     items=
       '<a class="pn-item" href="login.html"><span class="row"><span><span class="t">Manage your activity</span><span class="d">Sign in or sign up to manage your donations, fundraisers and more</span></span><span class="chev">›</span></span></a>'+
@@ -133,19 +122,21 @@
       '<a class="pn-item" href="create-campaign.html"><span class="row"><span><span class="t">Fundraise</span><span class="d">Start fundraising, tips, and resources</span></span><span class="chev">›</span></span></a>'+
       '<a class="pn-item" href="#how" data-close="1"><span class="row"><span><span class="t">About</span><span class="d">How it works, pricing, and more</span></span><span class="chev">›</span></span></a>'+
       '<a class="pn-item" href="mailto:support@hopeforus.com"><span class="row"><span><span class="t">Help Center</span><span class="d">Technical support and help</span></span><span class="chev">›</span></span></a>';
+    actions=
+      '<a class="pn-cta" href="create-campaign.html">Start a HopeForUs</a>'+
+      '<a class="pn-ghost" href="login.html">Sign in</a>';
   }
 
-  var actions=loggedIn
-    ? '<a class="pn-cta" href="create-campaign.html">Start a HopeForUs</a><a class="pn-ghost" href="dashboard.html">My desk</a><a class="pn-ghost" href="#" id="pnLogout">Log out</a>'
-    : '<a class="pn-cta" href="create-campaign.html">Start a HopeForUs</a><a class="pn-ghost" href="login.html">Sign in</a>';
-
+  var drawer=document.createElement("div");
+  drawer.className="dr";
+  drawer.id="dr";
+  drawer.onclick=function(e){if(e.target===drawer)closeDrawer()};
   drawer.innerHTML=
     '<div class="pn" onclick="event.stopPropagation()">'+
     '<div class="pn-head"><button type="button" class="close-btn" id="pnClose" aria-label="Close">×</button></div>'+
     '<div class="pn-body">'+items+'</div>'+
     '<div class="pn-actions">'+actions+'</div>'+
     '</div>';
-
   document.body.appendChild(drawer);
 
   document.getElementById("pnClose").onclick=closeDrawer;
@@ -163,7 +154,7 @@
   var menuBtn=document.getElementById("mBtn");
   if(menuBtn)menuBtn.onclick=function(e){e.preventDefault();openDrawer()};
 
-  // Social icons for how-it-works
+  // Social icons
   document.querySelectorAll(".social-icons").forEach(function(box){
     if(box.querySelector("svg")) return;
     box.innerHTML=
