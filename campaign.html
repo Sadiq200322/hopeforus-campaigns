@@ -36,7 +36,9 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 .recent-line{font-size:.85rem;color:#6b7280;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .btn-donate{display:block;width:100%;background:var(--p);color:#fff;border:none;font-weight:800;padding:14px 12px;border-radius:999px;font-size:1rem;text-align:center}
+.btn-donate.disabled{background:#e5e7eb;color:#6b7280;cursor:not-allowed;pointer-events:none}
 .btn-share{display:block;width:100%;background:var(--p-dark);color:#E9D5FF;border:none;font-weight:800;padding:14px 12px;border-radius:999px;font-size:1rem;text-align:center}
+.review-note{font-size:.78rem;color:#92400e;margin-top:8px;text-align:center;font-weight:600}
 @media(max-width:899px){
   .side{position:fixed;left:14px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));top:auto;z-index:60;padding:0;margin:0;width:auto}
   .card{border-radius:20px;border:1px solid #e8e8e8;box-shadow:0 12px 40px rgba(0,0,0,.18);padding:12px 14px}
@@ -80,25 +82,6 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 .sc-icons .ic-ms{background:#0084ff}
 .sc-icons .ic-li{background:#0a66c2}
 .ft{text-align:center;padding:24px;color:var(--muted);font-size:.85rem;border-top:1px solid #eee}
-.donate-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:flex-end;justify-content:center;padding:0}
-.donate-overlay.on{display:flex}
-.donate-sheet{background:#fff;width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,.2)}
-@media(min-width:600px){.donate-overlay{align-items:center;padding:20px}.donate-sheet{border-radius:20px}}
-.donate-sheet h2{font-size:1.25rem;font-weight:800;margin-bottom:4px}
-.donate-sheet .sub{color:#5c5c5c;font-size:.9rem;margin-bottom:16px}
-.amt-chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
-.amt-chips button{border:1.5px solid #e5e5e5;background:#fff;border-radius:999px;padding:8px 14px;font-weight:700;font-size:.9rem;color:#1a1a1a}
-.amt-chips button.on{border-color:#7C3AED;background:#EDE9FE;color:#4C1D95}
-.donate-sheet label{display:block;font-size:.8rem;font-weight:600;color:#5c5c5c;margin:12px 0 4px}
-.donate-sheet input{width:100%;height:48px;padding:0 14px;border:1.5px solid #e5e5e5;border-radius:12px;font-size:1rem;font-family:inherit}
-.donate-sheet input:focus{outline:none;border-color:#7C3AED}
-.donate-actions{display:flex;gap:10px;margin-top:18px}
-.donate-actions button{flex:1;height:48px;border-radius:999px;border:0;font-weight:800;font-size:1rem;font-family:inherit}
-.donate-cancel{background:#f3f4f6;color:#1a1a1a}
-.donate-go{background:#7C3AED;color:#fff}
-.donate-go:disabled{opacity:.6}
-.donate-err{color:#b91c1c;font-size:.85rem;margin-top:8px;display:none}
-.donate-err.show{display:block}
 .copy-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:600;z-index:300;display:none}
 .copy-toast.on{display:block}
 </style>
@@ -111,7 +94,6 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 <div class="wrap" id="app"><p style="padding:40px;color:#666">Loading campaign…</p></div>
 <footer class="ft">© 2026 HopeForUs</footer>
 <script src="campaigns-data.js"></script>
-<script src="tribute-config.js"></script>
 <script>
 (function(){
 try {
@@ -179,6 +161,12 @@ var recentTxt=topDonor?(esc(topDonor.name||"Someone")+" donated "+money(topDonor
 var scCirc=2*Math.PI*22;
 var scOff=scCirc*(1-Math.min(1,p/100));
 var img=c.image||"";
+var donationLink=(c.donationLink||"").trim();
+var isLive=!!donationLink && (c.status!=="rejected");
+var donateBtn=isLive
+  ? '<a href="'+esc(donationLink)+'" class="btn-donate" target="_blank" rel="noopener">Donate</a>'
+  : '<button type="button" class="btn-donate disabled">Under review</button>';
+var reviewNote=isLive ? '' : '<div class="review-note">Donations open after admin review</div>';
 var shareCard=
   '<div class="share-promo">'+
   '<h3>Sharing helps more than you think</h3>'+
@@ -215,8 +203,9 @@ var html='<div class="main">'+
   '<div class="raise-row"><div class="ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="#e8e8e8" stroke-width="6"/><circle cx="32" cy="32" r="26" fill="none" stroke="#7C3AED" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+ringCirc.toFixed(1)+'" stroke-dashoffset="'+ringOff.toFixed(1)+'"/></svg><div class="ring-pct">'+p+'%</div></div>'+
   '<div class="raise-meta"><div class="raised">'+money(raised,c.currency)+' raised <span>of '+moneyShort(goal,c.currency)+'</span></div>'+
   '<div class="recent-line">'+recentTxt+'</div></div></div>'+
-  '<div class="btn-row"><a href="donate.html?id='+encodeURIComponent(id)+'" class="btn-donate">Donate</a>'+
+  '<div class="btn-row">'+donateBtn+
   '<button type="button" class="btn-share" id="shareBtn">Share</button></div>'+
+  reviewNote+
   '</div></aside>';
 document.getElementById("app").innerHTML=html;
 var rm=document.getElementById("readMore");
@@ -241,7 +230,8 @@ function copyLink(){
 }
 var sc=document.getElementById("scCopy");
 if(sc)sc.onclick=copyLink;
-document.getElementById("shareBtn").onclick=copyLink;
+var shareBtn=document.getElementById("shareBtn");
+if(shareBtn)shareBtn.onclick=copyLink;
 })();
 </script>
 <div class="copy-toast" id="copyToast">Link copied</div>
