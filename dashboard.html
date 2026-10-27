@@ -40,6 +40,7 @@ th,td{text-align:left;padding:8px 6px;border-bottom:1px solid #f0f0f0}
 .mob-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e8e8e8;display:flex;padding:8px 8px calc(8px + env(safe-area-inset-bottom));gap:4px;z-index:40}
 .mob-bar a{flex:1;text-align:center;padding:10px 4px;font-size:.72rem;font-weight:600;text-decoration:none;color:#5c5c5c;border-radius:10px}
 @media(min-width:800px){.mob-bar{display:none}}
+.hint{font-size:.78rem;color:#6b7280;margin-top:4px;line-height:1.4}
 </style>
 </head>
 <body>
@@ -58,10 +59,16 @@ th,td{text-align:left;padding:8px 6px;border-bottom:1px solid #f0f0f0}
   <div class="card"><h2>Your campaigns</h2><div id="camps"><p class="empty">No campaigns yet.</p></div></div>
   <div class="card"><h2>Share link analytics</h2><p class="empty" style="margin-bottom:10px">Clicks on hopeforus.me/f/CODE — total and by country.</p><div id="analytics"></div></div>
   <div class="card">
-    <h2>Withdraw (USDT & BTC only)</h2>
-    <p class="empty" style="margin-bottom:8px">Payouts process on the 15th. Crypto wallets only.</p>
+    <h2>Withdraw funds</h2>
+    <p class="empty" style="margin-bottom:8px">Crypto (USDT & BTC) or mobile money (MTN & Airtel). Payouts process on the 15th.</p>
     <label>Method</label>
-    <select id="wMethod"><option value="">Select…</option><option value="usdt">USDT (Tether)</option><option value="btc">BTC (Bitcoin)</option></select>
+    <select id="wMethod">
+      <option value="">Select…</option>
+      <option value="usdt">USDT (Tether)</option>
+      <option value="btc">BTC (Bitcoin)</option>
+      <option value="mtn">MTN Mobile Money</option>
+      <option value="airtel">Airtel Money</option>
+    </select>
     <div class="fields" id="usdtFields">
       <label>Network</label>
       <select id="usdtNet"><option value="TRC20">TRC20 (Tron)</option><option value="ERC20">ERC20 (Ethereum)</option><option value="BEP20">BEP20 (BSC)</option></select>
@@ -71,6 +78,14 @@ th,td{text-align:left;padding:8px 6px;border-bottom:1px solid #f0f0f0}
     <div class="fields" id="btcFields">
       <label>BTC wallet address</label>
       <input id="btcAddr" placeholder="bc1… or 1… or 3…">
+    </div>
+    <div class="fields" id="mobileFields">
+      <label>Phone number</label>
+      <input id="mobileNum" placeholder="e.g. 0772 123 456" inputmode="tel">
+      <p class="hint">Use the number registered with MTN or Airtel Money.</p>
+      <label>Account name (as registered on the number)</label>
+      <input id="mobileName" placeholder="Full name on the mobile money account">
+      <p class="hint">Must match the name on the SIM / mobile money registration so we can verify the payout.</p>
     </div>
     <label>Amount (USD equivalent)</label>
     <input id="wAmount" type="number" min="1" step="0.01" placeholder="100">
@@ -107,10 +122,35 @@ function render(){
   else{var ah='<table><tr><th>Campaign</th><th>Clicks</th><th>Countries</th></tr>';analytics.forEach(function(a){var countries=Object.keys(a.clicks.byCountry||{}).map(function(k){return k+': '+a.clicks.byCountry[k]}).join(', ')||'—';ah+='<tr><td>'+(a.campaign.title||a.campaign.code)+'</td><td><strong>'+(a.clicks.total||0)+'</strong></td><td>'+countries+'</td></tr>'});document.getElementById('analytics').innerHTML=ah+'</table>'}
   var wd=HF.listWithdrawals(u.email);
   if(!wd.length) document.getElementById('wList').innerHTML='<p class="empty">No withdrawal requests.</p>';
-  else{var wh='<table><tr><th>Method</th><th>Amount</th><th>Status</th><th>Date</th></tr>';wd.forEach(function(w){wh+='<tr><td>'+w.method.toUpperCase()+' '+(w.network||'')+'</td><td>'+w.amount+'</td><td><span class="badge '+w.status+'">'+w.status+'</span></td><td>'+new Date(w.created).toLocaleDateString()+'</td></tr>'});document.getElementById('wList').innerHTML=wh+'</table>'}
+  else{var wh='<table><tr><th>Method</th><th>Details</th><th>Amount</th><th>Status</th><th>Date</th></tr>';wd.forEach(function(w){
+    var det=w.method==='mtn'||w.method==='airtel'?(w.address+(w.accountName?' · '+w.accountName:'')):(w.address||'');
+    wh+='<tr><td>'+w.method.toUpperCase()+(w.network&&w.network!=='MOBILE'?' '+w.network:'')+'</td><td style="max-width:140px;overflow:hidden;text-overflow:ellipsis">'+det+'</td><td>'+w.amount+'</td><td><span class="badge '+w.status+'">'+w.status+'</span></td><td>'+new Date(w.created).toLocaleDateString()+'</td></tr>';
+  });document.getElementById('wList').innerHTML=wh+'</table>'}
 }
-document.getElementById('wMethod').onchange=function(){document.getElementById('usdtFields').classList.toggle('on',this.value==='usdt');document.getElementById('btcFields').classList.toggle('on',this.value==='btc')};
-document.getElementById('wBtn').onclick=function(){var err=document.getElementById('wErr'),ok=document.getElementById('wOk');err.textContent='';ok.textContent='';var method=document.getElementById('wMethod').value;var address=method==='usdt'?document.getElementById('usdtAddr').value:document.getElementById('btcAddr').value;var network=method==='usdt'?document.getElementById('usdtNet').value:'BTC';var r=HF.requestWithdraw({method:method,address:address,network:network,amount:document.getElementById('wAmount').value,note:document.getElementById('wNote').value});if(!r.ok){err.textContent=r.err;return}ok.textContent='Withdrawal requested. Admin processes on the 15th.';render()};
+function syncFields(){
+  var v=document.getElementById('wMethod').value;
+  document.getElementById('usdtFields').classList.toggle('on',v==='usdt');
+  document.getElementById('btcFields').classList.toggle('on',v==='btc');
+  document.getElementById('mobileFields').classList.toggle('on',v==='mtn'||v==='airtel');
+}
+document.getElementById('wMethod').onchange=syncFields;
+document.getElementById('wBtn').onclick=function(){
+  var err=document.getElementById('wErr'),ok=document.getElementById('wOk');
+  err.textContent='';ok.textContent='';
+  var method=document.getElementById('wMethod').value;
+  var address='', network='', accountName='';
+  if(method==='usdt'){address=document.getElementById('usdtAddr').value;network=document.getElementById('usdtNet').value;}
+  else if(method==='btc'){address=document.getElementById('btcAddr').value;network='BTC';}
+  else if(method==='mtn'||method==='airtel'){
+    address=document.getElementById('mobileNum').value;
+    accountName=document.getElementById('mobileName').value;
+    network='MOBILE';
+  }
+  var r=HF.requestWithdraw({method:method,address:address,network:network,accountName:accountName,amount:document.getElementById('wAmount').value,note:document.getElementById('wNote').value});
+  if(!r.ok){err.textContent=r.err;return}
+  ok.textContent='Withdrawal requested. Admin processes on the 15th.';
+  render();
+};
 render();
 </script>
 </body>
