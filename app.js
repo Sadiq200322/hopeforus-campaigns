@@ -59,6 +59,44 @@
   }
   function logout(){setSession(null)}
 
+  function ownsCampaign(c,u){
+    if(!c||!u) return false;
+    if(u.isAdmin) return true;
+    var email=(u.email||'').toLowerCase();
+    if(c.ownerId&&u.id&&c.ownerId===u.id) return true;
+    if(c.ownerEmail&&c.ownerEmail.toLowerCase()===email) return true;
+    if(c.organizerEmail&&c.organizerEmail.toLowerCase()===email) return true;
+    if(c.organizer&&typeof c.organizer==='string'&&c.organizer.toLowerCase()===email) return true;
+    return false;
+  }
+
+  function myCampaigns(emailOrUser){
+    var u=typeof emailOrUser==='object'&&emailOrUser?emailOrUser:session();
+    if(!u) return [];
+    var list=load(CAMPS_KEY,[]);
+    return list.filter(function(c){return ownsCampaign(c,u)});
+  }
+
+  function deleteCampaign(id){
+    var u=session();
+    if(!u) return {ok:false,err:'Login required'};
+    id=String(id||'');
+    if(!id) return {ok:false,err:'Missing campaign'};
+    var list=load(CAMPS_KEY,[]);
+    var c=list.find(function(x){return x&&x.id===id});
+    if(!c) return {ok:false,err:'Campaign not found'};
+    if(!ownsCampaign(c,u)) return {ok:false,err:'You can only delete your own campaigns'};
+    var next=list.filter(function(x){return !x||x.id!==id});
+    save(CAMPS_KEY,next);
+    // clean click stats for this code if present
+    try{
+      var code=(c.code||c.id||'').toString().toUpperCase();
+      var clicks=load(CLICKS_KEY,{});
+      if(clicks[code]){delete clicks[code];save(CLICKS_KEY,clicks)}
+    }catch(e){}
+    return {ok:true};
+  }
+
   function shortLink(code){
     code=(code||'campaign').toString().toUpperCase().replace(/\s+/g,'');
     return 'https://hopeforus.me/f/'+encodeURIComponent(code);
@@ -94,7 +132,8 @@
   }
   function getClicks(code){var all=load(CLICKS_KEY,{});return all[(code||'').toUpperCase()]||{total:0,byCountry:{},byDay:{},recent:[]}}
   function clicksForUser(email){
-    var camps=load(CAMPS_KEY,[]).filter(function(c){return c.ownerEmail===email||c.organizerEmail===email});
+    var u=session();
+    var camps=u?myCampaigns(u):load(CAMPS_KEY,[]).filter(function(c){return c.ownerEmail===email||c.organizerEmail===email});
     var out=[];
     camps.forEach(function(c){var cl=getClicks(c.code||c.id);out.push({campaign:c,clicks:cl})});
     return out;
@@ -160,6 +199,7 @@
   w.HF={
     hash:hash,users:users,session:session,setSession:setSession,logout:logout,
     startSignup:startSignup,verifySignup:verifySignup,login:login,
+    ownsCampaign:ownsCampaign,myCampaigns:myCampaigns,deleteCampaign:deleteCampaign,
     shortLink:shortLink,realShareUrl:realShareUrl,trackClick:trackClick,getClicks:getClicks,clicksForUser:clicksForUser,
     requestWithdraw:requestWithdraw,listWithdrawals:listWithdrawals,setWithdrawStatus:setWithdrawStatus,
     isAdmin:isAdmin,adminUsers:adminUsers,adminCampaigns:adminCampaigns,setCampaignStatus:setCampaignStatus,
