@@ -26,89 +26,50 @@ input:focus{outline:none;border-color:#7C3AED}
 </head>
 <body>
 <div class="card">
-  <a href="index.html" class="x" aria-label="Close">×</a>
+  <a href="/" class="x" aria-label="Close">×</a>
   <div class="mark"><svg width="36" height="36" viewBox="0 0 32 32"><path fill="currentColor" d="M16 3c.6 2.4 1.4 4 3.2 5.2C21.4 9.6 24 10.2 27 10c-2.2 1.6-3.4 3.4-4 5.8-.6 2.6-.4 5 .8 7.4-2.6-.2-4.8.4-6.6 1.8-1.6 1.2-2.6 2.8-3.2 4.8-.6-2-1.6-3.6-3.2-4.8-1.8-1.4-4-2-6.6-1.8 1.2-2.4 1.4-4.8.8-7.4C4.4 13.4 3.2 11.6 1 10c3 .2 5.6-.4 7.8-1.8C10.6 7 11.4 5.4 12 3c.8 2.2 2 3.8 4 5.2z"/></svg></div>
   <h1>Welcome back</h1>
   <p class="sub">Sign in with your email and password.</p>
-
   <div class="admin-hint" id="adminHint" style="display:none">
     <strong>Admin login</strong><br>
     Email: <code>admin@hopeforus.com</code><br>
     Password: <code>Admin@2026</code>
   </div>
-
   <label>Email</label>
   <input type="email" id="email" placeholder="you@email.com" autocomplete="email">
   <label>Password</label>
   <input type="password" id="pass" placeholder="Your password" autocomplete="current-password">
   <p class="err" id="err"></p>
   <button type="button" class="pbtn" id="go">Sign in</button>
-  <p class="home">New here? <a href="create-campaign.html">Start a fundraiser</a></p>
+  <p class="home">New here? <a href="/start">Start a fundraiser</a></p>
 </div>
-
-<script src="app.js"></script>
+<script src="/app.js"></script>
 <script>
 (function(){
-  // Show admin hint if user came from admin.html
   var params = new URLSearchParams(location.search);
   var returnTo = params.get('return') || '';
-  if (returnTo.indexOf('admin') !== -1 || document.referrer.indexOf('admin.html') !== -1) {
+  if (returnTo.indexOf('admin') !== -1 || document.referrer.indexOf('admin') !== -1) {
     document.getElementById('adminHint').style.display = 'block';
   }
-
-  // If already logged in as admin and trying to reach admin, go straight there
-  if (HF.isAdmin() && (returnTo === 'admin.html' || returnTo.indexOf('admin') !== -1)) {
-    location.replace('admin.html');
+  if (HF.isAdmin() && (returnTo === '/admin' || returnTo.indexOf('admin') !== -1)) {
+    location.replace('/admin');
     return;
   }
-
   document.getElementById('go').onclick = function(){
     var email = document.getElementById('email').value.trim().toLowerCase();
     var pass  = document.getElementById('pass').value;
     var err   = document.getElementById('err');
-
     err.classList.remove('show');
-    err.textContent = '';
-
-    if (!email || !pass) {
-      err.textContent = 'Enter email and password.';
-      err.classList.add('show');
-      return;
-    }
-
+    if (!email || !pass) { err.textContent = 'Enter email and password.'; err.classList.add('show'); return; }
     var result = HF.login(email, pass);
-
-    if (!result.ok) {
-      err.textContent = result.err || 'Login failed.';
-      err.classList.add('show');
-      return;
-    }
-
-    // Successful login
+    if (!result.ok) { err.textContent = result.err || 'Login failed.'; err.classList.add('show'); return; }
     if (result.user && result.user.isAdmin) {
-      // Prefer return URL if it was admin, otherwise go to admin
-      if (returnTo && returnTo.indexOf('admin') !== -1) {
-        location.href = returnTo;
-      } else {
-        location.href = 'admin.html';
-      }
+      location.href = (returnTo && returnTo.indexOf('admin') !== -1) ? returnTo : '/admin';
     } else {
-      // Normal user → dashboard (or return URL if safe)
-      if (returnTo && returnTo.indexOf('admin') === -1 && returnTo.indexOf('http') !== 0) {
-        location.href = returnTo;
-      } else {
-        location.href = 'dashboard.html';
-      }
+      location.href = (returnTo && returnTo.indexOf('admin') === -1 && returnTo.indexOf('http') !== 0) ? returnTo : '/dashboard';
     }
   };
-
-  // Allow Enter key
-  document.getElementById('pass').addEventListener('keydown', function(e){
-    if (e.key === 'Enter') document.getElementById('go').click();
-  });
-  document.getElementById('email').addEventListener('keydown', function(e){
-    if (e.key === 'Enter') document.getElementById('pass').focus();
-  });
+  document.getElementById('pass').addEventListener('keydown', function(e){ if (e.key === 'Enter') document.getElementById('go').click(); });
 })();
 </script>
 </body>
