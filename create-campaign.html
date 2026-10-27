@@ -45,8 +45,9 @@ input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:12
 .prog{display:none;flex:1;height:4px;background:var(--line);border-radius:99px;overflow:hidden}
 @media(min-width:560px){.prog{display:block}}
 .prog i{display:block;height:100%;background:var(--ok);width:0;transition:width .25s}
-.back{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-size:1.2rem}
+.back{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
 .back:disabled{opacity:.3}
+.back svg{width:20px;height:20px}
 .cont{margin-left:auto;height:44px;padding:0 22px;border-radius:999px;border:0;background:var(--pd);color:#E9D5FF;font-weight:700}
 .err{color:#b91c1c;font-size:.88rem;font-weight:600;margin-top:12px;display:none}
 .err.show{display:block}
@@ -69,7 +70,9 @@ input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:12
     <div class="body" id="body"></div>
     <div class="foot">
       <div class="prog"><i id="prog"></i></div>
-      <button type="button" class="back" id="back" aria-label="Back">\u2190</button>
+      <button type="button" class="back" id="back" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
       <button type="button" class="cont" id="cont">Continue</button>
     </div>
   </section>
