@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HopeForUs</title>
+<style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;color:#1a1a1a;background:#fff}.box{text-align:center;padding:24px}a{color:#02a95c;font-weight:600}</style>
+</head>
+<body>
+<div class="box" id="msg">Opening…</div>
+<script>
+(function(){
+  var path=(location.pathname||'').replace(/\/+$/,'').replace(/^\//,'');
+  var parts=path.split('/');
+  var code='';
+  // Support /c/CODE or /f/CODE or /CODE
+  if(parts[0]==='c'||parts[0]==='f') code=(parts[1]||'').toUpperCase();
+  else if(parts.length===1 && parts[0] && parts[0]!=='404.html') code=parts[0].toUpperCase();
+  if(!code){
+    // also allow ?c=
+    code=(new URLSearchParams(location.search).get('c')||'').toUpperCase();
+  }
+  if(!code){document.getElementById('msg').innerHTML='Page not found. <a href="/">Home</a>';return;}
+  location.replace('/f.html?c='+encodeURIComponent(code));
+})();
+</script>
+</body>
+</html>
