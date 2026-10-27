@@ -186,22 +186,100 @@
 
   function isAdmin(){var s=session();return s&&s.isAdmin}
   function adminUsers(){return users().map(function(u){return {id:u.id,email:u.email,name:u.name,verified:u.verified,isAdmin:u.isAdmin,created:u.created,donors:(u.donors||[]).length,chats:(u.chats||[]).length}})}
-  function adminCampaigns(){return load(CAMPS_KEY,[])}
-  function setCampaignStatus(id,status){
-    var list=load(CAMPS_KEY,[]);
-    var c=list.find(function(x){return x.id===id});
-    if(!c) return false;
-    c.status=status;c.reviewedAt=Date.now();
-    save(CAMPS_KEY,list);return true;
+
+  // Merge localStorage campaigns + sample campaigns (samples win only if not already in storage)
+  function getAllCampaigns(){
+    var stored = load(CAMPS_KEY,[]);
+    if(!Array.isArray(stored)) stored = [];
+    var byId = {};
+    stored.forEach(function(c){ if(c && c.id) byId[c.id] = c; });
+
+    if (typeof SAMPLES !== 'undefined' && Array.isArray(SAMPLES)) {
+      SAMPLES.forEach(function(s){
+        if (!s || !s.id) return;
+        if (!byId[s.id]) {
+          // Clone sample so we never mutate the original
+          byId[s.id] = Object.assign({}, s, {
+            status: s.status || 'pending',
+            donationLink: s.donationLink || ''
+          });
+        }
+      });
+    }
+    return Object.keys(byId).map(function(k){ return byId[k]; });
   }
+
+  function adminCampaigns(){
+    return getAllCampaigns();
+  }
+
+  // Find campaign by id (storage first, then samples)
+  function findCampaign(id){
+    id = String(id || '');
+    var list = load(CAMPS_KEY,[]);
+    var c = list.find(function(x){ return x && x.id === id; });
+    if (c) return { campaign: c, fromStorage: true };
+
+    if (typeof SAMPLES !== 'undefined' && Array.isArray(SAMPLES)) {
+      var s = SAMPLES.find(function(x){ return x && x.id === id; });
+      if (s) return { campaign: Object.assign({}, s), fromStorage: false };
+    }
+    return null;
+  }
+
+  // Ensure a campaign exists in localStorage (promotes samples)
+  function ensureInStorage(id){
+    var found = findCampaign(id);
+    if (!found) return null;
+    if (found.fromStorage) return found.campaign;
+
+    // Promote sample into storage
+    var list = load(CAMPS_KEY,[]);
+    if (!Array.isArray(list)) list = [];
+    var clone = Object.assign({}, found.campaign, {
+      status: found.campaign.status || 'pending',
+      donationLink: found.campaign.donationLink || ''
+    });
+    list.unshift(clone);
+    save(CAMPS_KEY, list);
+    return clone;
+  }
+
+  function setCampaignStatus(id, status){
+    var c = ensureInStorage(id);
+    if (!c) return false;
+    var list = load(CAMPS_KEY,[]);
+    var target = list.find(function(x){ return x && x.id === id; });
+    if (!target) return false;
+    target.status = status;
+    target.reviewedAt = Date.now();
+    save(CAMPS_KEY, list);
+    return true;
+  }
+
   function setCampaignDonationLink(id, link){
-    var list=load(CAMPS_KEY,[]);
-    var c=list.find(function(x){return x.id===id});
-    if(!c) return false;
-    c.donationLink=String(link||'').trim();
-    c.reviewedAt=Date.now();
-    if(c.donationLink) c.status='approved';
-    save(CAMPS_KEY,list);return true;
+    var c = ensureInStorage(id);
+    if (!c) return false;
+    var list = load(CAMPS_KEY,[]);
+    var target = list.find(function(x){ return x && x.id === id; });
+    if (!target) return false;
+    target.donationLink = String(link || '').trim();
+    target.reviewedAt = Date.now();
+    if (target.donationLink) target.status = 'approved';
+    save(CAMPS_KEY, list);
+    return true;
+  }
+
+  function updateCampaignRaised(id, raised, donations){
+    var c = ensureInStorage(id);
+    if (!c) return false;
+    var list = load(CAMPS_KEY,[]);
+    var target = list.find(function(x){ return x && x.id === id; });
+    if (!target) return false;
+    if (typeof raised === 'number') target.raised = raised;
+    if (typeof donations === 'number') target.donations = donations;
+    save(CAMPS_KEY, list);
+    return true;
   }
 
   w.HF={
@@ -210,8 +288,9 @@
     ownsCampaign:ownsCampaign,myCampaigns:myCampaigns,deleteCampaign:deleteCampaign,
     shortLink:shortLink,realShareUrl:realShareUrl,trackClick:trackClick,getClicks:getClicks,clicksForUser:clicksForUser,
     requestWithdraw:requestWithdraw,listWithdrawals:listWithdrawals,setWithdrawStatus:setWithdrawStatus,
-    isAdmin:isAdmin,adminUsers:adminUsers,adminCampaigns:adminCampaigns,setCampaignStatus:setCampaignStatus,
-    setCampaignDonationLink:setCampaignDonationLink,
+    isAdmin:isAdmin,adminUsers:adminUsers,adminCampaigns:adminCampaigns,
+    setCampaignStatus:setCampaignStatus,setCampaignDonationLink:setCampaignDonationLink,
+    updateCampaignRaised:updateCampaignRaised,getAllCampaigns:getAllCampaigns,
     ADMIN_EMAIL:ADMIN_EMAIL
   };
 })(window);
