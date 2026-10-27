@@ -90,6 +90,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 <div class="wrap" id="app"><p style="padding:40px;color:#666">Loading campaign…</p></div>
 <footer class="ft">© 2026 HopeForUs</footer>
 <script src="campaigns-data.js"></script>
+<script src="tribute-config.js"></script>
 <script>
 (function(){
 // Session-aware header: no "Start a HopeForUs" spam when already signed in
@@ -185,7 +186,79 @@ if(rm){var st=document.getElementById("story");st.classList.add("clamp");rm.oncl
 function copyLink(){if(navigator.clipboard)navigator.clipboard.writeText(shareUrl).then(function(){alert("Link copied!");});else prompt("Copy link",shareUrl);}
 var sc=document.getElementById("scCopy");
 if(sc)sc.onclick=copyLink;
-document.getElementById("donateBtn").onclick=function(){alert("Donate flow coming soon");};
+
+// Tribute donation flow
+async function createTributeOrder(amountUsd, donorEmail, donorName) {
+  var cfg = window.HOPEFORUS_TRIBUTE || {};
+  if (!cfg.apiKey || cfg.apiKey.indexOf('YOUR_') === 0) {
+    alert('Tribute API key not configured. Update tribute-config.js');
+    return null;
+  }
+  var amountCents = Math.round(Number(amountUsd) * 100);
+  if (amountCents < 100) amountCents = 100; // min ~$1
+  var body = {
+    currency: 'usd',
+    amount: amountCents,
+    title: (c.title || 'HopeForUs Campaign').slice(0, 90),
+    description: ('Donation to campaign ' + (c.id || '') + ' — ' + (c.title || '')).slice(0, 280),
+    comment: 'campaign:' + (c.id || '') + (c.code ? '|code:' + c.code : ''),
+    customerId: 'camp_' + (c.id || ''),
+    email: donorEmail || undefined,
+    successUrl: location.href + (location.href.indexOf('?') > -1 ? '&' : '?') + 'donated=1',
+    failUrl: location.href + (location.href.indexOf('?') > -1 ? '&' : '?') + 'donate_failed=1',
+    period: 'onetime'
+  };
+  if (cfg.shopId) body.shopId = cfg.shopId;
+  try {
+    var res = await fetch(cfg.apiBase + '/shop/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Api-Key': cfg.apiKey
+      },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      var errText = await res.text();
+      console.error('Tribute error', res.status, errText);
+      alert('Could not create payment (' + res.status + '). Check console / API key / CORS.');
+      return null;
+    }
+    var data = await res.json();
+    return data;
+  } catch (e) {
+    console.error(e);
+    alert('Network error creating payment. Tribute API may block browser requests (CORS).');
+    return null;
+  }
+}
+
+document.getElementById("donateBtn").onclick = async function() {
+  var btn = this;
+  var raw = prompt('Enter donation amount in USD (e.g. 10):', '10');
+  if (!raw) return;
+  var amt = parseFloat(raw);
+  if (isNaN(amt) || amt < 1) { alert('Minimum $1'); return; }
+  var email = (u && u.email) || prompt('Your email (optional, for receipt):') || '';
+  var name = (u && u.name) || '';
+  btn.disabled = true;
+  btn.textContent = 'Creating payment…';
+  var order = await createTributeOrder(amt, email, name);
+  btn.disabled = false;
+  btn.textContent = 'Donate';
+  if (order && (order.paymentUrl || order.webappPaymentUrl)) {
+    // Prefer web payment URL
+    var payUrl = order.paymentUrl || order.webappPaymentUrl;
+    // Optionally store local pending donation
+    try {
+      var pend = JSON.parse(localStorage.getItem('hopeforus_pending_donations') || '[]');
+      pend.push({ campaignId: c.id, orderUuid: order.uuid, amount: amt, email: email, at: Date.now() });
+      localStorage.setItem('hopeforus_pending_donations', JSON.stringify(pend));
+    } catch (e) {}
+    location.href = payUrl;
+  }
+};
+
 document.getElementById("shareBtn").onclick=function(){
   if(navigator.share)navigator.share({title:c.title,url:shareUrl}).catch(function(){});
   else copyLink();
