@@ -3,6 +3,7 @@ var STEPS=7;
 var step=0;
 var draft={country:"United States",zip:"",category:"",beneficiary:"",goal:"",autoGoal:true,title:"",story:"",media:[]};
 var pendingAuth={email:"",pass:"",name:"",code:"",sentAt:0};
+var lastEmailSent=false;
 var user=null;
 try{user=JSON.parse(localStorage.getItem("hopeforus_user")||"null")}catch(e){}
 function $(id){return document.getElementById(id)}
@@ -27,6 +28,11 @@ function makeShortCode(){
 function shortShareUrl(code){
   var host=location.origin||"https://munowatchplus.watch";
   return host+"/c/"+encodeURIComponent(String(code||"").toUpperCase());
+}
+function emailjsReady(){
+  var cfg=window.HOPEFORUS_EMAILJS||{};
+  return !!(window.emailjs && cfg.publicKey && cfg.serviceId && cfg.templateId &&
+    cfg.publicKey!=="YOUR_PUBLIC_KEY" && cfg.serviceId!=="YOUR_SERVICE_ID" && cfg.templateId!=="YOUR_TEMPLATE_ID");
 }
 var titles=[
   ["Let's begin your fundraising journey","We're here to guide you every step of the way."],
@@ -74,22 +80,38 @@ function compressImage(file,maxW,quality){
     img.src=url;
   });
 }
-function sendEmailCode(email,code){
-  // Stores code locally. Real delivery needs EmailJS / backend (see note in UI).
+function sendEmailCode(email,code,name){
   try{
     localStorage.setItem("hopeforus_otp",JSON.stringify({email:email.toLowerCase(),code:String(code),expires:Date.now()+15*60*1000}));
   }catch(e){}
-  // Optional: EmailJS if keys are set on window
-  if(window.EMAILJS_SERVICE_ID && window.EMAILJS_TEMPLATE_ID && window.EMAILJS_PUBLIC_KEY && window.emailjs){
-    try{
-      return window.emailjs.send(window.EMAILJS_SERVICE_ID, window.EMAILJS_TEMPLATE_ID, {
-        to_email: email,
-        otp_code: code,
-        site_name: "HopeForUs"
-      }, window.EMAILJS_PUBLIC_KEY).then(function(){return true}).catch(function(){return false});
-    }catch(e){}
+  if(!emailjsReady()){
+    lastEmailSent=false;
+    return Promise.resolve(false);
   }
-  return Promise.resolve(false);
+  var cfg=window.HOPEFORUS_EMAILJS;
+  try{
+    if(!window.__emailjs_inited){
+      emailjs.init({publicKey:cfg.publicKey});
+      window.__emailjs_inited=true;
+    }
+    return emailjs.send(cfg.serviceId, cfg.templateId, {
+      to_email: email,
+      otp_code: String(code),
+      user_name: name||email.split("@")[0],
+      site_name: "HopeForUs"
+    }).then(function(){
+      lastEmailSent=true;
+      return true;
+    }).catch(function(err){
+      console.warn("EmailJS send failed", err);
+      lastEmailSent=false;
+      return false;
+    });
+  }catch(e){
+    console.warn("EmailJS error", e);
+    lastEmailSent=false;
+    return Promise.resolve(false);
+  }
 }
 function render(){
   $("stepn").textContent=(step+1)+" of "+STEPS;
@@ -160,17 +182,23 @@ function render(){
       if(resend)resend.onclick=function(){
         pendingAuth.code=makeCode(6);
         pendingAuth.sentAt=Date.now();
-        sendEmailCode(pendingAuth.email,pendingAuth.code).then(function(sent){
+        sendEmailCode(pendingAuth.email,pendingAuth.code,pendingAuth.name).then(function(sent){
           var d=$("devCode");
-          if(d){
-            if(!sent){d.style.display="block";d.innerHTML="Email service not connected yet. Your code is: <strong style=\"font-size:1.2rem;letter-spacing:.15em\">"+pendingAuth.code+"</strong>";}
-            else{d.style.display="block";d.textContent="Code resent. Check your inbox.";}
-          }
+          if(!d)return;
+          if(sent){d.style.display="block";d.style.background="#ecfdf5";d.style.color="#065f46";d.textContent="Code resent — check your inbox (and spam).";}
+          else{d.style.display="block";d.innerHTML="Could not send email. Use this code: <strong style=\"font-size:1.2rem;letter-spacing:.15em\">"+pendingAuth.code+"</strong>";}
         });
       };
-      // Show code on screen until EmailJS is connected (so signup still works)
       var d=$("devCode");
-      if(d&&pendingAuth.code){d.style.display="block";d.innerHTML="For now (until email is connected), use code: <strong style=\"font-size:1.2rem;letter-spacing:.15em\">"+pendingAuth.code+"</strong>";}
+      if(d){
+        if(lastEmailSent){
+          d.style.display="block";d.style.background="#ecfdf5";d.style.color="#065f46";
+          d.textContent="Email sent. Check your inbox and spam folder.";
+        } else {
+          d.style.display="block";
+          d.innerHTML="EmailJS not configured yet — use code: <strong style=\"font-size:1.2rem;letter-spacing:.15em\">"+pendingAuth.code+"</strong>";
+        }
+      }
     },50);
   } else if(step===5){
     el.innerHTML=
@@ -280,19 +308,21 @@ $("cont").onclick=function(){
     if(!email||email.indexOf("@")<0)return showErr("Enter a valid email.");
     if(pass.length<6)return showErr("Password must be at least 6 characters.");
     pendingAuth={email:email,pass:pass,name:name,code:makeCode(6),sentAt:Date.now()};
-    sendEmailCode(email,pendingAuth.code).then(function(){
+    $("cont").disabled=true;$("cont").textContent="Sending…";
+    sendEmailCode(email,pendingAuth.code,name).then(function(){
+      $("cont").disabled=false;
       step=4;render();
     });
     return;
   }
   if(step===4){
-    var otp=(($("otp")&&$("otp").value)||"").trim();
+    var otp=(($("otp")&&$("otp").value)||"").trim().toUpperCase();
     if(!otp||otp.length<4)return showErr("Enter the verification code.");
     var ok=false;
-    if(pendingAuth.code && otp===pendingAuth.code) ok=true;
+    if(pendingAuth.code && otp===String(pendingAuth.code).toUpperCase()) ok=true;
     try{
       var stored=JSON.parse(localStorage.getItem("hopeforus_otp")||"null");
-      if(stored&&stored.email===pendingAuth.email&&String(stored.code)===otp&&stored.expires>Date.now()) ok=true;
+      if(stored&&stored.email===pendingAuth.email&&String(stored.code).toUpperCase()===otp&&stored.expires>Date.now()) ok=true;
     }catch(e){}
     if(!ok)return showErr("Wrong or expired code. Try again or resend.");
     saveUser(pendingAuth.email,pendingAuth.pass,pendingAuth.name);
