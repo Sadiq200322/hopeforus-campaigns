@@ -103,13 +103,33 @@
   function requestWithdraw(payload){
     var u=session();if(!u) return {ok:false,err:'Login required'};
     var method=(payload.method||'').toLowerCase();
-    if(method!=='btc'&&method!=='usdt') return {ok:false,err:'Only BTC and USDT accepted'};
+    var allowed=['btc','usdt','mtn','airtel'];
+    if(allowed.indexOf(method)===-1) return {ok:false,err:'Choose USDT, BTC, MTN or Airtel'};
+    var isMobile=method==='mtn'||method==='airtel';
     var addr=(payload.address||'').trim();
-    if(!addr||addr.length<10) return {ok:false,err:'Valid wallet address required'};
+    var accountName=(payload.accountName||'').trim();
+    if(isMobile){
+      if(!addr||addr.replace(/\D/g,'').length<9) return {ok:false,err:'Enter a valid mobile number'};
+      if(!accountName||accountName.length<2) return {ok:false,err:'Enter the full name registered on this number'};
+    }else{
+      if(!addr||addr.length<10) return {ok:false,err:'Valid wallet address required'};
+    }
     var amount=parseFloat(payload.amount);
     if(!(amount>0)) return {ok:false,err:'Enter amount'};
     var list=load(WITHDRAW_KEY,[]);
-    var row={id:'w_'+Date.now().toString(36),userId:u.id,email:u.email,method:method,network:payload.network||(method==='usdt'?'TRC20':'BTC'),address:addr,amount:amount,status:'pending',created:Date.now(),note:payload.note||''};
+    var row={
+      id:'w_'+Date.now().toString(36),
+      userId:u.id,
+      email:u.email,
+      method:method,
+      network:payload.network||(method==='usdt'?'TRC20':isMobile?'MOBILE':method.toUpperCase()),
+      address:addr,
+      accountName:accountName||'',
+      amount:amount,
+      status:'pending',
+      created:Date.now(),
+      note:payload.note||''
+    };
     list.unshift(row);save(WITHDRAW_KEY,list);
     return {ok:true,row:row};
   }
