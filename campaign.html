@@ -93,15 +93,23 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 <script src="tribute-config.js"></script>
 <script>
 (function(){
-// Clear old test accounts/campaigns on first load of this version (proof of refresh)
+// Clear only user accounts and the campaigns those accounts created. Sample campaigns stay.
 try {
-  if (!localStorage.getItem('hopeforus_cleared_v2')) {
+  if (!localStorage.getItem('hopeforus_cleared_v3')) {
     localStorage.removeItem('hopeforus_users');
     localStorage.removeItem('hopeforus_user');
-    localStorage.removeItem('hopeforus_campaigns');
     localStorage.removeItem('hopeforus_otp');
     localStorage.removeItem('hopeforus_pending_donations');
-    localStorage.setItem('hopeforus_cleared_v2', '1');
+    // Keep campaigns that are not owned by a user account
+    var camps = [];
+    try { camps = JSON.parse(localStorage.getItem('hopeforus_campaigns') || '[]'); } catch(e) {}
+    if (Array.isArray(camps)) {
+      camps = camps.filter(function(c) {
+        return c && !c.ownerId && !c.ownerEmail && !c.organizerEmail;
+      });
+      localStorage.setItem('hopeforus_campaigns', JSON.stringify(camps));
+    }
+    localStorage.setItem('hopeforus_cleared_v3', '1');
   }
 } catch(e) {}
 
