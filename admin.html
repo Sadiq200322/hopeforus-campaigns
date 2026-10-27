@@ -33,7 +33,6 @@ th{color:#5c5c5c;font-weight:600}
 .pending-banner{background:#fef3c7;color:#92400e;padding:12px 16px;border-radius:12px;margin-bottom:12px;font-weight:600}
 .camp-title{color:#4C1D95;font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 .camp-title:hover{color:#7C3AED}
-/* Detail modal */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:20px 12px;overflow-y:auto}
 .modal-bg.on{display:flex}
 .modal{background:#fff;border-radius:18px;max-width:640px;width:100%;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden}
@@ -58,8 +57,8 @@ th{color:#5c5c5c;font-weight:600}
 <div class="top">
   <strong>HopeForUs Admin</strong>
   <div style="display:flex;gap:14px;align-items:center">
-    <a href="index.html">Site</a>
-    <a href="dashboard.html">Dashboard</a>
+    <a href="/">Site</a>
+    <a href="/dashboard">Dashboard</a>
     <a href="#" id="lo">Log out</a>
   </div>
 </div>
@@ -74,7 +73,6 @@ th{color:#5c5c5c;font-weight:600}
 <div class="panel" id="campaigns"></div>
 <div class="panel" id="withdraws"></div>
 
-<!-- Campaign detail modal -->
 <div class="modal-bg" id="detailModal">
   <div class="modal">
     <div class="modal-head">
@@ -85,13 +83,13 @@ th{color:#5c5c5c;font-weight:600}
   </div>
 </div>
 
-<script src="campaigns-data.js"></script>
-<script src="app.js"></script>
+<script src="/campaigns-data.js"></script>
+<script src="/app.js"></script>
 <script>
 if(!HF.isAdmin()){
-  location.href = 'login.html?return=admin.html';
+  location.href = '/login?return=/admin';
 }
-document.getElementById('lo').onclick=function(e){e.preventDefault();HF.logout();location.href='login.html'};
+document.getElementById('lo').onclick=function(e){e.preventDefault();HF.logout();location.href='/login'};
 document.querySelectorAll('.tab').forEach(function(t){
   t.onclick=function(){
     document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on')});
@@ -101,13 +99,7 @@ document.querySelectorAll('.tab').forEach(function(t){
 });
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-
-function money(n,c){
-  n=Number(n)||0;c=c||'USD';
-  var pre=c==='EUR'?'€':c==='GBP'?'£':'$';
-  return pre+n.toLocaleString();
-}
-
+function money(n,c){n=Number(n)||0;c=c||'USD';var pre=c==='EUR'?'€':c==='GBP'?'£':'$';return pre+n.toLocaleString();}
 var currentDetailId=null;
 
 function openDetail(id){
@@ -123,13 +115,10 @@ function openDetail(id){
   var goal=Number(c.goal)||0;
   var donations=Number(c.donations)||0;
   var link=c.donationLink||'';
-
   document.getElementById('dmTitle').textContent=c.title||c.id;
-
   var html='';
   if(img) html+='<img class="modal-img" src="'+esc(img)+'" alt="">';
   else if(media.length && media[0].dataUrl) html+='<img class="modal-img" src="'+esc(media[0].dataUrl)+'" alt="">';
-
   html+='<div class="modal-meta">';
   html+='<div><span>Owner</span><strong>'+esc(c.ownerEmail||c.organizer||'—')+'</strong></div>';
   html+='<div><span>Status</span><span class="badge '+(st==='rejected'?'rejected':st==='pending'?'pending':'approved')+'">'+st+'</span></div>';
@@ -138,158 +127,75 @@ function openDetail(id){
   html+='<div><span>Category</span><strong>'+esc(c.category||'—')+'</strong></div>';
   html+='<div><span>Created</span><strong>'+(c.createdAt?new Date(c.createdAt).toLocaleString():'—')+'</strong></div>';
   html+='</div>';
-
   if(story) html+='<div class="modal-story">'+esc(story)+'</div>';
   else html+='<p style="color:#9ca3af;font-size:.9rem;margin-bottom:14px">No story provided.</p>';
-
   if(media.length>1){
     html+='<div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:14px">';
-    media.slice(1).forEach(function(m){
-      if(m&&m.dataUrl) html+='<img src="'+esc(m.dataUrl)+'" style="height:80px;border-radius:8px;object-fit:cover">';
-    });
+    media.slice(1).forEach(function(m){if(m&&m.dataUrl) html+='<img src="'+esc(m.dataUrl)+'" style="height:80px;border-radius:8px;object-fit:cover">';});
     html+='</div>';
   }
-
   html+='<div class="modal-actions">';
   html+='<label>Tribute donation link</label>';
   html+='<input type="text" id="dmLink" value="'+esc(link)+'" placeholder="https://web.tribute.tg/d/...">';
-  html+='<p class="hint">Create the link in Tribute, paste it here, then Approve. Donate button becomes active.</p>';
-
+  html+='<p class="hint">Create the link in Tribute, paste it here, then Approve.</p>';
   html+='<label style="margin-top:8px">Update raised amount (manual)</label>';
   html+='<div style="display:flex;gap:8px">';
-  html+='<input type="number" id="dmRaised" value="'+raised+'" min="0" step="1" style="flex:1" placeholder="Raised amount">';
-  html+='<input type="number" id="dmDonations" value="'+donations+'" min="0" step="1" style="width:110px" placeholder="# donations">';
+  html+='<input type="number" id="dmRaised" value="'+raised+'" min="0" step="1" style="flex:1">';
+  html+='<input type="number" id="dmDonations" value="'+donations+'" min="0" step="1" style="width:110px">';
   html+='</div>';
-  html+='<p class="hint">Tribute does not auto-sync yet. Check Tribute dashboard and update these numbers when needed.</p>';
-
+  html+='<p class="hint">Tribute does not auto-sync. Update these when needed.</p>';
   html+='<div class="modal-btns">';
   html+='<button type="button" class="btn btn-g" id="dmSaveApprove">Save link + Approve</button>';
   html+='<button type="button" class="btn btn-o" id="dmSaveOnly">Save only</button>';
   html+='<button type="button" class="btn btn-r" id="dmReject">Reject</button>';
-  html+='</div>';
-  html+='</div>';
-
+  html+='</div></div>';
   document.getElementById('dmBody').innerHTML=html;
   document.getElementById('detailModal').classList.add('on');
-
-  document.getElementById('dmSaveApprove').onclick=function(){
-    saveDetail(true);
-  };
-  document.getElementById('dmSaveOnly').onclick=function(){
-    saveDetail(false);
-  };
-  document.getElementById('dmReject').onclick=function(){
-    HF.setCampaignStatus(id,'rejected');
-    closeDetail();
-    render();
-  };
+  document.getElementById('dmSaveApprove').onclick=function(){saveDetail(true)};
+  document.getElementById('dmSaveOnly').onclick=function(){saveDetail(false)};
+  document.getElementById('dmReject').onclick=function(){HF.setCampaignStatus(id,'rejected');closeDetail();render()};
 }
-
 function saveDetail(approve){
-  var id=currentDetailId;
-  if(!id)return;
+  var id=currentDetailId;if(!id)return;
   var url=(document.getElementById('dmLink').value||'').trim();
   var raised=parseFloat(document.getElementById('dmRaised').value)||0;
   var donations=parseInt(document.getElementById('dmDonations').value,10)||0;
-
-  if(url && url.indexOf('http')!==0){
-    alert('Link must start with https://');
-    return;
-  }
-
-  if(url){
-    HF.setCampaignDonationLink(id,url);
-  }
-  if(approve){
-    HF.setCampaignStatus(id,'approved');
-  }
-
-  // Also update raised / donations via the helper (ensures promotion from samples)
-  if (HF.updateCampaignRaised) {
-    HF.updateCampaignRaised(id, raised, donations);
-  } else {
-    var list=[];
-    try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
-    if(Array.isArray(list)){
-      var c=list.find(function(x){return x&&x.id===id});
-      if(c){
-        c.raised=raised;
-        c.donations=donations;
-        if(url)c.donationLink=url;
-        if(approve)c.status='approved';
-        localStorage.setItem('hopeforus_campaigns',JSON.stringify(list));
-      }
-    }
-  }
-
-  closeDetail();
-  render();
+  if(url && url.indexOf('http')!==0){alert('Link must start with https://');return;}
+  if(url) HF.setCampaignDonationLink(id,url);
+  if(approve) HF.setCampaignStatus(id,'approved');
+  if(HF.updateCampaignRaised) HF.updateCampaignRaised(id,raised,donations);
+  closeDetail();render();
 }
-
-function closeDetail(){
-  document.getElementById('detailModal').classList.remove('on');
-  currentDetailId=null;
-}
+function closeDetail(){document.getElementById('detailModal').classList.remove('on');currentDetailId=null;}
 document.getElementById('dmClose').onclick=closeDetail;
-document.getElementById('detailModal').onclick=function(e){
-  if(e.target===this)closeDetail();
-};
-
+document.getElementById('detailModal').onclick=function(e){if(e.target===this)closeDetail()};
 function render(){
   var users=HF.adminUsers();
   var camps=HF.adminCampaigns();
   var wd=HF.listWithdrawals();
   var pending=camps.filter(function(c){return (c.status||'pending')==='pending' || !c.donationLink;});
-
-  document.getElementById('overview').innerHTML=
-    '<div class="stat">'+
-    '<div><strong>'+users.length+'</strong><span>Users</span></div>'+
-    '<div><strong>'+camps.length+'</strong><span>Campaigns</span></div>'+
-    '<div><strong>'+pending.length+'</strong><span>Need review</span></div>'+
-    '<div><strong>'+wd.filter(function(w){return w.status==="pending"}).length+'</strong><span>Pending withdraws</span></div>'+
-    '</div>'+
-    (pending.length?'<div class="pending-banner">'+pending.length+' campaign'+(pending.length>1?'s':'')+' waiting for a donation link.</div>':'')+
-    '<div class="card"><h3>Quick actions</h3><p style="color:#5c5c5c;font-size:.9rem">Click any campaign title to review photos + story, paste the Tribute link, and approve. Raised amounts are updated manually (Tribute does not auto-sync yet).</p></div>';
-
+  document.getElementById('overview').innerHTML='<div class="stat"><div><strong>'+users.length+'</strong><span>Users</span></div><div><strong>'+camps.length+'</strong><span>Campaigns</span></div><div><strong>'+pending.length+'</strong><span>Need review</span></div><div><strong>'+wd.filter(function(w){return w.status==="pending"}).length+'</strong><span>Pending withdraws</span></div></div>'+(pending.length?'<div class="pending-banner">'+pending.length+' campaign'+(pending.length>1?'s':'')+' waiting for a donation link.</div>':'')+'<div class="card"><h3>Quick actions</h3><p style="color:#5c5c5c;font-size:.9rem">Click a campaign title to review and approve. Clean URLs are live: /admin · /c/campaign-id</p></div>';
   var uh='<div class="card"><h3>All users</h3><div style="overflow-x:auto"><table><tr><th>Name</th><th>Email</th><th>Verified</th><th>Joined</th></tr>';
-  users.forEach(function(u){
-    uh+='<tr><td>'+esc(u.name)+(u.isAdmin?' <span class="badge approved">admin</span>':'')+'</td><td>'+esc(u.email)+'</td><td>'+(u.verified?'Yes':'No')+'</td><td>'+(u.created?new Date(u.created).toLocaleDateString():'—')+'</td></tr>';
-  });
+  users.forEach(function(u){uh+='<tr><td>'+esc(u.name)+(u.isAdmin?' <span class="badge approved">admin</span>':'')+'</td><td>'+esc(u.email)+'</td><td>'+(u.verified?'Yes':'No')+'</td><td>'+(u.created?new Date(u.created).toLocaleDateString():'—')+'</td></tr>';});
   document.getElementById('users').innerHTML=uh+'</table></div></div>';
-
   var ch='<div class="card"><h3>Campaigns</h3><div style="overflow-x:auto"><table><tr><th>Title</th><th>Owner</th><th>Status</th><th>Donation link</th><th></th></tr>';
   camps.forEach(function(c){
-    var st=c.status||'pending';
-    var link=c.donationLink||'';
-    ch+='<tr>';
-    ch+='<td><span class="camp-title" data-id="'+esc(c.id)+'">'+esc(c.title||c.id)+'</span></td>';
-    ch+='<td>'+esc(c.ownerEmail||c.organizer||'—')+'</td>';
-    ch+='<td><span class="badge '+(st==='rejected'?'rejected':st==='pending'?'pending':'approved')+'">'+st+'</span></td>';
+    var st=c.status||'pending';var link=c.donationLink||'';
+    ch+='<tr><td><span class="camp-title" data-id="'+esc(c.id)+'">'+esc(c.title||c.id)+'</span></td><td>'+esc(c.ownerEmail||c.organizer||'—')+'</td><td><span class="badge '+(st==='rejected'?'rejected':st==='pending'?'pending':'approved')+'">'+st+'</span></td>';
     ch+='<td><div class="link-row"><input type="text" class="dlink" data-id="'+esc(c.id)+'" value="'+esc(link)+'" placeholder="https://web.tribute.tg/d/..."><button class="btn btn-g" data-save="'+esc(c.id)+'">Save link</button></div></td>';
-    ch+='<td><button class="btn btn-g" data-id="'+esc(c.id)+'" data-s="approved">Approve</button> <button class="btn btn-r" data-id="'+esc(c.id)+'" data-s="rejected">Reject</button></td>';
-    ch+='</tr>';
+    ch+='<td><button class="btn btn-g" data-id="'+esc(c.id)+'" data-s="approved">Approve</button> <button class="btn btn-r" data-id="'+esc(c.id)+'" data-s="rejected">Reject</button></td></tr>';
   });
   document.getElementById('campaigns').innerHTML=ch+'</table></div></div>';
-
-  document.querySelectorAll('.camp-title').forEach(function(el){
-    el.onclick=function(){openDetail(el.dataset.id)};
-  });
-
-  document.querySelectorAll('#campaigns .btn[data-s]').forEach(function(b){
-    b.onclick=function(){HF.setCampaignStatus(b.dataset.id,b.dataset.s);render()};
-  });
+  document.querySelectorAll('.camp-title').forEach(function(el){el.onclick=function(){openDetail(el.dataset.id)};});
+  document.querySelectorAll('#campaigns .btn[data-s]').forEach(function(b){b.onclick=function(){HF.setCampaignStatus(b.dataset.id,b.dataset.s);render()};});
   document.querySelectorAll('#campaigns .btn[data-save]').forEach(function(b){
     b.onclick=function(){
-      var id=b.dataset.save;
-      var inp=document.querySelector('.dlink[data-id="'+id+'"]');
+      var id=b.dataset.save;var inp=document.querySelector('.dlink[data-id="'+id+'"]');
       var url=(inp&&inp.value||'').trim();
       if(url && url.indexOf('http')!==0){alert('Link must start with https://');return;}
-      HF.setCampaignDonationLink(id, url);
-      if(url) HF.setCampaignStatus(id, 'approved');
-      render();
+      HF.setCampaignDonationLink(id,url);if(url)HF.setCampaignStatus(id,'approved');render();
     };
   });
-
   var wh='<div class="card"><h3>Withdrawals</h3><div style="overflow-x:auto"><table><tr><th>User</th><th>Method</th><th>Amount</th><th>Address</th><th>Status</th><th></th></tr>';
   wd.forEach(function(w){
     wh+='<tr><td>'+esc(w.email)+'</td><td>'+esc(w.method.toUpperCase())+' '+esc(w.network||'')+'</td><td>'+w.amount+'</td><td style="max-width:140px;word-break:break-all;font-size:.75rem">'+esc(w.address)+'</td><td><span class="badge '+w.status+'">'+w.status+'</span></td><td>';
@@ -297,9 +203,7 @@ function render(){
     wh+='</td></tr>';
   });
   document.getElementById('withdraws').innerHTML=wh+'</table></div></div>';
-  document.querySelectorAll('#withdraws .btn').forEach(function(b){
-    b.onclick=function(){HF.setWithdrawStatus(b.dataset.w,b.dataset.s);render()};
-  });
+  document.querySelectorAll('#withdraws .btn').forEach(function(b){b.onclick=function(){HF.setWithdrawStatus(b.dataset.w,b.dataset.s);render()};});
 }
 render();
 </script>

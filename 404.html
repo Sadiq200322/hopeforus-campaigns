@@ -4,24 +4,56 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HopeForUs</title>
-<style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;color:#1a1a1a;background:#fff}.box{text-align:center;padding:24px}a{color:#02a95c;font-weight:600}</style>
+<style>
+body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;color:#1a1a1a;background:#fff}
+.box{text-align:center;padding:24px}
+a{color:#7C3AED;font-weight:600}
+</style>
 </head>
 <body>
 <div class="box" id="msg">Opening…</div>
 <script>
 (function(){
-  var path=(location.pathname||'').replace(/\/+$/,'').replace(/^\//,'');
-  var parts=path.split('/');
-  var code='';
-  // Support /c/CODE or /f/CODE or /CODE
-  if(parts[0]==='c'||parts[0]==='f') code=(parts[1]||'').toUpperCase();
-  else if(parts.length===1 && parts[0] && parts[0]!=='404.html') code=parts[0].toUpperCase();
-  if(!code){
-    // also allow ?c=
-    code=(new URLSearchParams(location.search).get('c')||'').toUpperCase();
+  var path = (location.pathname || '').replace(/\/+$/, '').replace(/^\//, '');
+  var parts = path.split('/').filter(Boolean);
+  var first = (parts[0] || '').toLowerCase();
+  var second = parts[1] || '';
+
+  // Clean page routes
+  var pages = {
+    'admin': '/admin.html',
+    'login': '/login.html',
+    'dashboard': '/dashboard.html',
+    'start': '/create-campaign.html',
+    'create': '/create-campaign.html',
+    'signup': '/signup.html',
+    'donate': '/donate.html'
+  };
+
+  if (pages[first] && !second) {
+    location.replace(pages[first] + (location.search || '') + (location.hash || ''));
+    return;
   }
-  if(!code){document.getElementById('msg').innerHTML='Page not found. <a href="/">Home</a>';return;}
-  location.replace('/f.html?c='+encodeURIComponent(code));
+
+  // Campaign short links: /c/ID or /campaign/ID or /f/CODE
+  if ((first === 'c' || first === 'campaign' || first === 'f') && second) {
+    var id = second;
+    if (first === 'f') {
+      location.replace('/f.html?c=' + encodeURIComponent(id.toUpperCase()));
+    } else {
+      location.replace('/campaign.html?id=' + encodeURIComponent(id));
+    }
+    return;
+  }
+
+  // Bare code: /NIKICODE → treat as short share code
+  if (parts.length === 1 && first && first !== '404.html' && first.indexOf('.') === -1) {
+    location.replace('/f.html?c=' + encodeURIComponent(first.toUpperCase()));
+    return;
+  }
+
+  // Fallback
+  document.getElementById('msg').innerHTML = 'Page not found. <a href="/">Go home</a>';
 })();
 </script>
 </body>
