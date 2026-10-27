@@ -80,6 +80,27 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 .sc-icons .ic-ms{background:#0084ff}
 .sc-icons .ic-li{background:#0a66c2}
 .ft{text-align:center;padding:24px;color:var(--muted);font-size:.85rem;border-top:1px solid #eee}
+.donate-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:flex-end;justify-content:center;padding:0}
+.donate-overlay.on{display:flex}
+.donate-sheet{background:#fff;width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,.2)}
+@media(min-width:600px){.donate-overlay{align-items:center;padding:20px}.donate-sheet{border-radius:20px}}
+.donate-sheet h2{font-size:1.25rem;font-weight:800;margin-bottom:4px}
+.donate-sheet .sub{color:#5c5c5c;font-size:.9rem;margin-bottom:16px}
+.amt-chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.amt-chips button{border:1.5px solid #e5e5e5;background:#fff;border-radius:999px;padding:8px 14px;font-weight:700;font-size:.9rem;color:#1a1a1a}
+.amt-chips button.on{border-color:#7C3AED;background:#EDE9FE;color:#4C1D95}
+.donate-sheet label{display:block;font-size:.8rem;font-weight:600;color:#5c5c5c;margin:12px 0 4px}
+.donate-sheet input{width:100%;height:48px;padding:0 14px;border:1.5px solid #e5e5e5;border-radius:12px;font-size:1rem;font-family:inherit}
+.donate-sheet input:focus{outline:none;border-color:#7C3AED}
+.donate-actions{display:flex;gap:10px;margin-top:18px}
+.donate-actions button{flex:1;height:48px;border-radius:999px;border:0;font-weight:800;font-size:1rem;font-family:inherit}
+.donate-cancel{background:#f3f4f6;color:#1a1a1a}
+.donate-go{background:#7C3AED;color:#fff}
+.donate-go:disabled{opacity:.6}
+.donate-err{color:#b91c1c;font-size:.85rem;margin-top:8px;display:none}
+.donate-err.show{display:block}
+.copy-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:600;z-index:300;display:none}
+.copy-toast.on{display:block}
 </style>
 </head>
 <body>
@@ -93,14 +114,12 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 <script src="tribute-config.js"></script>
 <script>
 (function(){
-// Clear only user accounts and the campaigns those accounts created. Sample campaigns stay.
 try {
   if (!localStorage.getItem('hopeforus_cleared_v3')) {
     localStorage.removeItem('hopeforus_users');
     localStorage.removeItem('hopeforus_user');
     localStorage.removeItem('hopeforus_otp');
     localStorage.removeItem('hopeforus_pending_donations');
-    // Keep campaigns that are not owned by a user account
     var camps = [];
     try { camps = JSON.parse(localStorage.getItem('hopeforus_campaigns') || '[]'); } catch(e) {}
     if (Array.isArray(camps)) {
@@ -202,11 +221,7 @@ var html='<div class="main">'+
 document.getElementById("app").innerHTML=html;
 var rm=document.getElementById("readMore");
 if(rm){var st=document.getElementById("story");st.classList.add("clamp");rm.onclick=function(){st.classList.toggle("clamp");rm.textContent=st.classList.contains("clamp")?"Read more":"Show less";};}
-function copyLink(){if(navigator.clipboard)navigator.clipboard.writeText(shareUrl).then(function(){alert("Link copied!");});else prompt("Copy link",shareUrl);}
-var sc=document.getElementById("scCopy");
-if(sc)sc.onclick=copyLink;
 
-// Tribute donation flow
 async function createTributeOrder(amountUsd, donorEmail, donorName) {
   var cfg = window.HOPEFORUS_TRIBUTE || {};
   if (!cfg.apiKey || cfg.apiKey.indexOf('YOUR_') === 0) {
@@ -225,7 +240,8 @@ async function createTributeOrder(amountUsd, donorEmail, donorName) {
     email: donorEmail || undefined,
     successUrl: location.href + (location.href.indexOf('?') > -1 ? '&' : '?') + 'donated=1',
     failUrl: location.href + (location.href.indexOf('?') > -1 ? '&' : '?') + 'donate_failed=1',
-    period: 'onetime'
+    period: 'onetime',
+    preferredPaymentMethods: [{type:'card'},{type:'apple_pay'}]
   };
   if (cfg.shopId) body.shopId = cfg.shopId;
   try {
@@ -252,35 +268,97 @@ async function createTributeOrder(amountUsd, donorEmail, donorName) {
   }
 }
 
-document.getElementById("donateBtn").onclick = async function() {
-  var btn = this;
-  var raw = prompt('Enter donation amount in USD (e.g. 10):', '10');
-  if (!raw) return;
-  var amt = parseFloat(raw);
-  if (isNaN(amt) || amt < 1) { alert('Minimum $1'); return; }
-  var email = (u && u.email) || prompt('Your email (optional, for receipt):') || '';
-  var name = (u && u.name) || '';
-  btn.disabled = true;
-  btn.textContent = 'Creating payment…';
-  var order = await createTributeOrder(amt, email, name);
-  btn.disabled = false;
-  btn.textContent = 'Donate';
-  if (order && (order.paymentUrl || order.webappPaymentUrl)) {
-    var payUrl = order.paymentUrl || order.webappPaymentUrl;
-    try {
-      var pend = JSON.parse(localStorage.getItem('hopeforus_pending_donations') || '[]');
-      pend.push({ campaignId: c.id, orderUuid: order.uuid, amount: amt, email: email, at: Date.now() });
-      localStorage.setItem('hopeforus_pending_donations', JSON.stringify(pend));
-    } catch (e) {}
-    location.href = payUrl;
+function showToast(msg){
+  var t=document.getElementById("copyToast");
+  if(!t)return;
+  t.textContent=msg||"Link copied";
+  t.classList.add("on");
+  setTimeout(function(){t.classList.remove("on");},1600);
+}
+function copyLink(){
+  function ok(){showToast("Link copied");}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(shareUrl).then(ok).catch(function(){
+      var ta=document.createElement("textarea");ta.value=shareUrl;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");ok()}catch(e){}document.body.removeChild(ta);
+    });
+  }else{
+    var ta=document.createElement("textarea");ta.value=shareUrl;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");ok()}catch(e){}document.body.removeChild(ta);
+  }
+}
+var sc=document.getElementById("scCopy");
+if(sc)sc.onclick=copyLink;
+
+var overlay=document.getElementById("donateOverlay");
+var amtInput=document.getElementById("donateAmount");
+var emailInput=document.getElementById("donateEmail");
+var nameInput=document.getElementById("donateName");
+var errEl=document.getElementById("donateErr");
+var goBtn=document.getElementById("donateGo");
+if(u&&u.email)emailInput.value=u.email;
+if(u&&u.name)nameInput.value=u.name;
+document.getElementById("donateCampTitle").textContent=c.title||"";
+
+document.querySelectorAll("#amtChips button").forEach(function(b){
+  b.onclick=function(){
+    document.querySelectorAll("#amtChips button").forEach(function(x){x.classList.remove("on")});
+    b.classList.add("on");
+    amtInput.value=b.getAttribute("data-amt");
+  };
+});
+document.getElementById("donateBtn").onclick=function(){
+  overlay.classList.add("on");
+  errEl.classList.remove("show");
+};
+document.getElementById("donateCancel").onclick=function(){overlay.classList.remove("on");};
+overlay.onclick=function(e){if(e.target===overlay)overlay.classList.remove("on");};
+
+goBtn.onclick=async function(){
+  var amt=parseFloat(amtInput.value);
+  var email=(emailInput.value||"").trim();
+  var name=(nameInput.value||"").trim();
+  errEl.classList.remove("show");
+  if(isNaN(amt)||amt<1){errEl.textContent="Enter at least $1.";errEl.classList.add("show");return;}
+  if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){errEl.textContent="Enter a valid email or leave blank.";errEl.classList.add("show");return;}
+  goBtn.disabled=true;goBtn.textContent="Creating payment…";
+  var order=await createTributeOrder(amt,email,name);
+  goBtn.disabled=false;goBtn.textContent="Continue to pay";
+  if(order&&(order.paymentUrl||order.webappPaymentUrl)){
+    try{
+      var pend=JSON.parse(localStorage.getItem("hopeforus_pending_donations")||"[]");
+      pend.push({campaignId:c.id,orderUuid:order.uuid,amount:amt,email:email,at:Date.now()});
+      localStorage.setItem("hopeforus_pending_donations",JSON.stringify(pend));
+    }catch(e){}
+    location.href=order.paymentUrl||order.webappPaymentUrl;
   }
 };
 
-document.getElementById("shareBtn").onclick=function(){
-  if(navigator.share)navigator.share({title:c.title,url:shareUrl}).catch(function(){});
-  else copyLink();
-};
+document.getElementById("shareBtn").onclick=copyLink;
 })();
 </script>
+<div class="donate-overlay" id="donateOverlay">
+  <div class="donate-sheet">
+    <h2>Donate</h2>
+    <p class="sub" id="donateCampTitle"></p>
+    <label>Amount (USD)</label>
+    <div class="amt-chips" id="amtChips">
+      <button type="button" data-amt="10">$10</button>
+      <button type="button" data-amt="25">$25</button>
+      <button type="button" data-amt="50">$50</button>
+      <button type="button" data-amt="100">$100</button>
+    </div>
+    <input type="number" id="donateAmount" min="1" step="1" placeholder="Or enter amount" value="10">
+    <label>Email (for receipt)</label>
+    <input type="email" id="donateEmail" placeholder="you@email.com" autocomplete="email">
+    <label>Name (optional)</label>
+    <input type="text" id="donateName" placeholder="Your name">
+    <p class="donate-err" id="donateErr"></p>
+    <div class="donate-actions">
+      <button type="button" class="donate-cancel" id="donateCancel">Cancel</button>
+      <button type="button" class="donate-go" id="donateGo">Continue to pay</button>
+    </div>
+    <p style="font-size:.75rem;color:#9ca3af;margin-top:12px;text-align:center">Payment by card (Apple Pay if available). Processed securely by Tribute.</p>
+  </div>
+</div>
+<div class="copy-toast" id="copyToast">Link copied</div>
 </body>
 </html>
