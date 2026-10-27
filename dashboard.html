@@ -56,9 +56,9 @@ th,td{text-align:left;padding:8px 6px;border-bottom:1px solid #f0f0f0}
   <h1 id="hello">Dashboard</h1>
   <p class="lead">New accounts start at zero donors, chats, and share clicks.</p>
   <div class="stats" id="stats"></div>
-  <div class="card"><h2>Your campaigns</h2><div id="camps"><p class="empty">No campaigns yet.</p></div></div>
+  <div class="card" id="campaigns"><h2>Your campaigns</h2><div id="camps"><p class="empty">No campaigns yet.</p></div></div>
   <div class="card"><h2>Share link analytics</h2><p class="empty" style="margin-bottom:10px">Clicks on hopeforus.me/f/CODE — total and by country.</p><div id="analytics"></div></div>
-  <div class="card">
+  <div class="card" id="withdraw">
     <h2>Withdraw funds</h2>
     <p class="empty" style="margin-bottom:8px">Crypto (USDT & BTC) or mobile money (MTN & Airtel). Payouts process on the 15th.</p>
     <label>Method</label>
@@ -101,7 +101,7 @@ th,td{text-align:left;padding:8px 6px;border-bottom:1px solid #f0f0f0}
   <a href="index.html">Home</a>
   <a href="create-campaign.html">Create</a>
   <a href="dashboard.html">Dashboard</a>
-  <a href="#" onclick="document.getElementById('wMethod').focus();return false">Withdraw</a>
+  <a href="#withdraw">Withdraw</a>
 </nav>
 <script src="app.js"></script>
 <script>
@@ -152,6 +152,7 @@ document.getElementById('wBtn').onclick=function(){
   render();
 };
 render();
+if(location.hash==='#withdraw'){var el=document.getElementById('withdraw');if(el)setTimeout(function(){el.scrollIntoView({behavior:'smooth'})},100)}
 </script>
 </body>
 </html>
