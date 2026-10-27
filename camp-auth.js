@@ -19,11 +19,11 @@
 
   function shortLink(code){
     code=(code||'campaign').toString().toUpperCase().replace(/\s+/g,'');
-    return 'https://hopeforus.me/f/'+encodeURIComponent(code);
+    var host=(location&&location.origin)?location.origin:'https://munowatchplus.watch';
+    return host+'/c/'+encodeURIComponent(code);
   }
   function realShareUrl(code){
-    var base=location.origin+location.pathname.replace(/[^/]+$/,'');
-    return base+'f.html?c='+encodeURIComponent((code||'').toString().toUpperCase());
+    return shortLink(code);
   }
 
   setTimeout(function(){
@@ -101,9 +101,10 @@
     if(!code||code==='—'){
       try{
         var id=new URLSearchParams(location.search).get('id')||'';
+        var qCode=new URLSearchParams(location.search).get('code')||'';
         var list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]');
         var c=list.find(function(x){return x.id===id});
-        if(c&&c.code)code=c.code; else code=id||'CAMPAIGN';
+        if(c&&c.code)code=c.code; else if(qCode)code=qCode; else code=id||'CAMPAIGN';
       }catch(e){code='CAMPAIGN'}
     }
     var short=shortLink(code);
@@ -112,7 +113,7 @@
     var wa='https://wa.me/?text='+encodeURIComponent(title+' '+short);
     var tw='https://twitter.com/intent/tweet?url='+encodeURIComponent(short)+'&text='+encodeURIComponent(title);
     var li='https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(real);
-    var safeTitle=title.replace(/</g,'&lt;').slice(0,64);
+    var safeTitle=title.replace(/</g,'<').slice(0,64);
 
     panel.innerHTML=
       '<div style="text-align:center;margin-bottom:14px">'+
@@ -142,7 +143,7 @@
     function copyShort(){
       var doCopy=function(){var t=document.getElementById('shortToast');if(t){t.style.opacity='1';setTimeout(function(){t.style.opacity='0'},2000)}};
       if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(short).then(doCopy).catch(function(){navigator.clipboard.writeText(real).then(doCopy)});
-      try{localStorage.setItem('hopeforus_last_share',real)}catch(e){}
+      try{localStorage.setItem('hopeforus_last_share',short)}catch(e){}
     }
     var btn=document.getElementById('copyShort');if(btn)btn.onclick=copyShort;
     var inp=document.getElementById('shortLinkInput');if(inp)inp.onclick=function(){this.select();copyShort()};
