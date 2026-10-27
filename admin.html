@@ -54,7 +54,9 @@ th{color:#5c5c5c;font-weight:600}
 <div class="panel" id="withdraws"></div>
 <script src="app.js"></script>
 <script>
-if(!HF.isAdmin()){location.href='login.html';}
+if(!HF.isAdmin()){
+  location.href = 'login.html?return=admin.html';
+}
 document.getElementById('lo').onclick=function(e){e.preventDefault();HF.logout();location.href='login.html'};
 document.querySelectorAll('.tab').forEach(function(t){
   t.onclick=function(){
