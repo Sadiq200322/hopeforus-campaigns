@@ -26,7 +26,10 @@ h1{font-size:1.4rem;font-weight:800;margin-bottom:4px}
 .camp:last-child{border-bottom:none}
 .camp img{width:72px;height:56px;object-fit:cover;border-radius:8px;background:#eee;flex-shrink:0}
 .camp .t{font-weight:700;font-size:.9rem}.camp .m{font-size:.8rem;color:#5c5c5c}
+.camp .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;align-items:center}
 .camp a{color:#02a95c;font-weight:600;font-size:.8rem;text-decoration:none}
+.camp button.del{border:0;background:0;color:#b91c1c;font-weight:600;font-size:.8rem;cursor:pointer;font-family:inherit;padding:0}
+.camp button.del:hover{text-decoration:underline}
 label{display:block;font-size:.8rem;font-weight:600;margin:10px 0 4px}
 input,select,textarea{width:100%;padding:12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:.95rem;font-family:inherit}
 .btn{display:inline-block;padding:12px 18px;border-radius:999px;border:none;background:#02a95c;color:#fff;font-weight:700;font-size:.9rem;cursor:pointer;font-family:inherit;margin-top:12px}
@@ -54,7 +57,7 @@ th,td{text-align:left;padding:8px 6px;border-bottom:1px solid #f0f0f0}
 </header>
 <div class="wrap">
   <h1 id="hello">Dashboard</h1>
-  <p class="lead">New accounts start at zero donors, chats, and share clicks.</p>
+  <p class="lead">Manage campaigns, track shares, and request withdrawals.</p>
   <div class="stats" id="stats"></div>
   <div class="card" id="campaigns"><h2>Your campaigns</h2><div id="camps"><p class="empty">No campaigns yet.</p></div></div>
   <div class="card"><h2>Share link analytics</h2><p class="empty" style="margin-bottom:10px">Clicks on hopeforus.me/f/CODE — total and by country.</p><div id="analytics"></div></div>
@@ -110,14 +113,42 @@ if(!u) location.href='login.html';
 document.getElementById('hello').textContent='Hi, '+(u.name||u.email).split(' ')[0];
 if(u.isAdmin) document.getElementById('adminLink').style.display='inline-flex';
 document.getElementById('lo').onclick=function(){HF.logout();location.href='login.html'};
-function myCamps(){var list=[];try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}return list.filter(function(c){return c.ownerEmail===u.email||c.organizerEmail===u.email})}
+function myCamps(){return HF.myCampaigns(u)}
 function render(){
   var camps=myCamps();
   var raised=camps.reduce(function(s,c){return s+(c.raised||0)},0);
   var clicks=0;var analytics=HF.clicksForUser(u.email);analytics.forEach(function(a){clicks+=(a.clicks.total||0)});
   document.getElementById('stats').innerHTML='<div class="stat"><strong>'+camps.length+'</strong><span>Campaigns</span></div><div class="stat"><strong>$'+raised.toLocaleString()+'</strong><span>Raised</span></div><div class="stat"><strong>0</strong><span>Donors</span></div><div class="stat"><strong>'+clicks+'</strong><span>Share clicks</span></div>';
   if(!camps.length) document.getElementById('camps').innerHTML='<p class="empty">No campaigns yet. <a href="create-campaign.html">Start one</a> — it shows on the homepage with your photos.</p>';
-  else{var h='';camps.forEach(function(c){var img=c.image||(c.cover&&c.cover.dataUrl)||'';var link=HF.shortLink(c.code||c.id);h+='<div class="camp">'+(img?'<img src="'+img+'" alt="">':'<div style="width:72px;height:56px;background:#eee;border-radius:8px"></div>')+'<div style="flex:1;min-width:0"><div class="t">'+(c.title||'Campaign')+'</div><div class="m">$'+(c.raised||0).toLocaleString()+' raised · code '+(c.code||'—')+'</div><a href="campaign.html?id='+encodeURIComponent(c.id)+'">View</a> · <a href="#" data-copy="'+link+'">Copy share link</a></div></div>'});document.getElementById('camps').innerHTML=h;document.querySelectorAll('[data-copy]').forEach(function(a){a.onclick=function(e){e.preventDefault();navigator.clipboard.writeText(a.getAttribute('data-copy'));a.textContent='Copied!';setTimeout(function(){a.textContent='Copy share link'},1500)}})}
+  else{
+    var h='';
+    camps.forEach(function(c){
+      var img=c.image||(c.cover&&c.cover.dataUrl)||'';
+      var link=HF.shortLink(c.code||c.id);
+      h+='<div class="camp">'+(img?'<img src="'+img+'" alt="">':'<div style="width:72px;height:56px;background:#eee;border-radius:8px"></div>')+
+        '<div style="flex:1;min-width:0"><div class="t">'+(c.title||'Campaign')+'</div>'+
+        '<div class="m">$'+(c.raised||0).toLocaleString()+' raised · code '+(c.code||c.id||'—')+'</div>'+
+        '<div class="acts">'+
+        '<a href="campaign.html?id='+encodeURIComponent(c.id)+'">View</a>'+
+        '<a href="#" data-copy="'+link+'">Copy share link</a>'+
+        '<button type="button" class="del" data-del="'+encodeURIComponent(c.id)+'">Delete</button>'+
+        '</div></div></div>';
+    });
+    document.getElementById('camps').innerHTML=h;
+    document.querySelectorAll('[data-copy]').forEach(function(a){
+      a.onclick=function(e){e.preventDefault();navigator.clipboard.writeText(a.getAttribute('data-copy'));a.textContent='Copied!';setTimeout(function(){a.textContent='Copy share link'},1500)};
+    });
+    document.querySelectorAll('[data-del]').forEach(function(btn){
+      btn.onclick=function(){
+        var id=decodeURIComponent(btn.getAttribute('data-del'));
+        var title=(camps.find(function(c){return c.id===id})||{}).title||'this campaign';
+        if(!confirm('Delete "'+title+'"? This cannot be undone. It will be removed from your desk and the homepage.')) return;
+        var r=HF.deleteCampaign(id);
+        if(!r.ok){alert(r.err||'Could not delete');return}
+        render();
+      };
+    });
+  }
   if(!analytics.length) document.getElementById('analytics').innerHTML='<p class="empty">No share clicks yet. Share your hopeforus.me/f/CODE link.</p>';
   else{var ah='<table><tr><th>Campaign</th><th>Clicks</th><th>Countries</th></tr>';analytics.forEach(function(a){var countries=Object.keys(a.clicks.byCountry||{}).map(function(k){return k+': '+a.clicks.byCountry[k]}).join(', ')||'—';ah+='<tr><td>'+(a.campaign.title||a.campaign.code)+'</td><td><strong>'+(a.clicks.total||0)+'</strong></td><td>'+countries+'</td></tr>'});document.getElementById('analytics').innerHTML=ah+'</table>'}
   var wd=HF.listWithdrawals(u.email);
