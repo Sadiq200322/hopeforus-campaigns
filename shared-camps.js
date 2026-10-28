@@ -4,19 +4,20 @@
   var URL='https://ntfy.sh/'+TOPIC;
   function pack(c){
     var image=c.image||'';
-    if(String(image).indexOf('data:')===0 && image.length>2600) image='';
+    if(String(image).indexOf('data:')===0 && image.length>2200) image='';
     var o={
       id:c.id, code:c.code||c.id,
       ownerId:c.ownerId||'', ownerEmail:c.ownerEmail||c.organizerEmail||'',
       organizerEmail:c.organizerEmail||c.ownerEmail||'', organizer:c.organizer||'',
-      title:c.title||'', story:String(c.story||'').slice(0,1800),
+      title:c.title||'', story:String(c.story||'').slice(0,700),
       goal:Number(c.goal)||0, raised:Number(c.raised)||0, donations:Number(c.donations)||0,
       currency:c.currency||'USD', category:c.category||'',
       image:image, status:c.status||'pending',
       donationLink:c.donationLink||'', createdAt:c.createdAt||''
     };
     var body=JSON.stringify(o);
-    if(body.length>3800){ o.story=o.story.slice(0,600); o.image=''; body=JSON.stringify(o); }
+    if(body.length>3800){ o.story=o.story.slice(0,180); body=JSON.stringify(o); }
+    if(body.length>3800){ o.image=''; body=JSON.stringify(o); }
     return body;
   }
   function shrink(src){
@@ -26,14 +27,13 @@
       var img=new Image();
       img.onload=function(){
         try{
-          var max=140, sc=Math.min(1, max/Math.max(img.width||1, img.height||1));
+          var max=80, sc=Math.min(1, max/Math.max(img.width||1, img.height||1));
           var canvas=document.createElement('canvas');
           canvas.width=Math.max(1, Math.round(img.width*sc));
           canvas.height=Math.max(1, Math.round(img.height*sc));
           canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-          var url=canvas.toDataURL('image/jpeg',0.62);
-          if(url.length>2400) url=canvas.toDataURL('image/jpeg',0.4);
-          resolve(url.length>2600?'':url);
+          var url=canvas.toDataURL('image/jpeg',0.42);
+          resolve(url.length>2200?'':url);
         }catch(e){ resolve(''); }
       };
       img.onerror=function(){ resolve(''); };
