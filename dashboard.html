@@ -70,19 +70,27 @@ textarea{min-height:110px}
 [data-theme="light"] .mob button.on{color:#4C1D95}
 .hide{display:none!important}
 .note{font-size:.8rem;color:var(--muted);margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #eee;vertical-align:top}
+.badge{display:inline-block;padding:3px 8px;border-radius:999px;font-size:.75rem;font-weight:700}
+.badge.pending{background:#fef3c7;color:#92400e}.badge.approved{background:#d1fae5;color:#065f46}.badge.rejected{background:#fee2e2;color:#991b1b}
+.admin-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
+.admin-tabs button{height:40px;padding:0 14px;border-radius:999px;border:1px solid #e5e5e5;background:#fff;font-weight:700;cursor:pointer}
+.admin-tabs button.on{background:#4C1D95;color:#fff;border-color:#4C1D95}
 </style>
 </head>
 <body>
 <header>
   <button class="search" id="searchBtn" type="button">Search</button>
-  <button class="logo" id="homeBtn" type="button"><img src="logo-mark.svg" alt=""> HopeForUs</button>
+  <button class="logo" id="homeBtn" type="button"><img src="/logo-mark.svg" alt=""> HopeForUs</button>
   <div class="tools">
     <button class="av" id="avBtn" type="button">J</button>
     <div class="menu hide" id="menu">
       <button type="button" id="photoBtn">Change photo</button>
       <button type="button" data-tab="donations">Donations Received</button>
       <button type="button" data-tab="settings">Account settings</button>
-      <a href="create-campaign.html">Start a new fundraiser</a>
+      <button type="button" data-tab="admin" id="adminMenu" class="hide">Admin settings</button>
+      <a href="/create-campaign.html">Start a new fundraiser</a>
       <button type="button" id="lo">Sign out</button>
     </div>
   </div>
@@ -94,6 +102,7 @@ textarea{min-height:110px}
     <button class="side" data-tab="donations" type="button"><i>♡</i> Donations</button>
     <button class="side" data-tab="transfers" type="button"><i>$</i> Transfers</button>
     <button class="side" data-tab="updates" type="button"><i>✎</i> Updates</button>
+    <button class="side hide" id="adminNav" data-tab="admin" type="button"><i>⚙</i> Admin</button>
   </aside>
   <main id="main"></main>
 </div>
@@ -103,14 +112,13 @@ textarea{min-height:110px}
   <button type="button" data-tab="transfers">Transfers</button>
   <button type="button" data-tab="updates">Updates</button>
 </nav>
-<script src="app.js"></script>
+<script src="/app.js"></script>
 <script>
 var u=HF.session();
-if(!u) location.href='login.html';
-var tab='home', openId='', editId='', method='usdt', theme=localStorage.getItem('hf_theme')||'dark';
-document.body.setAttribute('data-theme', theme);
+if(!u){ location.replace('/login.html?return='+encodeURIComponent('/dashboard.html')); throw 0; }
+var tab=(HF.isAdmin&&HF.isAdmin()&&location.hash==='#admin')?'admin':'home', openId='', editId='', method='usdt', adminView='overview';
 var av=localStorage.getItem('hf_avatar_'+u.email)||'';
-function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[c]})}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function camps(){return HF.myCampaigns(u)||[]}
 function money(list){
   var now=Date.now(), ten=10*86400000, received=0, hold=0, ready=0;
@@ -138,7 +146,7 @@ function drawAv(){
   var b=document.getElementById('avBtn');
   b.innerHTML=av?'<img alt="" src="'+av+'">':esc((u.name||u.email||'J').slice(0,1).toUpperCase());
 }
-function setTab(name){tab=name;openId='';editId='';document.getElementById('menu').classList.add('hide');render()}
+function setTab(name){tab=name;openId='';editId='';document.getElementById('menu').classList.add('hide');if(name==='admin')location.hash='admin';else if(location.hash==='#admin')history.replaceState(null,'',location.pathname);render()}
 function render(){
   document.querySelectorAll('[data-tab]').forEach(function(el){el.classList.toggle('on', el.getAttribute('data-tab')===tab)});
   var box=document.getElementById('main'), list=camps(), m=money(list), html='';
@@ -152,6 +160,63 @@ function render(){
     document.getElementById('back').onclick=function(){editId='';render()};
     document.getElementById('editForm').onsubmit=function(e){e.preventDefault();c.title=document.getElementById('eTitle').value.trim()||c.title;c.story=document.getElementById('eStory').value.trim();c.goal=Number(document.getElementById('eGoal').value)||c.goal;saveCamp(c);editId='';render()};
     return;
+  }
+  if(tab==='admin'){
+    if(!(HF.isAdmin&&HF.isAdmin())) tab='home';
+    else {
+      var users=HF.adminUsers(), campsAll=HF.adminCampaigns(), wdAll=HF.listWithdrawals(), reps=HF.listReports?HF.listReports():[];
+      var views=['overview','users','campaigns','withdrawals','reports'];
+      var htmlA='<div class="pane"><h1>Admin settings</h1><div class="admin-tabs">';
+      views.forEach(function(v){ htmlA+='<button type="button" data-av="'+v+'" class="'+(adminView===v?'on':'')+'">'+v.charAt(0).toUpperCase()+v.slice(1)+'</button>'; });
+      htmlA+='</div>';
+      if(adminView==='overview'){
+        var pending=campsAll.filter(function(c){return (c.status||'pending')==='pending'||!c.donationLink}).length;
+        var openR=reps.filter(function(r){return r.status==='open'}).length;
+        htmlA+='<div class="stats"><div class="stat">Users<b>'+users.length+'</b><span>Accounts</span></div><div class="stat">Campaigns<b>'+campsAll.length+'</b><span>'+pending+' need a link</span></div><div class="stat">Withdrawals<b>'+wdAll.filter(function(w){return w.status==='pending'}).length+'</b><span>Waiting to pay</span></div><div class="stat">Reports<b>'+openR+'</b><span>Open</span></div></div>';
+      } else if(adminView==='users'){
+        htmlA+='<div class="card" style="padding:8px 12px;overflow-x:auto"><table><tr><th>Name</th><th>Email</th><th>Verified</th><th>Joined</th></tr>';
+        users.forEach(function(person){ htmlA+='<tr><td>'+esc(person.name)+(person.isAdmin?' <span class="badge approved">admin</span>':'')+'</td><td>'+esc(person.email)+'</td><td>'+(person.verified?'Yes':'No')+'</td><td>'+(person.created?new Date(person.created).toLocaleDateString():'—')+'</td></tr>'; });
+        htmlA+='</table></div>';
+      } else if(adminView==='campaigns'){
+        htmlA+='<div class="card" style="padding:8px 12px;overflow-x:auto"><table><tr><th>Title</th><th>Owner</th><th>Status</th><th>Donation link</th><th></th></tr>';
+        campsAll.forEach(function(c){
+          var st=c.status||'pending';
+          htmlA+='<tr><td>'+esc(c.title||c.id)+'</td><td>'+esc(c.ownerEmail||c.organizer||'')+'</td><td><span class="badge '+(st==='rejected'?'rejected':st==='pending'?'pending':'approved')+'">'+esc(st)+'</span></td>';
+          htmlA+='<td><input data-link="'+esc(c.id)+'" value="'+esc(c.donationLink||'')+'" placeholder="https://"></td>';
+          htmlA+='<td><button class="btn" type="button" data-save="'+esc(c.id)+'" style="margin:0 6px 0 0">Save</button><button class="btn" type="button" data-st="approved" data-cid="'+esc(c.id)+'" style="margin:0 6px 0 0">Approve</button><button class="btn" type="button" data-st="rejected" data-cid="'+esc(c.id)+'" style="background:#fee2e2;color:#991b1b">Reject</button></td></tr>';
+        });
+        htmlA+='</table></div>';
+      } else if(adminView==='withdrawals'){
+        htmlA+='<div class="card" style="padding:8px 12px;overflow-x:auto"><table><tr><th>User</th><th>Method</th><th>Amount</th><th>Details</th><th>Status</th><th></th></tr>';
+        wdAll.forEach(function(w){
+          htmlA+='<tr><td>'+esc(w.email)+'</td><td>'+esc(String(w.method||'').toUpperCase())+'</td><td>$'+esc(w.amount)+'</td><td>'+esc(w.accountName||'')+' '+esc(w.address||'')+'</td><td><span class="badge '+(w.status==='approved'?'approved':w.status==='rejected'?'rejected':'pending')+'">'+esc(w.status)+'</span></td><td>';
+          if(w.status==='pending') htmlA+='<button class="btn" type="button" data-w="'+esc(w.id)+'" data-ws="approved" style="margin:0 6px 0 0">Pay</button><button class="btn" type="button" data-w="'+esc(w.id)+'" data-ws="rejected" style="background:#fee2e2;color:#991b1b">Reject</button>';
+          htmlA+='</td></tr>';
+        });
+        htmlA+='</table></div>';
+      } else {
+        htmlA+='<div class="card" style="padding:8px 12px;overflow-x:auto"><table><tr><th>When</th><th>Campaign</th><th>Reason</th><th>Reporter</th><th>Status</th><th></th></tr>';
+        reps.forEach(function(r){
+          htmlA+='<tr><td>'+(r.created?new Date(r.created).toLocaleString():'')+'</td><td>'+esc(r.campaignTitle||r.campaignId||'')+'</td><td>'+esc(r.reason)+'</td><td>'+esc(r.name)+' '+esc(r.email)+'</td><td>'+esc(r.status)+'</td><td>';
+          if(r.status==='open') htmlA+='<button class="btn" type="button" data-rid="'+esc(r.id)+'" data-rs="resolved" style="margin-right:6px">Resolve</button><button class="btn" type="button" data-rid="'+esc(r.id)+'" data-rs="dismissed" style="background:#fee2e2;color:#991b1b">Dismiss</button>';
+          htmlA+='</td></tr>';
+        });
+        if(!reps.length) htmlA+='<tr><td colspan="6">No reports yet.</td></tr>';
+        htmlA+='</table></div>';
+      }
+      htmlA+='</div>';
+      box.innerHTML=htmlA;
+      box.querySelectorAll('[data-av]').forEach(function(b){b.onclick=function(){adminView=b.getAttribute('data-av');render()}});
+      box.querySelectorAll('[data-save]').forEach(function(b){b.onclick=function(){
+        var id=b.getAttribute('data-save'); var inp=box.querySelector('[data-link="'+id+'"]'); var url=(inp&&inp.value||'').trim();
+        if(url && url.indexOf('http')!==0){alert('Link must start with https://');return}
+        HF.setCampaignDonationLink(id,url); if(url) HF.setCampaignStatus(id,'approved'); render();
+      }});
+      box.querySelectorAll('[data-st]').forEach(function(b){b.onclick=function(){HF.setCampaignStatus(b.getAttribute('data-cid'), b.getAttribute('data-st')); render()}});
+      box.querySelectorAll('[data-w]').forEach(function(b){b.onclick=function(){HF.setWithdrawStatus(b.getAttribute('data-w'), b.getAttribute('data-ws')); render()}});
+      box.querySelectorAll('[data-rid]').forEach(function(b){b.onclick=function(){HF.setReportStatus(b.getAttribute('data-rid'), b.getAttribute('data-rs')); render()}});
+      return;
+    }
   }
   if(tab==='home'){
     html='<div class="pane"><div class="card" style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;padding:22px 26px;background:#f6f1dc;border:0;font-size:1.05rem"><div><strong>Great work</strong><div class="note" style="margin:0">Next payout '+nextPayout()+'</div></div><p>Gifts can be withdrawn 10 days after they arrive. Payouts go out on the 10th and 25th.</p></div>'
@@ -250,7 +315,8 @@ function render(){
     };
   }
 }
-document.getElementById('searchBtn').onclick=function(){location.href='index.html'};
+if(HF.isAdmin&&HF.isAdmin()){document.getElementById('adminNav').classList.remove('hide');document.getElementById('adminMenu').classList.remove('hide')}
+document.getElementById('searchBtn').onclick=function(){location.href='/'};
 document.getElementById('avBtn').onclick=function(){document.getElementById('menu').classList.toggle('hide')};
 document.getElementById('homeBtn').onclick=function(){setTab('home')};
 document.getElementById('lo').onclick=function(){HF.logout();location.href='login.html'};
