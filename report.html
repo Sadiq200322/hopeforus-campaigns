@@ -67,7 +67,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--p);box-s
 .redirect{font-size:.88rem;color:#6b7280;margin-top:8px}
 .redirect strong{color:var(--p)}
 .progress-line{height:3px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin:16px auto 0;max-width:220px}
-.progress-line i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7C3AED,#4C1D95);border-radius:99px;animation:fillBar 4s linear forwards}
+.progress-line i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7C3AED,#4C1D95);border-radius:99px;animation:fillBar 30s linear forwards}
 @keyframes ticketIn{
   from{opacity:0;transform:translateY(40px) rotateX(12deg) scale(.92)}
   to{opacity:1;transform:translateY(0) rotateX(0) scale(1)}
@@ -147,8 +147,9 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--p);box-s
         </div>
       </div>
     </div>
-    <p class="redirect">Returning to campaign in <strong id="sec">4</strong>s…</p>
+    <p class="redirect">Returning to campaign in <strong id="sec">30</strong>s…</p>
     <div class="progress-line"><i></i></div>
+    <p style="margin-top:18px"><a href="#" id="goNow" style="color:#7C3AED;font-weight:700;text-decoration:none">Return now →</a></p>
   </div>
 </div>
 <script src="campaigns-data.js"></script>
@@ -228,7 +229,9 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--p);box-s
       document.getElementById('ticketId').textContent=ticketNo.toUpperCase();
       document.getElementById('ticketCamp').textContent=(report.campaignTitle||report.campaignId||'Campaign').slice(0,40);
       document.getElementById('ok').classList.add('show');
-      var left=4;
+      var goNow=document.getElementById('goNow');
+      if(goNow)goNow.onclick=function(e){e.preventDefault();location.href=backHref;};
+      var left=30;
       var secEl=document.getElementById('sec');
       var timer=setInterval(function(){
         left--;
