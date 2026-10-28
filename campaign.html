@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Campaign – HopeForUs</title>
@@ -157,7 +160,14 @@ var story=c.story||"";
 var shortCode=(c.code||c.id||id||'').toString();
 var shareUrl=(location.origin||'https://munowatchplus.watch')+'/c/'+encodeURIComponent(shortCode);
 var shareEnc=encodeURIComponent(shareUrl);
-try{if(history.replaceState && location.pathname.indexOf('/c/')!==0)history.replaceState(null,'','/c/'+encodeURIComponent(shortCode)+(location.search.indexOf('donated')>=0?location.search:''));}catch(e){}
+// Always normalize address bar to canonical short path (keeps case consistent on refresh)
+try{
+  if(history.replaceState){
+    var want='/c/'+encodeURIComponent(shortCode);
+    var keep=location.search.indexOf('donated')>=0?location.search:'';
+    if(location.pathname+location.search !== want+keep) history.replaceState(null,'',want+keep);
+  }
+}catch(e){}
 var donorsArr=c.donors||[];
 var donors=donorsArr.slice(0,12).map(function(d){
   var n=(d.name||"A").charAt(0).toUpperCase();
