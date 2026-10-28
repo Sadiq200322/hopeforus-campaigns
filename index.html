@@ -158,6 +158,8 @@ window.renderCampaigns=renderCampaigns;
   var seen={};
   list.forEach(function(c){
     if(!c||!c.id||seen[c.id])return;
+    if(c.status==='rejected'||c.status==='pending')return;
+    if((c.ownerEmail||c.ownerId)&&c.status!=='approved')return;
     seen[c.id]=1;
     var src=resolveCampaignImage(c);
     if(!c.category)c.category="community";
