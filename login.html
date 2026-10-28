@@ -52,7 +52,7 @@ input:focus{outline:none;border-color:#7C3AED}
     document.getElementById('adminHint').style.display = 'block';
   }
   if (HF.isAdmin() && returnTo.indexOf('admin') !== -1) {
-    location.replace('/dashboard.html#admin');
+    location.replace('/dashboard/#admin');
     return;
   }
   document.getElementById('go').onclick = function(){
@@ -64,9 +64,9 @@ input:focus{outline:none;border-color:#7C3AED}
     var result = HF.login(email, pass);
     if (!result.ok) { err.textContent = result.err || 'Login failed.'; err.classList.add('show'); return; }
     if (result.user && result.user.isAdmin) {
-      location.href = '/dashboard.html#admin';
+      location.href = '/dashboard/#admin';
     } else {
-      location.href = (returnTo && returnTo.indexOf('http') !== 0 && returnTo.indexOf('admin') === -1) ? returnTo : '/dashboard.html';
+      location.href = (returnTo && returnTo.indexOf('http') !== 0 && returnTo.indexOf('admin') === -1) ? returnTo : '/dashboard/';
     }
   };
   document.getElementById('pass').addEventListener('keydown', function(e){ if (e.key === 'Enter') document.getElementById('go').click(); });
