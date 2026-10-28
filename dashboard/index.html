@@ -77,7 +77,7 @@ th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #eee;vertical-ali
 .admin-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
 .admin-tabs button{height:40px;padding:0 14px;border-radius:999px;border:1px solid #e5e5e5;background:#fff;font-weight:700;cursor:pointer}
 .approve-card{background:#fff;border:1px solid #eee;border-radius:14px;padding:10px 12px}
-.approve-row{display:flex;gap:10px;align-items:center;width:100%;border:0;background:transparent;text-align:left;padding:0;cursor:pointer}
+.approve-row{display:flex;gap:10px;align-items:center;width:100%;border:0;background:transparent;text-align:left;padding:0;cursor:pointer;color:inherit;text-decoration:none}
 .approve-row .shot{width:56px;height:56px;border-radius:10px;object-fit:cover;background:#eee;flex:0 0 56px}
 .mini-btn{height:32px;padding:0 12px;border-radius:999px;border:1px solid #e5e5e5;background:#fff;font-size:13px;font-weight:700;cursor:pointer}
 .mini-btn.go{background:#4C1D95;color:#fff;border-color:#4C1D95}
@@ -294,42 +294,12 @@ function render(){
         var st=c.status==='rejected'?'Rejected':'Waiting';
         var open=window.reviewId===c.id;
         var shot=c.image?'<img class="shot" src="'+esc(c.image)+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<span class="shot"></span>';
-        htmlA+='<article class="approve-card"><button type="button" class="approve-row" data-open="'+esc(c.id)+'">'+shot+'<span style="flex:1;min-width:0"><strong>'+esc(c.title||'Campaign')+'</strong><span class="note" style="display:block">'+esc(c.ownerEmail||c.organizerEmail||c.organizer||'No email')+' · '+st+'</span></span></button>';
-        if(open){
-          htmlA+='<div style="white-space:pre-wrap;margin:10px 0 8px;line-height:1.5">'+esc(c.story||'No story was saved with this campaign.')+'</div>';
-          htmlA+='<label>Donation link</label><input data-dlink="'+esc(c.id)+'" placeholder="https://" value="'+esc(c.donationLink||'')+'">';
-        }
-        htmlA+='<div style="display:flex;gap:6px;margin-top:8px"><button class="mini-btn go" type="button" data-st="approved" data-cid="'+esc(c.id)+'">Approve</button><button class="mini-btn bad" type="button" data-st="rejected" data-cid="'+esc(c.id)+'">Reject</button></div></article>';
+        htmlA+='<article class="approve-card"><a class="approve-row" href="/review.html?id='+encodeURIComponent(c.id)+'">'+shot+'<span style="flex:1;min-width:0"><strong>'+esc(c.title||'Campaign')+'</strong><span class="note" style="display:block">'+esc(c.ownerEmail||c.organizerEmail||c.organizer||'No email')+' · '+st+'</span></span></a></article>';
       });
       htmlA+='</div></div>';
       box.innerHTML=htmlA;
       var aq=document.getElementById('approveQ');
       if(aq) aq.oninput=function(){ window.approveQ=aq.value; render(); aq.focus(); var v=aq.value; aq.setSelectionRange(v.length,v.length); };
-      box.querySelectorAll('[data-open]').forEach(function(b){b.onclick=function(e){
-        e.preventDefault();
-        window.openReview(b.getAttribute('data-open'));
-      }});
-      box.querySelectorAll('[data-st]').forEach(function(b){b.onclick=function(){
-        var id=b.getAttribute('data-cid');
-        var status=b.getAttribute('data-st');
-        var inp=box.querySelector('[data-dlink="'+id+'"]');
-        var url=inp?(inp.value||'').trim():'';
-        if(status==='approved'){
-          if(!url||url.indexOf('http')!==0){ alert('Open the story, paste the donation link (https://…), then approve.'); return; }
-          HF.setCampaignDonationLink(id, url);
-          HF.setCampaignStatus(id, 'approved');
-        } else {
-          HF.setCampaignStatus(id, 'rejected');
-        }
-        var camp=allCamps().find(function(x){return x&&x.id===id});
-        if(camp){
-          camp.status=status;
-          if(status==='approved') camp.donationLink=url;
-          if(window.HFShared) HFShared.push(camp);
-        }
-        window.reviewId='';
-        render();
-      }});
       return;
     }
   }
