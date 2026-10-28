@@ -1,1 +1,173 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Campaign – HopeForUs</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="share-card.css">
+<style>
+:root{--p:#7C3AED;--pd:#4C1D95}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:#fafafa;color:#1a1a1a;line-height:1.5;padding-bottom:90px}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-index:50}
+.logo{font-weight:800;font-size:1.15rem;text-decoration:none;color:#1a1a1a}
+.hdr-actions{display:flex;gap:10px;align-items:center}
+.hdr-actions a,.hdr-actions button{font-size:.85rem;font-weight:600;color:var(--p);background:none;border:0;cursor:pointer;text-decoration:none;font-family:inherit}
+.main{max-width:720px;margin:0 auto;padding:0 16px 24px}
+.hero-img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:0 0 16px 16px;background:#eee;display:block}
+.hero-img img{width:100%;height:100%;object-fit:cover;border-radius:0 0 16px 16px}
+h1{font-size:1.5rem;font-weight:800;margin:16px 0 8px;line-height:1.25}
+.section{margin:20px 0}
+.story{font-size:.95rem;color:#333;white-space:pre-wrap;line-height:1.6}
+.read-more{background:none;border:0;color:var(--p);font-weight:700;font-size:.9rem;cursor:pointer;padding:0;margin-top:6px;font-family:inherit}
+.side{max-width:720px;margin:0 auto;padding:0 16px}
+.card{background:#fff;border-radius:16px;border:1px solid #e8e8e8;padding:18px;margin-bottom:16px}
+.raise-row{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.ring{position:relative;width:64px;height:64px;flex-shrink:0}
+.ring svg{transform:rotate(-90deg)}
+.ring-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem}
+.raised{font-size:1.25rem;font-weight:800}
+.raised span{font-weight:500;font-size:.9rem;color:#6b7280}
+.donors{display:flex;flex-direction:column;gap:10px}
+.donor{display:flex;gap:10px;align-items:center;font-size:.9rem}
+.donor-av{width:36px;height:36px;border-radius:50%;background:#EDE9FE;color:var(--pd);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0}
+.donate-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;padding:12px 16px;display:flex;justify-content:center;z-index:40;box-shadow:0 -4px 20px rgba(0,0,0,.06)}
+.donate-bar .inner{width:100%;max-width:420px}
+.donate-btn{display:block;width:100%;height:52px;border:0;border-radius:999px;background:var(--pd);color:#E9D5FF;font-weight:800;font-size:1.05rem;cursor:pointer;text-align:center;text-decoration:none;line-height:52px;font-family:inherit}
+.donate-btn:hover{background:#5B21B6}
+.share-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.share-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:1.5px solid #e5e5e5;background:#fff;font-size:.85rem;font-weight:600;cursor:pointer;text-decoration:none;color:#1a1a1a;font-family:inherit}
+.share-btn:hover{border-color:var(--p);color:var(--p)}
+.copy-toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s;z-index:60}
+.copy-toast.show{opacity:1}
+@media(min-width:900px){
+  body{padding-bottom:40px}
+  .layout{display:grid;grid-template-columns:1fr 340px;gap:28px;max-width:1100px;margin:0 auto;padding:24px 20px}
+  .main{max-width:none;padding:0}
+  .side{max-width:none;padding:0}
+  .donate-bar{position:static;box-shadow:none;border:0;padding:0;margin-top:12px}
+  .donate-bar .inner{max-width:none}
+  .hero-img{border-radius:16px}
+  .hero-img img{border-radius:16px}
+}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <a href="/" class="logo">HopeForUs</a>
+  <div class="hdr-actions">
+    <a href="/start">Start a campaign</a>
+    <a href="/login" id="authLink">Log in</a>
+  </div>
+</header>
+<div id="root"></div>
+<script src="campaigns-data.js"></script>
+<script src="app.js"></script>
+<script>
+(function(){
+  function esc(s){return String(s||'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');}
+  function money(n,c){n=Number(n)||0;c=(c||'USD').toUpperCase();var pre=c==='EUR'?'€':c==='GBP'?'£':c==='UGX'?'UGX ':'$';return pre+n.toLocaleString();}
+  function moneyShort(n,c){return money(n,c);}
+  var params=new URLSearchParams(location.search);
+  var id=params.get('id')||'';
+  var fromShare=params.get('from')==='share';
+  var list=[];try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')||[]}catch(e){}
+  if(!Array.isArray(list))list=[];
+  var c=null;
+  for(var i=0;i<list.length;i++){if(list[i]&&list[i].id===id){c=list[i];break}}
+  if(!c&&typeof SAMPLES!=='undefined'){
+    for(var j=0;j<SAMPLES.length;j++){if(SAMPLES[j]&&SAMPLES[j].id===id){c=SAMPLES[j];break}}
+  }
+  if(!c){
+    document.getElementById('root').innerHTML='<div class="main" style="padding-top:40px;text-align:center"><h1>Campaign not found</h1><p><a href="/" style="color:#7C3AED;font-weight:600">Browse campaigns</a></p></div>';
+    return;
+  }
+
+  // Short URL in address bar
+  var code=(c.code||c.id||'').toString().toUpperCase();
+  try{
+    if(code && history.replaceState){
+      var clean='/c/'+encodeURIComponent(code);
+      if(location.pathname.indexOf('/c/')!==0) history.replaceState(null,'',clean+(fromShare?'':'')+location.hash);
+    }
+  }catch(e){}
+
+  var sess=HF.session&&HF.session();
+  if(sess&&sess.email){
+    var al=document.getElementById('authLink');
+    if(al){al.textContent='Dashboard';al.href='/dashboard';}
+  }
+
+  var raised=Number(c.raised)||0;
+  var goal=Number(c.goal)||1;
+  var p=Math.min(100,Math.round((raised/goal)*100));
+  var ringCirc=2*Math.PI*26;
+  var ringOff=ringCirc*(1-p/100);
+  var img=c.image||'';
+  if(!img&&c.media&&c.media.length&&c.media[0].dataUrl)img=c.media[0].dataUrl;
+  var story=c.story||c.description||'';
+  var donorsArr=c.donors||[];
+  var donors='';
+  donorsArr.slice(0,8).forEach(function(d){
+    var name=d.name||'Anonymous';
+    var init=name.charAt(0).toUpperCase();
+    donors+='<div class="donor"><div class="donor-av">'+esc(init)+'</div><div><strong>'+esc(name)+'</strong> donated '+money(d.amount||0,c.currency)+'</div></div>';
+  });
+
+  var shareUrl=(typeof HF!=='undefined'&&HF.shortLink)?HF.shortLink(code):(location.origin+'/c/'+encodeURIComponent(code));
+  var shareText=encodeURIComponent('Support: '+(c.title||'')+' – '+shareUrl);
+  var shareCard='<div class="section"><h3 style="font-size:1rem;margin-bottom:8px">Share this campaign</h3><div class="share-row">'+
+    '<a class="share-btn" href="https://wa.me/?text='+shareText+'" target="_blank" rel="noopener">WhatsApp</a>'+
+    '<a class="share-btn" href="https://twitter.com/intent/tweet?text='+shareText+'" target="_blank" rel="noopener">X</a>'+
+    '<a class="share-btn" href="https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(shareUrl)+'" target="_blank" rel="noopener">Facebook</a>'+
+    '<button type="button" class="share-btn" id="copyLink">Copy link</button>'+
+    '</div></div>';
+
+  var donateHref='/donate.html?id='+encodeURIComponent(c.id);
+  if(c.donationLink) donateHref=c.donationLink;
+
+  var html='<div class="layout">'+
+  '<div class="main">'+
+  (img?'<div class="hero-img"><img src="'+esc(img)+'" alt=""></div>':'')+
+  '<h1>'+esc(c.title)+'</h1>'+
+  '<div class="section"><div class="story" id="story">'+esc(story)+'</div>'+(story.length>400?'<button type="button" class="read-more" id="readMore">Read more</button>':'')+'</div>'+
+  shareCard+
+  '<p style="margin:16px 0 8px;font-size:.85rem"><a href="/report?id='+encodeURIComponent(c.id)+'" style="color:#6b7280;text-decoration:underline">Report this campaign</a></p>'+
+  (donors?'<div class="section"><h3>'+(c.donations||donorsArr.length)+' donations</h3><div class="donors">'+donors+'</div></div>':'')+
+  '</div>'+
+  '<aside class="side"><div class="card">'+
+  '<div class="raise-row"><div class="ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="#e8e8e8" stroke-width="6"/><circle cx="32" cy="32" r="26" fill="none" stroke="#7C3AED" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+ringCirc.toFixed(1)+'" stroke-dashoffset="'+ringOff.toFixed(1)+'"/></svg><div class="ring-pct">'+p+'%</div></div>'+
+  '<div class="raise-meta"><div class="raised">'+money(raised,c.currency)+' raised <span>of '+moneyShort(goal,c.currency)+'</span></div>'+
+  '<div style="font-size:.85rem;color:#6b7280;margin-top:4px">'+(c.donations||0)+' donations</div></div></div>'+
+  '<div class="donate-bar"><div class="inner"><a class="donate-btn" href="'+esc(donateHref)+'" '+(c.donationLink?'target="_blank" rel="noopener"':'')+'>Donate now</a></div></div>'+
+  '</div></aside></div>';
+
+  document.getElementById('root').innerHTML=html;
+  document.title=(c.title||'Campaign')+' – HopeForUs';
+
+  var rm=document.getElementById('readMore');
+  if(rm){
+    var full=false;
+    rm.onclick=function(){
+      var st=document.getElementById('story');
+      if(!full){st.style.maxHeight='none';rm.textContent='Show less';full=true;}
+      else{st.style.maxHeight='';rm.textContent='Read more';full=false;}
+    };
+  }
+  var copyBtn=document.getElementById('copyLink');
+  if(copyBtn){
+    copyBtn.onclick=function(){
+      if(navigator.clipboard) navigator.clipboard.writeText(shareUrl).then(function(){
+        var t=document.getElementById('copyToast');
+        if(t){t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2000);}
+      });
+    };
+  }
+  if(typeof HF!=='undefined'&&HF.trackClick) HF.trackClick(code,{});
+})();
+</script>
+<div class="copy-toast" id="copyToast">Link copied</div>
+</body>
+</html>
