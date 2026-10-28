@@ -44,7 +44,7 @@
       if(filter==="all")return true;
       var cat=(x.c.category||"").toLowerCase();
       return cat===filter||cat.indexOf(filter)!==-1;
-    }).slice(0,5);
+    }).slice(0,24);
     var feat=document.getElementById("feat");
     var grid=document.getElementById("grid");
     if(grid)grid.innerHTML="";

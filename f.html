@@ -27,11 +27,11 @@
   }
   var c=list.find(match);
   if(!c && typeof SAMPLES!=='undefined') c=SAMPLES.find(match);
-  if(c && c.status!=='rejected'){ go(c); return; }
+  if(c && c.status!=='rejected' && c.status!=='deleted' && !c.deleted){ go(c); return; }
   if(code==='EEPBA7'){ location.replace('/campaign.html?id=c_mvs4qsny&from=share'); return; }
   if(window.HFDB){
     HFDB.list().then(function(rows){
-      var hit=(rows||[]).find(function(x){ return match(x) && x.status!=='rejected'; });
+      var hit=(rows||[]).find(function(x){ return match(x) && x.status!=='rejected' && x.status!=='deleted' && !x.deleted; });
       if(!hit && code==='EEPBA7') hit=(rows||[]).find(function(x){ return x && x.id==='c_mvs4qsny'; });
       if(hit){
         var idx=list.findIndex(function(x){return x&&x.id===hit.id});

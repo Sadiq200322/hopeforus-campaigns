@@ -125,5 +125,13 @@
       });
     });
   }
-  w.HFDB={url:URL, save:save, update:update, list:list, one:one, upload:upload, campFrom:campFrom, rowFrom:rowFrom};
+  function remove(id){
+    return update(id, {status:'deleted'}).catch(function(){
+      return fetch(URL+'/rest/v1/campaigns?id=eq.'+encodeURIComponent(id),{
+        method:'DELETE',
+        headers:headers({'Prefer':'return=minimal'})
+      });
+    });
+  }
+  w.HFDB={url:URL, save:save, update:update, remove:remove, list:list, one:one, upload:upload, campFrom:campFrom, rowFrom:rowFrom};
 })(window);

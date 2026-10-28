@@ -1,5 +1,5 @@
-// EmailJS config for HopeForUs verification codes + report alerts
-// reportEmail = where campaign reports are sent (your personal or admin inbox)
+// EmailJS config for HopeForUs verification codes, report alerts, and new-campaign notices
+// reportEmail = admin inbox for reports AND new campaign submissions
 
 window.HOPEFORUS_EMAILJS = {
   publicKey: "HHYAAwQ9y_LhuJ7qR",

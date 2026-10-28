@@ -123,6 +123,47 @@ function sendEmailCode(email,code,name){
     return Promise.resolve(false);
   }
 }
+function notifyAdminNewCampaign(camp){
+  var cfg=window.HOPEFORUS_EMAILJS||{};
+  var admin=cfg.reportEmail||"ijogasadiq11@gmail.com";
+  if(!emailjsReady()) return Promise.resolve(false);
+  var link=(location.origin||"https://munowatchplus.watch")+"/review.html?id="+encodeURIComponent(camp.id||"");
+  var body=[
+    "NEW CAMPAIGN waiting for approval on HopeForUs",
+    "Title: "+(camp.title||""),
+    "Organizer: "+(camp.organizer||"")+" <"+(camp.ownerEmail||camp.organizerEmail||"")+">",
+    "Goal: $"+(camp.goal||0)+" "+(camp.currency||"USD"),
+    "Category: "+(camp.category||""),
+    "Country: "+(camp.country||""),
+    "Campaign ID: "+(camp.id||""),
+    "",
+    "Review and approve:",
+    link,
+    "",
+    String(camp.story||"").slice(0,700)
+  ].join("\n");
+  try{
+    if(!window.__emailjs_inited){
+      emailjs.init({publicKey:cfg.publicKey});
+      window.__emailjs_inited=true;
+    }
+    var line=("New campaign: "+(camp.title||"Untitled")+" — "+(camp.ownerEmail||"")).slice(0,180);
+    return emailjs.send(cfg.serviceId, cfg.templateId, {
+      to_email: admin,
+      email: admin,
+      user_name: camp.organizer||camp.ownerEmail||"Organizer",
+      name: camp.organizer||"Organizer",
+      otp_code: line,
+      passcode: line,
+      site_name: body.slice(0,1500)
+    }).then(function(){ return true; }).catch(function(err){
+      console.warn("Admin notify failed", err);
+      return false;
+    });
+  }catch(e){
+    return Promise.resolve(false);
+  }
+}
 function render(){
   $("stepn").textContent=(step+1)+" of "+STEPS;
   $("stitle").textContent=titles[step][0];
@@ -281,6 +322,19 @@ function publish(){
   };
   var list=[];try{list=JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")}catch(e){}
   if(!Array.isArray(list))list=[];
+  var titleKey=draft.title.trim().toLowerCase().replace(/\s+/g," ");
+  var emailKey=String(user.email||"").toLowerCase();
+  var dup=null;
+  list.forEach(function(c){
+    if(!c||dup)return;
+    if(c.status==="deleted"||c.deleted||c.status==="rejected")return;
+    var t=String(c.title||"").toLowerCase().replace(/\s+/g," ").trim();
+    var e=String(c.ownerEmail||c.organizerEmail||"").toLowerCase();
+    if(t===titleKey&&e===emailKey) dup=c;
+  });
+  if(dup){
+    return showErr("You already have \""+(dup.title||"this campaign")+"\". A duplicate was not created. Open your dashboard to view it.");
+  }
   list=list.map(function(c){
     if(!c||c.id===id)return c;
     if(c.media&&c.media.length>1)c.media=c.media.slice(0,1);
@@ -301,8 +355,9 @@ function publish(){
   try{localStorage.setItem("hopeforus_last_share",shortShareUrl(code))}catch(e){}
   var go=function(){ location.href="/dashboard/?submitted=1"; };
   function finish(){
-    if(window.HFShared) HFShared.push(camp).then(go).catch(go);
-    else go();
+    var note=notifyAdminNewCampaign(camp);
+    var pushed=window.HFShared?HFShared.push(camp):Promise.resolve();
+    Promise.all([note, pushed]).then(go).catch(go);
   }
   if(window.HFDB){
     var jobs=(camp.media||[]).map(function(m,i){

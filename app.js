@@ -83,16 +83,22 @@
     if(!u) return {ok:false,err:'Login required'};
     id=String(id||'');
     if(!id) return {ok:false,err:'Missing campaign'};
+    if(w.HF_SAMPLE_IDS && w.HF_SAMPLE_IDS[id]) return {ok:false,err:'Showcase campaigns stay on the homepage'};
     var list=load(CAMPS_KEY,[]);
-    var c=list.find(function(x){return x&&x.id===id});
-    if(!c) return {ok:false,err:'Campaign not found'};
-    if(!ownsCampaign(c,u)) return {ok:false,err:'You can only delete your own campaigns'};
+    var c=list.find(function(x){return x&&x.id===id})||{id:id};
+    if(list.some(function(x){return x&&x.id===id}) && !ownsCampaign(c,u)) return {ok:false,err:'You can only delete your own campaigns'};
     var next=list.filter(function(x){return !x||x.id!==id});
     save(CAMPS_KEY,next);
     try{
       var code=(c.code||c.id||'').toString().toUpperCase();
       var clicks=load(CLICKS_KEY,{});
       if(clicks[code]){delete clicks[code];save(CLICKS_KEY,clicks)}
+    }catch(e){}
+    try{
+      if(w.HFShared&&HFShared.rememberDeleted) HFShared.rememberDeleted(id);
+      var tomb={id:id,status:'deleted',deleted:true,title:c.title||'',ownerEmail:c.ownerEmail||c.organizerEmail||''};
+      if(w.HFShared&&HFShared.push) HFShared.push(tomb);
+      if(w.HFDB&&HFDB.remove) HFDB.remove(id);
     }catch(e){}
     return {ok:true};
   }

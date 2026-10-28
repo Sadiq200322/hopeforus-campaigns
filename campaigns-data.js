@@ -173,3 +173,26 @@ window.SAMPLES = [
     donors: []
   }
 ];
+(function(){
+  var ids={};
+  (window.SAMPLES||[]).forEach(function(s){
+    if(!s||!s.id) return;
+    if(!s.status || s.status==='pending') s.status='approved';
+    ids[s.id]=s;
+  });
+  window.HF_SAMPLE_IDS=ids;
+  try{
+    var raw=localStorage.getItem('hopeforus_campaigns');
+    var list=raw?JSON.parse(raw):[];
+    if(!Array.isArray(list)) return;
+    var changed=false;
+    list.forEach(function(c){
+      var s=c&&ids[c.id];
+      if(!s) return;
+      if(c.status!=='approved'){ c.status='approved'; changed=true; }
+      if(!c.image&&s.image){ c.image=s.image; changed=true; }
+      if(!c.donationLink&&s.donationLink){ c.donationLink=s.donationLink; changed=true; }
+    });
+    if(changed) localStorage.setItem('hopeforus_campaigns', JSON.stringify(list));
+  }catch(e){}
+})();

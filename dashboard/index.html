@@ -124,10 +124,10 @@ th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #eee;vertical-ali
   <button type="button" data-tab="transfers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18M5 10V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3M5 10v8h14v-8"/><path d="M12 13v3"/></svg>Transfers</button>
   <button type="button" data-tab="updates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6h14M5 12h9M5 18h6"/></svg>Updates</button>
 </nav>
-<script src="/supabase.js"></script>
-<script src="/shared-camps.js"></script>
-<script src="/campaigns-data.js"></script>
-<script src="/app.js"></script>
+<script src="/supabase.js?v=12"></script>
+<script src="/shared-camps.js?v=12"></script>
+<script src="/campaigns-data.js?v=12"></script>
+<script src="/app.js?v=12"></script>
 <script>
 var u=HF.session();
 if(!u){ location.replace('/login.html?return='+encodeURIComponent('/dashboard/')); throw 0; }
@@ -178,11 +178,11 @@ function setTab(name){tab=name;openId='';editId='';document.getElementById('menu
 function render(){
   document.querySelectorAll('[data-tab]').forEach(function(el){el.classList.toggle('on', el.getAttribute('data-tab')===tab)});
   if(HF.isAdmin&&HF.isAdmin()){
-    var waitN=allCamps().filter(function(c){return c&&c.status!=='approved'&&c.status!=='rejected'&&(c.ownerEmail||c.ownerId||c.organizerEmail)}).length;
+    var waitN=allCamps().filter(function(c){return c&&c.status!=='approved'&&c.status!=='rejected'&&c.status!=='deleted'&&!c.deleted&&!(window.HF_SAMPLE_IDS&&HF_SAMPLE_IDS[c.id])&&(c.ownerEmail||c.ownerId||c.organizerEmail)}).length;
     var nav=document.getElementById('adminNav');
     if(nav) nav.innerHTML='<i>✓</i> Approve'+(waitN?' ('+waitN+')':'');
   }
-  var box=document.getElementById('main'), all=camps().filter(function(c){return c && c.status!=='rejected'}), list=all, m=money(all), html='';
+  var box=document.getElementById('main'), all=camps().filter(function(c){return c && c.status!=='rejected' && c.status!=='deleted' && !c.deleted}), list=all, m=money(all), html='';
   if(HF.isAdmin&&HF.isAdmin() && tab==='home') list=all.filter(function(c){return c.status==='approved'});
   if(editId){
     var c=all.find(function(x){return x.id===editId}) || (HF.adminCampaigns?HF.adminCampaigns():[]).find(function(x){return x.id===editId});
@@ -293,12 +293,19 @@ function render(){
             var by={}; list.forEach(function(c){ if(c&&c.id) by[c.id]=c; });
             (rows||[]).forEach(function(c){
               if(!c||!c.id) return;
+              if(c.status==='deleted'||c.deleted){
+                delete by[c.id];
+                if(window.HFShared&&HFShared.rememberDeleted) HFShared.rememberDeleted(c.id);
+                return;
+              }
               var cur=by[c.id]||{};
               by[c.id]=Object.assign({}, cur, c, {image:c.image||cur.image||''});
             });
             try{localStorage.setItem('hopeforus_campaigns', JSON.stringify(Object.keys(by).map(function(k){return by[k]})))}catch(e){}
             window._sbApprove='done';
-            render();
+            var again=function(){ render(); };
+            if(window.HFShared&&HFShared.dedupe) HFShared.dedupe().then(again).catch(again);
+            else again();
           }).catch(function(err){
             window._sbApprove='done';
             window._sbErr=String(err&&err.message||err||'');
@@ -307,7 +314,7 @@ function render(){
         }
         return;
       }
-      var waiting=allCamps().filter(function(c){ return c && c.status!=='approved' && c.status!=='rejected' && (c.ownerEmail||c.ownerId||c.organizerEmail||c.story); });
+      var waiting=allCamps().filter(function(c){ return c && c.status!=='approved' && c.status!=='rejected' && c.status!=='deleted' && !c.deleted && !(window.HF_SAMPLE_IDS&&HF_SAMPLE_IDS[c.id]) && (c.ownerEmail||c.ownerId||c.organizerEmail||c.story); });
       var q=(window.approveQ||'').toLowerCase();
       if(q) waiting=waiting.filter(function(c){
         return (c.title||'').toLowerCase().indexOf(q)>=0 || (c.ownerEmail||'').toLowerCase().indexOf(q)>=0 || (c.organizerEmail||'').toLowerCase().indexOf(q)>=0 || (c.organizer||'').toLowerCase().indexOf(q)>=0 || (c.id||'').toLowerCase().indexOf(q)>=0;
@@ -319,12 +326,13 @@ function render(){
         var st=c.status==='rejected'?'Rejected':'Waiting';
         var open=window.reviewId===c.id;
         var shot=c.image?'<img class="shot" src="'+esc(c.image)+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<span class="shot"></span>';
-        htmlA+='<article class="approve-card"><a class="approve-row" href="/review.html?id='+encodeURIComponent(c.id)+'">'+shot+'<span style="flex:1;min-width:0"><strong>'+esc(c.title||'Campaign')+'</strong><span class="note" style="display:block">'+esc(c.ownerEmail||c.organizerEmail||c.organizer||'No email')+' · '+st+'</span></span></a></article>';
+        htmlA+='<article class="approve-card"><a class="approve-row" href="/review.html?id='+encodeURIComponent(c.id)+'">'+shot+'<span style="flex:1;min-width:0"><strong>'+esc(c.title||'Campaign')+'</strong><span class="note" style="display:block">'+esc(c.ownerEmail||c.organizerEmail||c.organizer||'No email')+' · '+st+'</span></span></a><div style="display:flex;gap:8px;padding:0 12px 12px"><a class="btn" href="/review.html?id='+encodeURIComponent(c.id)+'" style="display:inline-flex;align-items:center">Review</a><button class="btn" type="button" data-del="'+esc(c.id)+'" style="background:#fee2e2;color:#991b1b">Delete</button></div></article>';
       });
       htmlA+='</div></div>';
       box.innerHTML=htmlA;
       var aq=document.getElementById('approveQ');
       if(aq) aq.oninput=function(){ window.approveQ=aq.value; render(); aq.focus(); var v=aq.value; aq.setSelectionRange(v.length,v.length); };
+      box.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){if(confirm('Delete this campaign forever? It will disappear for the organizer and for you.')){HF.deleteCampaign(b.getAttribute('data-del'));window._sbApprove='';render()}}});
       return;
     }
   }
@@ -396,7 +404,7 @@ function render(){
   box.innerHTML=html;
   box.querySelectorAll('[data-open]').forEach(function(b){b.onclick=function(){openId=openId===b.getAttribute('data-open')?'':b.getAttribute('data-open');render()}});
   box.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){editId=b.getAttribute('data-edit');render()}});
-  box.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){if(confirm('Delete this campaign?')){HF.deleteCampaign(b.getAttribute('data-del'));render()}}});
+  box.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){if(confirm('Delete this campaign forever? It will disappear for you and for admin.')){HF.deleteCampaign(b.getAttribute('data-del'));render()}}});
   box.querySelectorAll('[data-share]').forEach(function(b){b.onclick=function(){var link=HF.shortLink(b.getAttribute('data-share'));navigator.clipboard&&navigator.clipboard.writeText(link);b.textContent='Copied'}});
   box.querySelectorAll('[data-method]').forEach(function(b){b.onclick=function(){method=b.getAttribute('data-method');render()}});
   var extra=document.getElementById('extra');
@@ -516,6 +524,9 @@ function pushLocalToServer(){
   var list=[]; try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
   (list||[]).forEach(function(c){
     if(!c||!(c.ownerEmail||c.ownerId||c.organizerEmail)) return;
+    if(c.status==='deleted'||c.deleted) return;
+    if(window.HFShared&&HFShared.isTombstoned&&HFShared.isTombstoned(c.id)) return;
+    if(window.HF_SAMPLE_IDS&&HF_SAMPLE_IDS[c.id]) return;
     var img=c.image||'';
     var job=Promise.resolve(img);
     if(String(img).indexOf('data:')===0) job=HFDB.upload(img, c.id+'_cover.jpg').catch(function(){ return ''; });
@@ -533,6 +544,11 @@ function pullServer(){
     var by={}; list.forEach(function(c){ if(c&&c.id) by[c.id]=c; });
     (rows||[]).forEach(function(c){
       if(!c||!c.id) return;
+      if(c.status==='deleted'||c.deleted){
+        delete by[c.id];
+        if(window.HFShared&&HFShared.rememberDeleted) HFShared.rememberDeleted(c.id);
+        return;
+      }
       var cur=by[c.id]||{};
       var code=c.code||cur.code||'';
       if(c.id==='c_mvs4qsny' && (!code || code===c.id)) code='EEPBA7';
@@ -541,7 +557,11 @@ function pullServer(){
     try{localStorage.setItem('hopeforus_campaigns', JSON.stringify(Object.keys(by).map(function(k){return by[k]})));}catch(e){}
   }).catch(function(){});
 }
-function boot(){ pushLocalToServer(); render(); }
+function boot(){
+  var go=function(){ render(); };
+  var clean=(window.HFShared&&HFShared.dedupe)?HFShared.dedupe():Promise.resolve();
+  clean.then(function(){ pushLocalToServer(); go(); }).catch(go);
+}
 if(window.HFShared){ HFShared.sync().then(function(){ return pullServer(); }).then(boot); }
 else pullServer().then(boot);
 </script>

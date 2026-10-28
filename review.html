@@ -32,10 +32,10 @@ button{height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--lin
   <a class="back" href="/dashboard/#admin">← Back to Approve</a>
   <div id="app"><p class="note">Loading campaign…</p></div>
 </div>
-<script src="/supabase.js"></script>
-<script src="/shared-camps.js"></script>
-<script src="/campaigns-data.js"></script>
-<script src="/app.js"></script>
+<script src="/supabase.js?v=12"></script>
+<script src="/shared-camps.js?v=12"></script>
+<script src="/campaigns-data.js?v=12"></script>
+<script src="/app.js?v=12"></script>
 <script>
 var u=HF.session();
 if(!u){ location.replace('/login.html?return='+encodeURIComponent(location.pathname+location.search)); throw 0; }
@@ -86,7 +86,7 @@ function paint(c){
     +'<div class="story">'+esc(c.story||'No story was saved with this campaign.')+'</div>'
     +'<label>Donation link</label><input id="dlink" placeholder="https://" value="'+esc(c.donationLink||'')+'">'
     +'<p class="err" id="err"></p>'
-    +'<div class="row"><button class="go" id="ok" type="button">Approve</button><button class="bad" id="no" type="button">Reject</button></div>';
+    +'<div class="row"><button class="go" id="ok" type="button">Approve</button><button class="bad" id="no" type="button">Reject</button><button class="bad" id="del" type="button">Delete</button></div>';
   document.getElementById('ok').onclick=function(){
     var url=(document.getElementById('dlink').value||'').trim();
     if(!url||url.indexOf('http')!==0){ document.getElementById('err').textContent='Paste a donation link that starts with https://'; return; }
@@ -102,6 +102,11 @@ function paint(c){
     c.status='rejected';
     var done=function(){ location.href='/dashboard/#admin'; };
     if(window.HFShared) HFShared.push(c).then(done).catch(done); else done();
+  };
+  document.getElementById('del').onclick=function(){
+    if(!confirm('Delete this campaign forever? It will disappear for the organizer and for you.')) return;
+    HF.deleteCampaign(c.id);
+    location.href='/dashboard/#admin';
   };
 }
 var id=idFromUrl();
