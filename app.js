@@ -5,6 +5,7 @@
   var CAMPS_KEY='hopeforus_campaigns';
   var CLICKS_KEY='hopeforus_clicks';
   var WITHDRAW_KEY='hopeforus_withdrawals';
+  var REPORTS_KEY='hopeforus_reports';
   var ADMIN_EMAIL='admin@hopeforus.com';
   var ADMIN_PASS='Admin@2026';
 
@@ -98,12 +99,9 @@
 
   function shortLink(code){
     code=(code||'campaign').toString().toUpperCase().replace(/\s+/g,'');
-    return 'https://hopeforus.me/f/'+encodeURIComponent(code);
+    return (location.origin||'https://munowatchplus.watch')+'/c/'+encodeURIComponent(code);
   }
-  function realShareUrl(code){
-    var base=(location.origin+location.pathname).replace(/[^/]+$/,'');
-    return base+'f.html?c='+encodeURIComponent((code||'').toString().toUpperCase());
-  }
+  function realShareUrl(code){return shortLink(code);}
   function trackClick(code,meta){
     code=(code||'').toString().toUpperCase();
     var all=load(CLICKS_KEY,{});
@@ -184,21 +182,56 @@
     save(WITHDRAW_KEY,list);return true;
   }
 
+  function submitReport(payload){
+    var name=(payload.name||'').trim();
+    var email=(payload.email||'').trim().toLowerCase();
+    var details=(payload.details||'').trim();
+    var reason=(payload.reason||'').trim();
+    if(!name||name.length<2) return {ok:false,err:'Name required'};
+    if(!email||email.indexOf('@')<0) return {ok:false,err:'Valid email required'};
+    if(!reason) return {ok:false,err:'Reason required'};
+    if(!details||details.length<10) return {ok:false,err:'Please describe the issue'};
+    var list=load(REPORTS_KEY,[]);
+    if(!Array.isArray(list)) list=[];
+    var row={
+      id:'r_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),
+      campaignId:payload.campaignId||'',
+      campaignCode:payload.campaignCode||'',
+      campaignTitle:payload.campaignTitle||'',
+      name:name,
+      email:email,
+      address:(payload.address||'').trim(),
+      reason:reason,
+      details:details,
+      links:(payload.links||'').trim(),
+      status:'open',
+      created:Date.now()
+    };
+    list.unshift(row);
+    save(REPORTS_KEY,list);
+    return {ok:true,row:row};
+  }
+  function listReports(){return load(REPORTS_KEY,[])||[]}
+  function setReportStatus(id,status){
+    var list=load(REPORTS_KEY,[]);
+    var r=list.find(function(x){return x&&x.id===id});
+    if(!r) return false;
+    r.status=status;r.updated=Date.now();
+    save(REPORTS_KEY,list);return true;
+  }
+
   function isAdmin(){var s=session();return s&&s.isAdmin}
   function adminUsers(){return users().map(function(u){return {id:u.id,email:u.email,name:u.name,verified:u.verified,isAdmin:u.isAdmin,created:u.created,donors:(u.donors||[]).length,chats:(u.chats||[]).length}})}
 
-  // Merge localStorage campaigns + sample campaigns (samples win only if not already in storage)
   function getAllCampaigns(){
     var stored = load(CAMPS_KEY,[]);
     if(!Array.isArray(stored)) stored = [];
     var byId = {};
     stored.forEach(function(c){ if(c && c.id) byId[c.id] = c; });
-
     if (typeof SAMPLES !== 'undefined' && Array.isArray(SAMPLES)) {
       SAMPLES.forEach(function(s){
         if (!s || !s.id) return;
         if (!byId[s.id]) {
-          // Clone sample so we never mutate the original
           byId[s.id] = Object.assign({}, s, {
             status: s.status || 'pending',
             donationLink: s.donationLink || ''
@@ -209,17 +242,13 @@
     return Object.keys(byId).map(function(k){ return byId[k]; });
   }
 
-  function adminCampaigns(){
-    return getAllCampaigns();
-  }
+  function adminCampaigns(){ return getAllCampaigns(); }
 
-  // Find campaign by id (storage first, then samples)
   function findCampaign(id){
     id = String(id || '');
     var list = load(CAMPS_KEY,[]);
     var c = list.find(function(x){ return x && x.id === id; });
     if (c) return { campaign: c, fromStorage: true };
-
     if (typeof SAMPLES !== 'undefined' && Array.isArray(SAMPLES)) {
       var s = SAMPLES.find(function(x){ return x && x.id === id; });
       if (s) return { campaign: Object.assign({}, s), fromStorage: false };
@@ -227,13 +256,10 @@
     return null;
   }
 
-  // Ensure a campaign exists in localStorage (promotes samples)
   function ensureInStorage(id){
     var found = findCampaign(id);
     if (!found) return null;
     if (found.fromStorage) return found.campaign;
-
-    // Promote sample into storage
     var list = load(CAMPS_KEY,[]);
     if (!Array.isArray(list)) list = [];
     var clone = Object.assign({}, found.campaign, {
@@ -288,6 +314,7 @@
     ownsCampaign:ownsCampaign,myCampaigns:myCampaigns,deleteCampaign:deleteCampaign,
     shortLink:shortLink,realShareUrl:realShareUrl,trackClick:trackClick,getClicks:getClicks,clicksForUser:clicksForUser,
     requestWithdraw:requestWithdraw,listWithdrawals:listWithdrawals,setWithdrawStatus:setWithdrawStatus,
+    submitReport:submitReport,listReports:listReports,setReportStatus:setReportStatus,
     isAdmin:isAdmin,adminUsers:adminUsers,adminCampaigns:adminCampaigns,
     setCampaignStatus:setCampaignStatus,setCampaignDonationLink:setCampaignDonationLink,
     updateCampaignRaised:updateCampaignRaised,getAllCampaigns:getAllCampaigns,
