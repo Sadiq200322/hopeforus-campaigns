@@ -96,7 +96,7 @@ th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #eee;vertical-ali
       <button type="button" id="photoBtn">Change photo</button>
       <button type="button" data-tab="donations">Donations Received</button>
       <button type="button" data-tab="settings">Account settings</button>
-      <button type="button" data-tab="admin" id="adminMenu" class="hide">Waiting</button>
+      <button type="button" data-tab="admin" id="adminMenu" class="hide">Approve</button>
       <a href="/create-campaign.html">Start a new fundraiser</a>
       <button type="button" id="lo">Sign out</button>
     </div>
@@ -109,7 +109,7 @@ th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #eee;vertical-ali
     <button class="side" data-tab="donations" type="button"><i>♡</i> Donations</button>
     <button class="side" data-tab="transfers" type="button"><i>$</i> Transfers</button>
     <button class="side" data-tab="updates" type="button"><i>✎</i> Updates</button>
-    <button class="side hide" id="adminNav" data-tab="admin" type="button"><i>◷</i> Waiting</button>
+    <button class="side hide" id="adminNav" data-tab="admin" type="button"><i>✓</i> Approve</button>
   </aside>
   <main id="main"></main>
 </div>
@@ -163,7 +163,7 @@ function render(){
   if(HF.isAdmin&&HF.isAdmin()){
     var waitN=(HF.adminCampaigns()||[]).filter(function(c){return c&&c.status!=='approved'&&c.status!=='rejected'}).length;
     var nav=document.getElementById('adminNav');
-    if(nav) nav.innerHTML='<i>◷</i> Waiting'+(waitN?' ('+waitN+')':'');
+    if(nav) nav.innerHTML='<i>✓</i> Approve'+(waitN?' ('+waitN+')':'');
   }
   var box=document.getElementById('main'), all=camps(), list=all, m=money(all), html='';
   if(HF.isAdmin&&HF.isAdmin() && tab==='home') list=all.filter(function(c){return c.status==='approved'});
@@ -267,7 +267,7 @@ function render(){
     if(!(HF.isAdmin&&HF.isAdmin())) tab='home';
     else {
       var waiting=(HF.adminCampaigns()||[]).filter(function(c){ return c && c.status!=='approved' && c.status!=='rejected'; });
-      var htmlA='<div class="pane"><h1>Waiting for approval</h1><p class="sub">These campaigns are not on the dashboard yet. Approve one and it moves there.</p>';
+      var htmlA='<div class="pane"><h1>Approve</h1><p class="sub">Every campaign a user creates lands here. Approve it and it goes on the dashboard and the main page.</p>';
       if(!waiting.length) htmlA+='<p class="note">Nothing is waiting.</p>';
       htmlA+='<div class="camp-grid">';
       waiting.forEach(function(c){
@@ -284,7 +284,7 @@ function render(){
     }
   }
   if(tab==='home'){
-    html='<div class="pane"><div class="card" style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;padding:22px 26px;background:#f6f1dc;border:0;font-size:1.05rem"><div><strong>Great work</strong><div class="note" style="margin:0">Next payout '+nextPayout()+'</div></div><p>Gifts can be withdrawn 10 days after they arrive. Payouts go out on the 10th and 25th.</p></div>'
+    html='<div class="pane">'+(location.search.indexOf('submitted=1')>=0?'<p class="note" style="margin-bottom:12px">Submitted. It stays under Approve until it is let out.</p>':'')+'<div class="card" style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;padding:22px 26px;background:#f6f1dc;border:0;font-size:1.05rem"><div><strong>Great work</strong><div class="note" style="margin:0">Next payout '+nextPayout()+'</div></div><p>Gifts can be withdrawn 10 days after they arrive. Payouts go out on the 10th and 25th.</p></div>'
       +'<div class="stats" style="margin-top:16px"><div class="stat">Withdrawn<b>$'+m.withdrawn.toLocaleString()+'</b><span>Already paid out</span></div><div class="stat">Balance<b>$'+m.balance.toLocaleString()+'</b><span>Still yours</span></div><div class="stat">Available<b>$'+m.available.toLocaleString()+'</b><span>Ready to request</span></div><div class="stat">On hold<b>$'+m.hold.toLocaleString()+'</b><span>Waiting 10 days</span></div></div>';
     if(!list.length) html+='<p class="sub">No campaigns yet. <a href="/create-campaign.html">Start one</a>.</p>';
     html+='<div class="camp-grid">';
@@ -431,7 +431,7 @@ document.getElementById('homeBtn').onclick=function(){location.href='/'};
 document.getElementById('lo').onclick=function(){HF.logout();location.href='/login.html'};
 document.getElementById('photoBtn').onclick=function(){document.getElementById('photoFile').click()};
 document.getElementById('photoFile').onchange=function(){var f=this.files&&this.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){av=rd.result;localStorage.setItem('hf_avatar_'+u.email,av);drawAv()};rd.readAsDataURL(f)};
-document.querySelectorAll('[data-tab]').forEach(function(el){el.addEventListener('click',function(){if(el.id)return;setTab(el.getAttribute('data-tab'))})});
+document.querySelectorAll('[data-tab]').forEach(function(el){el.addEventListener('click',function(){setTab(el.getAttribute('data-tab'))})});
 document.addEventListener('pointerdown',function(e){var m=document.getElementById('menu');if(!m.contains(e.target)&&e.target!==document.getElementById('avBtn')) m.classList.add('hide')});
 drawAv(); render();
 </script>
