@@ -22,7 +22,7 @@
   document.head.appendChild(style);
 
   function markReveal(){
-    var sels=['.campaign-card','.section','.card','.share-promo','.hero','.how','.disc','.topics','.tr','.yel','.stat'];
+    var sels=['.section','.share-promo','.hero','.how','.disc','.topics','.tr','.yel','.stat'];
     sels.forEach(function(sel){
       document.querySelectorAll(sel).forEach(function(el){
         if(!el.classList.contains('hf-reveal')) el.classList.add('hf-reveal');

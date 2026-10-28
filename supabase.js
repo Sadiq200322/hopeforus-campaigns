@@ -52,13 +52,24 @@
         if(String(u).indexOf('http')===0){ img=u; break; }
       }
     }
-    media=media.filter(function(m){ return m && m.type!=='share' && m.kind!=='share'; });
+    var giftDonors=[];
+    var giftSum=0;
+    media.forEach(function(m){
+      if(!m || m.type!=='gift') return;
+      var amt=Number(m.amount)||0;
+      giftSum+=amt;
+      giftDonors.push({name:m.donor||m.name||'Anonymous', amount:amt, note:m.note||'', giftId:m.id||'', time:''});
+    });
+    media=media.filter(function(m){ return m && m.type!=='share' && m.kind!=='share' && m.type!=='gift'; });
+    var raised=Math.max(Number(r.raised)||0, giftSum);
+    var donations=Math.max(Number(r.donations)||0, giftDonors.length);
     return {
       id:r.id, title:r.title||'', story:r.story||'',
       ownerEmail:r.owner_email||'', organizerEmail:r.owner_email||'', organizer:r.organizer||'',
-      goal:Number(r.goal)||0, raised:Number(r.raised)||0, donations:Number(r.donations)||0,
+      goal:Number(r.goal)||0, raised:raised, donations:donations,
       image:img, image_url:img,
       media:media,
+      donors:giftDonors,
       status:r.status||'pending', donationLink:r.donation_link||'',
       code:codeFromMedia(r.media)||'',
       createdAt:r.created_at||''
@@ -125,6 +136,16 @@
       });
     });
   }
+  function findOwner(email){
+    email=String(email||'').toLowerCase().trim();
+    if(!email) return Promise.resolve(null);
+    return fetch(URL+'/rest/v1/campaigns?owner_email=eq.'+encodeURIComponent(email)+'&status=neq.deleted&select=id,organizer,owner_email&limit=1',{headers:headers()}).then(function(r){
+      return r.json().then(function(data){
+        if(!r.ok || !data || !data[0]) return null;
+        return {email:email, name:data[0].organizer||email.split('@')[0]};
+      });
+    }).catch(function(){ return null; });
+  }
   function remove(id){
     return update(id, {status:'deleted'}).catch(function(){
       return fetch(URL+'/rest/v1/campaigns?id=eq.'+encodeURIComponent(id),{
@@ -133,5 +154,5 @@
       });
     });
   }
-  w.HFDB={url:URL, save:save, update:update, remove:remove, list:list, one:one, upload:upload, campFrom:campFrom, rowFrom:rowFrom};
+  w.HFDB={url:URL, save:save, update:update, remove:remove, list:list, one:one, upload:upload, campFrom:campFrom, rowFrom:rowFrom, findOwner:findOwner};
 })(window);
