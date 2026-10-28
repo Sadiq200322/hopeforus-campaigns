@@ -22,9 +22,21 @@ header{position:sticky;top:0;z-index:40;height:56px;display:flex;align-items:cen
 .av img{width:100%;height:100%;object-fit:cover}
 .menu{position:absolute;right:12px;top:52px;width:210px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 32px rgba(0,0,0,.18);z-index:50}
 .menu button,.menu a{display:block;width:100%;text-align:left;padding:12px 14px;background:none;border:0;color:var(--ink);font:inherit;font-size:.92rem;text-decoration:none;cursor:pointer}
-.layout{max-width:1100px;margin:0 auto;display:flex}
-aside{display:none;width:210px;padding:18px 12px}
-@media(min-width:800px){aside{display:block}body{padding-bottom:24px}.mob{display:none!important}}
+.layout{width:100%;display:flex}
+.layout > aside{display:none;width:230px;flex:0 0 230px;padding:18px 12px}
+@media(min-width:800px){.layout > aside{display:block}body{padding-bottom:24px}.mob{display:none!important}main{padding:22px 32px 40px}}
+.home-grid{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:1000px){.home-grid{grid-template-columns:1.5fr .9fr;align-items:stretch}}
+.hero{background:linear-gradient(160deg,#7c3aed,#4c1d95);color:#fff;border-radius:24px;padding:22px 24px;min-height:240px}
+.hero h2{font-size:clamp(2rem,4vw,3rem);letter-spacing:-.03em;margin:8px 0 4px}
+.hero p{opacity:.92}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{background:rgba(255,255,255,.18);border-radius:999px;padding:8px 14px;font-weight:700;font-size:.88rem}
+.plan{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:18px 18px 8px}
+.task{display:flex;justify-content:space-between;gap:12px;padding:14px 0;border-top:1px solid var(--line);font-size:.95rem}
+.camp-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px}
+@media(min-width:900px){.camp-grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1280px){.camp-grid{grid-template-columns:1fr 1fr 1fr}}
 .side{display:flex;align-items:center;gap:8px;width:100%;border:0;background:transparent;color:var(--ink);font:inherit;font-weight:650;font-size:.92rem;padding:8px 10px;border-radius:999px;cursor:pointer;margin-bottom:4px}
 .side.on{background:var(--nav)}
 .side i{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--soft);font-style:normal}
@@ -154,15 +166,33 @@ function render(){
     return;
   }
   if(tab==='home'){
-    html='<h1>Your fundraisers</h1><p class="sub">Payouts on the 10th and 25th, 10 days after a gift. Next: '+nextPayout()+'.</p>'
-      +'<div class="stats"><div class="stat">Withdrawn<b>$'+m.withdrawn.toLocaleString()+'</b><span>Already paid out</span></div><div class="stat">Balance<b>$'+m.balance.toLocaleString()+'</b><span>Still in the account</span></div><div class="stat">Available<b>$'+m.available.toLocaleString()+'</b><span>Payout '+nextPayout()+'</span></div><div class="stat">On hold<b>$'+m.hold.toLocaleString()+'</b><span>Waiting 10 days</span></div></div>';
-    if(!list.length) html+='<p class="sub">No campaigns yet. <a href="create-campaign.html">Start one</a>.</p>';
-    list.forEach(function(c){
-      var goal=Number(c.goal)||1, pct=Math.min(100,Math.round(((Number(c.raised)||0)/goal)*100));
-      html+='<article class="camp"><button class="camp-top" data-open="'+esc(c.id)+'" type="button"><img src="'+esc(c.image||'')+'" alt=""><div class="body"><strong>'+esc(c.title||'Campaign')+'</strong><div class="bar"><i style="width:'+pct+'%"></i></div><div>$'+(Number(c.raised)||0).toLocaleString()+' raised of $'+goal.toLocaleString()+'</div></div></button>';
-      if(openId===c.id) html+='<div class="acts"><button type="button" data-edit="'+esc(c.id)+'">Edit</button><button class="go" type="button" data-share="'+esc(c.code||c.id)+'">Share</button><button class="bad" type="button" data-del="'+esc(c.id)+'">Delete</button></div>';
-      html+='</article>';
-    });
+    var donors=list.reduce(function(n,c){return n+(Number(c.donations)||0)},0);
+    var shares=0;
+    try{shares=(HF.clicksForUser(u.email)||[]).reduce(function(n,x){return n+((x.clicks&&x.clicks.total)||0)},0)}catch(e){}
+    var top=list[0];
+    html='<h1>Today</h1><p class="sub">Payouts on the 10th and 25th. Next: '+nextPayout()+'.</p>'
+      +'<div class="stats"><div class="stat">Withdrawn<b>$'+m.withdrawn.toLocaleString()+'</b><span>Already paid out</span></div><div class="stat">Balance<b>$'+m.balance.toLocaleString()+'</b><span>Still in the account</span></div><div class="stat">Available<b>$'+m.available.toLocaleString()+'</b><span>Ready to request</span></div><div class="stat">On hold<b>$'+m.hold.toLocaleString()+'</b><span>Waiting 10 days</span></div></div>'
+      +'<div class="home-grid">';
+    if(top){
+      var tg=Number(top.goal)||1, tp=Math.min(100,Math.round(((Number(top.raised)||0)/tg)*100));
+      html+='<section class="hero"><div>'+tp+'% of goal</div><h2>$'+(Number(top.raised)||0).toLocaleString()+' raised</h2><p>'+esc(top.title||'Your fundraiser')+'</p><div class="chips"><span class="chip">'+donors+' Donors</span><span class="chip">'+shares+' Shares</span><span class="chip">'+shares+' Views</span></div><button class="btn" style="background:#fff;color:#4C1D95;margin-top:18px" type="button" data-share="'+esc(top.code||top.id)+'">Share</button></section>';
+    }else{
+      html+='<section class="hero"><h2>Start a fundraiser</h2><p>Your page will show the amount raised, donors, and shares here.</p><a class="btn" style="display:inline-flex;align-items:center;background:#fff;color:#4C1D95;text-decoration:none;margin-top:18px" href="create-campaign.html">Get started</a></section>';
+    }
+    html+='<aside class="plan"><strong>Today\'s plan</strong><span class="note" style="float:right">3 tasks</span>'
+      +'<div class="task"><span>Share your link with 5 people</span><span>→</span></div>'
+      +'<div class="task"><span>Post an update so donors see progress</span><span>→</span></div>'
+      +'<div class="task"><span>Add a clear photo to the fundraiser</span><span>→</span></div></aside></div>';
+    if(list.length){
+      html+='<div class="camp-grid">';
+      list.forEach(function(c){
+        var goal=Number(c.goal)||1, pct=Math.min(100,Math.round(((Number(c.raised)||0)/goal)*100));
+        html+='<article class="camp"><button class="camp-top" data-open="'+esc(c.id)+'" type="button"><img src="'+esc(c.image||'')+'" alt=""><div class="body"><strong>'+esc(c.title||'Campaign')+'</strong><div class="bar"><i style="width:'+pct+'%"></i></div><div>$'+(Number(c.raised)||0).toLocaleString()+' raised of $'+goal.toLocaleString()+'</div></div></button>';
+        if(openId===c.id) html+='<div class="acts"><button type="button" data-edit="'+esc(c.id)+'">Edit</button><button class="go" type="button" data-share="'+esc(c.code||c.id)+'">Share</button><button class="bad" type="button" data-del="'+esc(c.id)+'">Delete</button></div>';
+        html+='</article>';
+      });
+      html+='</div>';
+    }
   }else if(tab==='donations'){
     html='<h1>Donations Received</h1><p class="sub">$' + m.received.toLocaleString() + ' total. The day\'s total and who gave are emailed by the team. This desk does not send that email.</p><div class="card" style="padding:14px"><p class="note">Donor names show here when gifts are recorded. Until then you still see the totals above on Dashboard.</p></div>';
   }else if(tab==='transfers'){
