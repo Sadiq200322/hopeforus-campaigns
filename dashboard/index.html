@@ -550,9 +550,12 @@ function pullServer(){
         return;
       }
       var cur=by[c.id]||{};
+      var keepRaised=Math.max(Number(cur.raised)||0, Number(c.raised)||0);
+      var keepDons=Math.max(Number(cur.donations)||0, Number(c.donations)||0);
       var code=c.code||cur.code||'';
       if(c.id==='c_mvs4qsny' && (!code || code===c.id)) code='EEPBA7';
-      by[c.id]=Object.assign({}, cur, c, {code:code, image:(c.image&&String(c.image).indexOf('data:')!==0)?c.image:(cur.image||c.image||'')});
+      by[c.id]=Object.assign({}, cur, c, {code:code, raised:keepRaised, donations:keepDons, image:(c.image&&String(c.image).indexOf('data:')!==0)?c.image:(cur.image||c.image||'')});
+      if(keepRaised>(Number(c.raised)||0) && window.HFDB && HFDB.update){ HFDB.update(c.id,{raised:keepRaised, donations:keepDons}).catch(function(){}); }
     });
     try{localStorage.setItem('hopeforus_campaigns', JSON.stringify(Object.keys(by).map(function(k){return by[k]})));}catch(e){}
   }).catch(function(){});
