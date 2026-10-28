@@ -32,12 +32,12 @@ aside{display:none;width:210px;padding:18px 12px}
 main{flex:1;min-width:0;padding:18px 14px 24px}
 h1{font-size:1.25rem;font-weight:800}
 .sub{color:var(--muted);font-size:.88rem;margin:4px 0 14px;line-height:1.45}
-.stats{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:14px}
-@media(min-width:640px){.stats{grid-template-columns:1fr 1fr 1fr}}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+@media(min-width:800px){.stats{grid-template-columns:repeat(4,1fr)}}
 .stat,.card,.camp{background:var(--card);border:1px solid var(--line);border-radius:16px}
-.stat{padding:14px}
-.stat b{display:block;font-size:1.45rem;margin-top:4px}
-.stat span{color:var(--muted);font-size:.75rem}
+.stat{padding:8px 10px}
+.stat b{display:block;font-size:1.05rem;margin-top:2px}
+.stat span{color:var(--muted);font-size:.68rem}
 .camp{overflow:hidden;margin-bottom:10px}
 .camp-top{display:flex;flex-direction:column;width:100%;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
 @media(min-width:640px){.camp-top{flex-direction:row}}
@@ -119,7 +119,9 @@ function money(list){
     var at=Date.parse(c.createdAt||c.created||'')||now;
     if(now-at>=ten) ready+=amt; else hold+=amt;
   });
-  return {received:received,hold:hold,ready:ready};
+  var wd=(HF.listWithdrawals(u.email)||[]).filter(function(w){return w.status!=='rejected'&&w.status!=='cancelled'});
+  var withdrawn=wd.reduce(function(n,w){return n+(Number(w.amount)||0)},0);
+  return {received:received,hold:hold,ready:ready,withdrawn:withdrawn,balance:Math.max(0,received-withdrawn),available:Math.max(0,ready-withdrawn)};
 }
 function nextPayout(){
   var n=new Date(), d=n.getDate(), t=d<10?new Date(n.getFullYear(),n.getMonth(),10):d<25?new Date(n.getFullYear(),n.getMonth(),25):new Date(n.getFullYear(),n.getMonth()+1,10);
@@ -152,8 +154,8 @@ function render(){
     return;
   }
   if(tab==='home'){
-    html='<h1>Your fundraisers</h1><p class="sub">A gift can be withdrawn 10 days after it arrives. Payouts are sent on the 10th and 25th. Next: '+nextPayout()+'.</p>'
-      +'<div class="stats"><div class="stat">Total received<b>$'+m.received.toLocaleString()+'</b><span>All gifts so far</span></div><div class="stat">On hold<b>$'+m.hold.toLocaleString()+'</b><span>Waiting 10 days</span></div><div class="stat">Available<b>$'+m.ready.toLocaleString()+'</b><span>Next payout '+nextPayout()+'</span></div></div>';
+    html='<h1>Your fundraisers</h1><p class="sub">Payouts on the 10th and 25th, 10 days after a gift. Next: '+nextPayout()+'.</p>'
+      +'<div class="stats"><div class="stat">Withdrawn<b>$'+m.withdrawn.toLocaleString()+'</b><span>Already paid out</span></div><div class="stat">Balance<b>$'+m.balance.toLocaleString()+'</b><span>Still in the account</span></div><div class="stat">Available<b>$'+m.available.toLocaleString()+'</b><span>Payout '+nextPayout()+'</span></div><div class="stat">On hold<b>$'+m.hold.toLocaleString()+'</b><span>Waiting 10 days</span></div></div>';
     if(!list.length) html+='<p class="sub">No campaigns yet. <a href="create-campaign.html">Start one</a>.</p>';
     list.forEach(function(c){
       var goal=Number(c.goal)||1, pct=Math.min(100,Math.round(((Number(c.raised)||0)/goal)*100));
@@ -165,7 +167,7 @@ function render(){
     html='<h1>Donations Received</h1><p class="sub">$' + m.received.toLocaleString() + ' total. The day\'s total and who gave are emailed by the team. This desk does not send that email.</p><div class="card" style="padding:14px"><p class="note">Donor names show here when gifts are recorded. Until then you still see the totals above on Dashboard.</p></div>';
   }else if(tab==='transfers'){
     var wd=HF.listWithdrawals(u.email);
-    html='<h1>Transfers</h1><p class="sub">Available to request: $'+m.ready.toLocaleString()+'. On hold: $'+m.hold.toLocaleString()+'. Sent on the 10th and 25th, and only after 10 days.</p><div class="card" style="padding:14px"><div class="pills">'
+    html='<h1>Transfers</h1><p class="sub">Available: $'+m.available.toLocaleString()+'. Balance: $'+m.balance.toLocaleString()+'. Withdrawn: $'+m.withdrawn.toLocaleString()+'.</p><div class="card" style="padding:14px"><div class="pills">'
       +['usdt','btc','mtn','airtel'].map(function(x){return '<button type="button" class="pill'+(method===x?' on':'')+'" data-method="'+x+'">'+x.toUpperCase()+'</button>'}).join('')
       +'</div><div id="extra"></div><label>Amount (USD)</label><input id="amt" inputmode="decimal" placeholder="100"><label>Note</label><input id="note" placeholder="Optional"><button class="btn" id="wBtn" type="button">Request withdrawal</button><p class="note" id="wMsg"></p></div>';
     html+='<div class="card" style="padding:14px;margin-top:10px"><strong>Your requests</strong>';
@@ -197,11 +199,11 @@ function render(){
   }
   var wBtn=document.getElementById('wBtn');
   if(wBtn) wBtn.onclick=function(){
-    var ready=money(camps()).ready;
+    var available=money(camps()).available;
     var amount=parseFloat(document.getElementById('amt').value);
     var msg=document.getElementById('wMsg');
     if(!(amount>0)){msg.textContent='Enter an amount.';return}
-    if(amount>ready){msg.textContent='Only $'+ready.toLocaleString()+' is available. The rest is still inside the 10-day hold.';return}
+    if(amount>available){msg.textContent='Only $'+available.toLocaleString()+' is available. The rest is still inside the 10-day hold.';return}
     var r=HF.requestWithdraw({method:method,address:(document.getElementById('addr')||{}).value||'',accountName:(document.getElementById('aname')||{}).value||'',amount:amount,note:document.getElementById('note').value,network:method==='usdt'?'TRC20':method.toUpperCase()});
     msg.textContent=r.ok?'Requested. It goes out on the next 10th or 25th.':(r.err||'Could not request');
     if(r.ok) setTimeout(render,600);
