@@ -207,6 +207,18 @@
     addNotice({email:'all', title:title, body:String(body||'').trim(), kind:'update'});
     return {ok:true};
   }
+  function syncRaisedToRemote(id, raised, donations){
+    if(!w.HFDB || !id) return;
+    var patch = {};
+    if(typeof raised === 'number') patch.raised = raised;
+    if(typeof donations === 'number') patch.donations = donations;
+    if(!Object.keys(patch).length) return;
+    HFDB.update(id, patch).then(function(){
+      var list = load(CAMPS_KEY,[]);
+      var c = list.find(function(x){return x && x.id === id;});
+      if(c && w.HFShared && HFShared.push) HFShared.push(c);
+    }).catch(function(e){ console.warn('Raised sync failed', e); });
+  }
   function addGift(payload){
     var u=session(); if(!u||!u.isAdmin) return {ok:false, err:'Admin only'};
     var camps=getAllCampaigns();
@@ -219,15 +231,18 @@
     var row={id:'g_'+Date.now().toString(36), campaignId:c.id, code:c.code||c.id, title:c.title, ownerEmail:owner, donor:donor, amount:amount, note:String(payload.note||'').trim(), at:Date.now()};
     var gifts=load(GIFTS_KEY,[]); gifts.unshift(row); save(GIFTS_KEY,gifts);
     var saved=ensureInStorage(c.id);
+    var newRaised = (Number(c.raised)||0)+amount;
+    var newDons = (Number(c.donations)||0)+1;
     if(saved){
       var list=load(CAMPS_KEY,[]);
       var target=list.find(function(x){return x&&x.id===c.id});
       if(target){
-        target.raised=(Number(c.raised)||0)+amount;
-        target.donations=(Number(c.donations)||0)+1;
+        target.raised=newRaised;
+        target.donations=newDons;
         if(!Array.isArray(target.donors)) target.donors=[];
         target.donors.unshift({name:donor, amount:amount, time:'Just now', giftId:row.id});
         save(CAMPS_KEY, list);
+        syncRaisedToRemote(c.id, newRaised, newDons);
       }
     }
     if(owner) addNotice({email:owner, title:donor+' donated $'+amount, body:c.title, kind:'donation'});
@@ -334,7 +349,7 @@
         if (!s || !s.id) return;
         if (!byId[s.id]) {
           byId[s.id] = Object.assign({}, s, {
-            status: s.status || 'pending',
+            status: s.status || 'approved',
             donationLink: s.donationLink || ''
           });
         }
@@ -364,7 +379,7 @@
     var list = load(CAMPS_KEY,[]);
     if (!Array.isArray(list)) list = [];
     var clone = Object.assign({}, found.campaign, {
-      status: found.campaign.status || 'pending',
+      status: found.campaign.status || 'approved',
       donationLink: found.campaign.donationLink || ''
     });
     list.unshift(clone);
@@ -406,6 +421,7 @@
     if (typeof raised === 'number') target.raised = raised;
     if (typeof donations === 'number') target.donations = donations;
     save(CAMPS_KEY, list);
+    syncRaisedToRemote(id, target.raised, target.donations);
     return true;
   }
 
