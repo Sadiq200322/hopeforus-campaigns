@@ -41,6 +41,16 @@ input:focus{outline:none;border-color:#7C3AED}
   <input type="password" id="pass" placeholder="Your password" autocomplete="current-password">
   <p class="err" id="err"></p>
   <button type="button" class="pbtn" id="go">Sign in</button>
+  <div id="codeBox" style="display:none">
+    <label>Code from your email</label>
+    <input id="code" inputmode="numeric" placeholder="6-digit code" autocomplete="one-time-code">
+    <div id="newPass" style="display:none">
+      <label>New password</label>
+      <input id="np" type="password" placeholder="At least 6 characters">
+    </div>
+    <button type="button" class="pbtn" id="useCode">Continue</button>
+  </div>
+  <p class="home"><a href="#" id="sendCode">Email me a code</a> · <a href="#" id="resetLink">Reset password</a></p>
   <p class="home">New here? <a href="/start">Start a fundraiser</a></p>
 </div>
 <script src="/app.js"></script>
@@ -55,6 +65,36 @@ input:focus{outline:none;border-color:#7C3AED}
     location.replace('/dashboard/#admin');
     return;
   }
+  var mode='login';
+  function showErr(t){var err=document.getElementById('err'); err.textContent=t||''; err.classList.toggle('show', !!t)}
+  function mail(email, code){
+    return fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      service_id:'service_w6qtun6', template_id:'template_zukhkib', user_id:'HHYAAwQ9y_LhuJ7qR',
+      template_params:{to_email:email, email:email, user_name:'HopeForUs', otp_code:code, passcode:code, site_name:'Use this code to sign in or reset your HopeForUs password. It expires in 15 minutes.'}
+    })});
+  }
+  function after(user){
+    if(user&&user.isAdmin) location.href='/dashboard/#admin';
+    else location.href=(returnTo && returnTo.indexOf('http')!==0 && returnTo.indexOf('admin')===-1)?returnTo:'/dashboard/';
+  }
+  document.getElementById('sendCode').onclick=function(e){e.preventDefault(); mode='code'; document.getElementById('newPass').style.display='none'; ask()};
+  document.getElementById('resetLink').onclick=function(e){e.preventDefault(); mode='reset'; document.getElementById('newPass').style.display='block'; ask()};
+  function ask(){
+    var email=document.getElementById('email').value.trim().toLowerCase();
+    showErr('');
+    if(email.indexOf('@')<0){showErr('Enter the email on the account.');return}
+    var r=HF.beginCode(email);
+    if(!r.ok){showErr(r.err);return}
+    document.getElementById('codeBox').style.display='block';
+    mail(email, r.code).then(function(res){showErr(res.ok?'Code sent to '+email+'.':'Could not email the code. Try again.')}).catch(function(){showErr('Could not email the code. Try again.')});
+  }
+  document.getElementById('useCode').onclick=function(){
+    var email=document.getElementById('email').value.trim().toLowerCase();
+    var code=document.getElementById('code').value.trim();
+    var r=mode==='reset'?HF.resetPassword(email, code, document.getElementById('np').value):HF.loginWithCode(email, code);
+    if(!r.ok){showErr(r.err);return}
+    after(r.user);
+  };
   document.getElementById('go').onclick = function(){
     var email = document.getElementById('email').value.trim().toLowerCase();
     var pass  = document.getElementById('pass').value;
@@ -62,12 +102,8 @@ input:focus{outline:none;border-color:#7C3AED}
     err.classList.remove('show');
     if (!email || !pass) { err.textContent = 'Enter email and password.'; err.classList.add('show'); return; }
     var result = HF.login(email, pass);
-    if (!result.ok) { err.textContent = result.err || 'Login failed.'; err.classList.add('show'); return; }
-    if (result.user && result.user.isAdmin) {
-      location.href = '/dashboard/#admin';
-    } else {
-      location.href = (returnTo && returnTo.indexOf('http') !== 0 && returnTo.indexOf('admin') === -1) ? returnTo : '/dashboard/';
-    }
+    if (!result.ok) { showErr(result.err || 'Email or password is incorrect.'); return; }
+    after(result.user);
   };
   document.getElementById('pass').addEventListener('keydown', function(e){ if (e.key === 'Enter') document.getElementById('go').click(); });
 })();
