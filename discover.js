@@ -40,7 +40,7 @@
     var filter=window.currentFilter||"all";
     var source=window.ALL||[];
     var filtered=source.filter(function(x){
-      if(!x||!x.c||!x.src)return false;
+      if(!x||!x.c)return false;
       if(filter==="all")return true;
       var cat=(x.c.category||"").toLowerCase();
       return cat===filter||cat.indexOf(filter)!==-1;
@@ -65,7 +65,7 @@
       var p=Math.min(100,Math.round((Number(c.raised)||0)/Math.max(1,Number(c.goal)||1)*100));
       var b=badge(c);
       var bhtml=b?'<span class="donation-badge">'+b+'</span>':"";
-      return '<a class="campaign-card '+cls+'" href="campaign.html?id='+encodeURIComponent(c.id)+'"><div class="image-container"><img class="card-image" src="'+x.src+'" alt="" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=720&h=405&fit=crop&auto=format&q=70\'">'+bhtml+'</div><div class="card-content"><h3 class="card-title">'+esc(c.title)+'</h3><div class="progress-track"><div class="progress-fill" style="width:'+p+'%"></div></div><span class="raised-label">'+money(c.raised,c.currency)+' raised</span></div></a>';
+      return '<a class="campaign-card '+cls+'" href="campaign.html?id='+encodeURIComponent(c.id)+'"><div class="image-container"><img class="card-image" src="'+(x.src||'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=720&h=405&fit=crop&auto=format&q=70')+'" alt="" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=720&h=405&fit=crop&auto=format&q=70\'">'+bhtml+'</div><div class="card-content"><h3 class="card-title">'+esc(c.title)+'</h3><div class="progress-track"><div class="progress-fill" style="width:'+p+'%"></div></div><span class="raised-label">'+money(c.raised,c.currency)+' raised</span></div></a>';
     }
     var fh=card(filtered[0],"featured");
     if(filtered.length>1){
