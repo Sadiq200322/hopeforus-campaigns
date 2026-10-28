@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Dashboard – HopeForUs</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f6f7f8;--card:#fff;--ink:#1c1c1c;--muted:#6b6b6b;--line:#ececec;--soft:#f3f3f3;--nav:#ece7f8;--nav-i:#ddd4f5;--brand:#4C1D95;--brand-t:#fff}
+[data-theme="dark"]{--bg:#0c0c0f;--card:#17171c;--ink:#f5f5f5;--muted:#a1a1aa;--line:#2c2c34;--soft:#222228;--nav:#2a2144;--nav-i:#3d2d6b;--brand:#c4b5fd;--brand-t:#1a102c}
+body{font-family:Inter,system-ui,sans-serif;background:#f3f2ef;color:#1c1c1c;min-height:100vh}
+header{position:sticky;top:0;z-index:40;height:64px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 22px;background:#f7f6f4;border-bottom:1px solid #eceae6}
+.logo{justify-self:center;display:flex;align-items:center;gap:8px;font-weight:800;color:#4C1D95;background:none;border:0;font:inherit;cursor:pointer;font-size:1.25rem}
+.logo img{width:28px;height:28px}
+.search{justify-self:start;background:none;border:0;font:inherit;font-weight:650;cursor:pointer;color:#333}
+.tools{justify-self:end;display:flex;align-items:center;gap:8px;position:relative}
+.av{width:36px;height:36px;border-radius:50%;background:#4C1D95;color:#fff;font-weight:800;border:0;cursor:pointer;overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover}
+.menu{position:absolute;right:0;top:46px;width:220px;background:#fff;border:1px solid #eee;border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.12);z-index:50;padding:6px 0}
+.menu button,.menu a{display:block;width:100%;text-align:left;padding:11px 16px;background:none;border:0;color:#1c1c1c;font:inherit;font-size:.95rem;text-decoration:none;cursor:pointer}
+.menu button:hover,.menu a:hover{background:#f6f5f3}
+.layout{display:flex;min-height:calc(100vh - 64px);width:100%}
+.layout > aside{display:none;width:280px;flex:0 0 280px;padding:32px 20px}
+@media(min-width:800px){.layout > aside{display:block}body{padding-bottom:0}.mob{display:none!important}}
+.pane{width:100%}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+@media(min-width:800px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stat{padding:22px 20px}
+.stat b{display:block;font-size:1.8rem;margin-top:6px}
+.stat span{color:#777;font-size:.85rem}
+.side{display:flex;align-items:center;gap:14px;width:100%;border:0;background:transparent;color:#1c1c1c;font:inherit;font-weight:700;font-size:1.2rem;padding:12px 14px;border-radius:999px;cursor:pointer;margin-bottom:10px}
+.side.on{background:#ece7f8}
+.side i{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#eceae6;font-style:normal;font-size:1.2rem}
+.side.on i{background:#ddd4f5;color:#4C1D95}
+main{flex:1;min-width:0;padding:28px 20px 88px}
+@media(min-width:800px){main{padding:32px 36px 48px}}
+h1{font-size:1.25rem;font-weight:800}
+.sub{color:#6b6b6b;font-size:1rem;margin:4px 0 14px;line-height:1.45}
+.stat,.card,.camp{background:#fff;border:1px solid #e7e5e1;border-radius:18px;color:#1c1c1c}
+.camp{overflow:hidden}
+.camp-grid{display:flex;flex-direction:column;gap:14px;margin-top:18px}
+.bar{height:6px;background:#ececec;border-radius:99px;margin:10px 0 6px;overflow:hidden}
+.camp-top{display:flex;flex-direction:column;width:100%;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
+@media(min-width:640px){.camp-top{flex-direction:row}}
+.camp img{width:100%;height:150px;object-fit:cover}
+@media(min-width:640px){.camp img{width:160px;height:auto}}
+.camp .body{padding:14px;flex:1}
+.bar i{display:block;height:100%;background:#02a95c}
+.acts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
+.acts button{height:40px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);font-weight:700;cursor:pointer}
+.acts .go{background:#4C1D95;color:#fff;border-color:#4C1D95}
+.acts .bad{color:#f87171;border-color:transparent}
+label{display:block;font-size:.75rem;font-weight:700;margin:10px 0 4px}
+input,textarea,select{width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:10px 12px;font:inherit}
+textarea{min-height:110px}
+.btn{margin-top:12px;height:42px;padding:0 16px;border:0;border-radius:999px;background:#4C1D95;color:#fff;font-weight:800;cursor:pointer}
+.row{display:flex;gap:8px}
+.pills{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(min-width:640px){.pills{grid-template-columns:repeat(4,1fr)}}
+.pill{height:40px;border-radius:999px;border:0;background:var(--soft);color:var(--ink);font-weight:700;cursor:pointer}
+.pill.on{background:#4C1D95;color:#fff}
+.donor{display:flex;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.donor:last-child{border:0}
+.dot{width:40px;height:40px;border-radius:50%;background:#2e2458;color:#ddd6fe;display:grid;place-items:center;font-weight:800}
+[data-theme="light"] .dot{background:#ede9fe;color:#4C1D95}
+.mob{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:40}
+.mob button{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;color:#6b6b6b;font-size:11px;font-weight:700;padding:8px 0 6px;cursor:pointer}
+.mob button svg{width:22px;height:22px}
+.mob button.on{color:#4C1D95}
+.hide{display:none!important}
+.note{font-size:.8rem;color:var(--muted);margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #eee;vertical-align:top}
+.badge{display:inline-block;padding:3px 8px;border-radius:999px;font-size:.75rem;font-weight:700}
+.badge.pending{background:#fef3c7;color:#92400e}.badge.approved{background:#d1fae5;color:#065f46}.badge.rejected{background:#fee2e2;color:#991b1b}
+.admin-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
+.admin-tabs button{height:40px;padding:0 14px;border-radius:999px;border:1px solid #e5e5e5;background:#fff;font-weight:700;cursor:pointer}
+.admin-tabs button.on{background:#4C1D95;color:#fff;border-color:#4C1D95}
+</style>
+</head>
+<body>
+<header>
+  <button class="search" id="searchBtn" type="button">Search</button>
+  <button class="logo" id="homeBtn" type="button"><img src="/logo-mark.svg" alt=""> HopeForUs</button>
+  <div class="tools">
+    <button class="av" id="avBtn" type="button">J</button>
+    <div class="menu hide" id="menu">
+      <button type="button" id="photoBtn">Change photo</button>
+      <button type="button" data-tab="donations">Donations Received</button>
+      <button type="button" data-tab="settings">Account settings</button>
+      <button type="button" data-tab="admin" id="adminMenu" class="hide">Admin settings</button>
+      <a href="/create-campaign.html">Start a new fundraiser</a>
+      <button type="button" id="lo">Sign out</button>
+    </div>
+  </div>
+</header>
+<input id="photoFile" type="file" accept="image/*" class="hide">
+<div class="layout">
+  <aside>
+    <button class="side on" data-tab="home" type="button"><i>⌂</i> Dashboard</button>
+    <button class="side" data-tab="donations" type="button"><i>♡</i> Donations</button>
+    <button class="side" data-tab="transfers" type="button"><i>$</i> Transfers</button>
+    <button class="side" data-tab="updates" type="button"><i>✎</i> Updates</button>
+    <button class="side hide" id="adminNav" data-tab="admin" type="button"><i>⚙</i> Admin</button>
+  </aside>
+  <main id="main"></main>
+</div>
+<nav class="mob">
+  <button type="button" data-tab="home" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>Home</button>
+  <button type="button" data-tab="donations"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-9a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 4.6-7 9-7 9z"/></svg>Donations</button>
+  <button type="button" data-tab="transfers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18M5 10V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3M5 10v8h14v-8"/><path d="M12 13v3"/></svg>Transfers</button>
+  <button type="button" data-tab="updates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6h14M5 12h9M5 18h6"/></svg>Updates</button>
+</nav>
+<script src="/app.js"></script>
+<script>
+var u=HF.session();
+if(!u){ location.replace('/login.html?return='+encodeURIComponent('/dashboard/')); throw 0; }
+var tab=(HF.isAdmin&&HF.isAdmin()&&location.hash==='#admin')?'admin':'home', openId='', editId='', method='usdt', adminView='overview';
+var av=localStorage.getItem('hf_avatar_'+u.email)||'';
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function camps(){return HF.myCampaigns(u)||[]}
+function money(list){
+  var now=Date.now(), ten=10*86400000, received=0, hold=0, ready=0;
+  list.forEach(function(c){
+    var amt=Number(c.raised)||0; received+=amt;
+    var at=Date.parse(c.createdAt||c.created||'')||now;
+    if(now-at>=ten) ready+=amt; else hold+=amt;
+  });
+  var wd=(HF.listWithdrawals(u.email)||[]).filter(function(w){return w.status!=='rejected'&&w.status!=='cancelled'});
+  var withdrawn=wd.reduce(function(n,w){return n+(Number(w.amount)||0)},0);
+  return {received:received,hold:hold,ready:ready,withdrawn:withdrawn,balance:Math.max(0,received-withdrawn),available:Math.max(0,ready-withdrawn)};
+}
+function nextPayout(){
+  var n=new Date(), d=n.getDate(), t=d<10?new Date(n.getFullYear(),n.getMonth(),10):d<25?new Date(n.getFullYear(),n.getMonth(),25):new Date(n.getFullYear(),n.getMonth()+1,10);
+  return t.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+}
+function saveCamp(c){
+  var list=[]; try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
+  var i=list.findIndex(function(x){return x&&x.id===c.id});
+  if(i>=0){list[i].title=c.title;list[i].story=c.story;list[i].goal=c.goal;localStorage.setItem('hopeforus_campaigns',JSON.stringify(list))}
+}
+function updates(){try{return JSON.parse(localStorage.getItem('hf_updates_'+u.email)||'[]')}catch(e){return []}}
+function saveUpdates(list){localStorage.setItem('hf_updates_'+u.email,JSON.stringify(list))}
+function drawAv(){
+  var b=document.getElementById('avBtn');
+  b.innerHTML=av?'<img alt="" src="'+av+'">':esc((u.name||u.email||'J').slice(0,1).toUpperCase());
+}
+function setTab(name){tab=name;openId='';editId='';document.getElementById('menu').classList.add('hide');if(name==='admin')location.hash='admin';else if(location.hash==='#admin')history.replaceState(null,'',location.pathname);render()}
+function render(){
+  document.querySelectorAll('[data-tab]').forEach(function(el){el.classList.toggle('on', el.getAttribute('data-tab')===tab)});
+  var box=document.getElementById('main'), list=camps(), m=money(list), html='';
+  if(editId){
+    var c=list.find(function(x){return x.id===editId});
+    if(!c){editId='';render();return}
+    html='<div class="pane"><form id="editForm" class="card" style="padding:16px"><img src="'+esc(c.image||'')+'" alt="" style="width:100%;height:160px;object-fit:cover;border-radius:12px;margin-bottom:12px">'
+      +'<h1>Edit campaign</h1><label>Name</label><input id="eTitle" value="'+esc(c.title)+'"><label>Story</label><textarea id="eStory">'+esc(c.story||'')+'</textarea><label>Goal (USD)</label><input id="eGoal" value="'+esc(c.goal)+'">'
+      +'<p class="note">$'+(Number(c.raised)||0).toLocaleString()+' already raised. That number stays.</p><div class="row"><button class="btn" type="submit">Save</button><button class="btn" type="button" id="back" style="background:transparent;color:#333;border:1px solid #e5e5e5">Back</button></div></form></div>';
+    box.innerHTML=html;
+    document.getElementById('back').onclick=function(){editId='';render()};
+    document.getElementById('editForm').onsubmit=function(e){e.preventDefault();c.title=document.getElementById('eTitle').value.trim()||c.title;c.story=document.getElementById('eStory').value.trim();c.goal=Number(document.getElementById('eGoal').value)||c.goal;saveCamp(c);editId='';render()};
+    return;
+  }
+  if(tab==='admin'){
+    if(!(HF.isAdmin&&HF.isAdmin())) tab='home';
+    else {
+      var users=HF.adminUsers(), campsAll=HF.adminCampaigns(), wdAll=HF.listWithdrawals(), reps=HF.listReports?HF.listReports():[];
+      var views=['overview','users','campaigns','withdrawals','reports'];
+      var htmlA='<div class="pane"><h1>Admin settings</h1><div class="admin-tabs">';
+      views.forEach(function(v){ htmlA+='<button type="button" data-av="'+v+'" class="'+(adminView===v?'on':'')+'">'+v.charAt(0).toUpperCase()+v.slice(1)+'</button>'; });
+      htmlA+='</div>';
+      if(adminView==='overview'){
+        var pending=campsAll.filter(function(c){return (c.status||'pending')==='pending'||!c.donationLink}).length;
+        var openR=reps.filter(function(r){return r.status==='open'}).length;
+        htmlA+='<div class="stats"><div class="stat">Users<b>'+users.length+'</b><span>Accounts</span></div><div class="stat">Campaigns<b>'+campsAll.length+'</b><span>'+pending+' need a link</span></div><div class="stat">Withdrawals<b>'+wdAll.filter(function(w){return w.status==='pending'}).length+'</b><span>Waiting to pay</span></div><div class="stat">Reports<b>'+openR+'</b><span>Open</span></div></div>';
+      } else if(adminView==='users'){
+        htmlA+='<div class="card" style="padding:8px 12px;overflow-x:auto"><table><tr><th>Name</th><th>Email</th><th>Verified</th><th>Joined</th></tr>';
+        users.forEach(function(person){ htmlA+='<tr><td>'+esc(person.name)+(person.isAdmin?' <span class="badge approved">admin</span>':'')+'</td><td>'+esc(person.email)+'</td><td>'+(person.verified?'Yes':'No')+'</td><td>'+(person.created?new Date(person.created).toLocaleDateString():'—')+'</td></tr>'; });
+        htmlA+='</table></div>';
+      } else if(adminView==='campaigns'){
+        htmlA+='<div class="card" style="padding:8px 12px;overflow-x:auto"><table><tr><th>Title</th><th>Owner</th><th>Status</th><th>Donation link</th><th></th></tr>';
+        campsAll.forEach(function(c){
+          var st=c.status||'pending';
+          htmlA+='<tr><td>'+esc(c.title||c.id)+'</td><td>'+esc(c.ownerEmail||c.organizer||'')+'</td><td><span class="badge '+(st==='rejected'?'rejected':st==='pending'?'pending':'approved')+'">'+esc(st)+'</span></td>';
+          htmlA+='<td><input data-link="'+esc(c.id)+'" value="'+esc(c.donationLink||'')+'" placeholder="https://"></td>';
+          htmlA+='<td><button class="btn" type="button" data-save="'+esc(c.id)+'" style="margin:0 6px 0 0">Save</button><button class="btn" type="button" data-st="approved" data-cid="'+esc(c.id)+'" style="margin:0 6px 0 0">Approve</button><button class="btn" type="button" data-st="rejected" data-cid="'+esc(c.id)+'" style="background:#fee2e2;color:#991b1b">Reject</button></td></tr>';
+        });
+        htmlA+='</table></div>';
+      } else if(adminView==='withdrawals'){
+        htmlA+='<div class="card" style="padding:8px 12px;overflow-x:auto"><table><tr><th>User</th><th>Method</th><th>Amount</th><th>Details</th><th>Status</th><th></th></tr>';
+        wdAll.forEach(function(w){
+          htmlA+='<tr><td>'+esc(w.email)+'</td><td>'+esc(String(w.method||'').toUpperCase())+'</td><td>$'+esc(w.amount)+'</td><td>'+esc(w.accountName||'')+' '+esc(w.address||'')+'</td><td><span class="badge '+(w.status==='approved'?'approved':w.status==='rejected'?'rejected':'pending')+'">'+esc(w.status)+'</span></td><td>';
+          if(w.status==='pending') htmlA+='<button class="btn" type="button" data-w="'+esc(w.id)+'" data-ws="approved" style="margin:0 6px 0 0">Pay</button><button class="btn" type="button" data-w="'+esc(w.id)+'" data-ws="rejected" style="background:#fee2e2;color:#991b1b">Reject</button>';
+          htmlA+='</td></tr>';
+        });
+        htmlA+='</table></div>';
+      } else {
+        htmlA+='<div class="card" style="padding:8px 12px;overflow-x:auto"><table><tr><th>When</th><th>Campaign</th><th>Reason</th><th>Reporter</th><th>Status</th><th></th></tr>';
+        reps.forEach(function(r){
+          htmlA+='<tr><td>'+(r.created?new Date(r.created).toLocaleString():'')+'</td><td>'+esc(r.campaignTitle||r.campaignId||'')+'</td><td>'+esc(r.reason)+'</td><td>'+esc(r.name)+' '+esc(r.email)+'</td><td>'+esc(r.status)+'</td><td>';
+          if(r.status==='open') htmlA+='<button class="btn" type="button" data-rid="'+esc(r.id)+'" data-rs="resolved" style="margin-right:6px">Resolve</button><button class="btn" type="button" data-rid="'+esc(r.id)+'" data-rs="dismissed" style="background:#fee2e2;color:#991b1b">Dismiss</button>';
+          htmlA+='</td></tr>';
+        });
+        if(!reps.length) htmlA+='<tr><td colspan="6">No reports yet.</td></tr>';
+        htmlA+='</table></div>';
+      }
+      htmlA+='</div>';
+      box.innerHTML=htmlA;
+      box.querySelectorAll('[data-av]').forEach(function(b){b.onclick=function(){adminView=b.getAttribute('data-av');render()}});
+      box.querySelectorAll('[data-save]').forEach(function(b){b.onclick=function(){
+        var id=b.getAttribute('data-save'); var inp=box.querySelector('[data-link="'+id+'"]'); var url=(inp&&inp.value||'').trim();
+        if(url && url.indexOf('http')!==0){alert('Link must start with https://');return}
+        HF.setCampaignDonationLink(id,url); if(url) HF.setCampaignStatus(id,'approved'); render();
+      }});
+      box.querySelectorAll('[data-st]').forEach(function(b){b.onclick=function(){HF.setCampaignStatus(b.getAttribute('data-cid'), b.getAttribute('data-st')); render()}});
+      box.querySelectorAll('[data-w]').forEach(function(b){b.onclick=function(){HF.setWithdrawStatus(b.getAttribute('data-w'), b.getAttribute('data-ws')); render()}});
+      box.querySelectorAll('[data-rid]').forEach(function(b){b.onclick=function(){HF.setReportStatus(b.getAttribute('data-rid'), b.getAttribute('data-rs')); render()}});
+      return;
+    }
+  }
+  if(tab==='home'){
+    html='<div class="pane"><div class="card" style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;padding:22px 26px;background:#f6f1dc;border:0;font-size:1.05rem"><div><strong>Great work</strong><div class="note" style="margin:0">Next payout '+nextPayout()+'</div></div><p>Gifts can be withdrawn 10 days after they arrive. Payouts go out on the 10th and 25th.</p></div>'
+      +'<div class="stats" style="margin-top:16px"><div class="stat">Withdrawn<b>$'+m.withdrawn.toLocaleString()+'</b><span>Already paid out</span></div><div class="stat">Balance<b>$'+m.balance.toLocaleString()+'</b><span>Still yours</span></div><div class="stat">Available<b>$'+m.available.toLocaleString()+'</b><span>Ready to request</span></div><div class="stat">On hold<b>$'+m.hold.toLocaleString()+'</b><span>Waiting 10 days</span></div></div>';
+    if(!list.length) html+='<p class="sub">No campaigns yet. <a href="create-campaign.html">Start one</a>.</p>';
+    html+='<div class="camp-grid">';
+    list.forEach(function(c){
+      var goal=Number(c.goal)||1, pct=Math.min(100,Math.round(((Number(c.raised)||0)/goal)*100));
+      html+='<article class="camp"><button class="camp-top" data-open="'+esc(c.id)+'" type="button"><img src="'+esc(c.image||'')+'" alt=""><div class="body"><strong>'+esc(c.title||'Campaign')+'</strong><div class="bar"><i style="width:'+pct+'%"></i></div><div>$'+(Number(c.raised)||0).toLocaleString()+' raised of $'+goal.toLocaleString()+'</div></div></button>';
+      if(openId===c.id) html+='<div class="acts"><button type="button" data-edit="'+esc(c.id)+'">Edit</button><button class="go" type="button" data-share="'+esc(c.code||c.id)+'">Share</button><button class="bad" type="button" data-del="'+esc(c.id)+'">Delete</button></div>';
+      html+='</article>';
+    });
+    html+='</div></div>';
+  }else if(tab==='donations'){
+    html='<div class="pane"><h1>Donations Received</h1><p class="sub">$' + m.received.toLocaleString() + ' total. The day\'s total and who gave are emailed by the team. This desk does not send that email.</p><div class="card" style="padding:14px"><p class="note">Donor names show here when gifts are recorded.</p></div></div>';
+  }else if(tab==='transfers'){
+    var wd=HF.listWithdrawals(u.email);
+    html='<div class="pane"><h1>Transfers</h1><p class="sub">Available: $'+m.available.toLocaleString()+'. Balance: $'+m.balance.toLocaleString()+'. Withdrawn: $'+m.withdrawn.toLocaleString()+'.</p><div class="card" style="padding:14px"><div class="pills">'
+      +['usdt','btc','mtn','airtel'].map(function(x){return '<button type="button" class="pill'+(method===x?' on':'')+'" data-method="'+x+'">'+x.toUpperCase()+'</button>'}).join('')
+      +'</div><div id="extra"></div><label>Amount (USD)</label><input id="amt" inputmode="decimal" placeholder="100"><label>Note</label><input id="note" placeholder="Optional"><button class="btn" id="wBtn" type="button">Request withdrawal</button><p class="note" id="wMsg"></p></div>';
+    html+='<div class="card" style="padding:14px;margin-top:10px"><strong>Your requests</strong>';
+    if(!wd.length) html+='<p class="note">None yet.</p>';
+    else wd.forEach(function(w){html+='<div class="donor"><div style="flex:1"><strong>$'+w.amount+'</strong> · '+esc(w.method).toUpperCase()+'<div class="note">'+esc(w.status)+'</div></div></div>'});
+    html+='</div></div>';
+  }else if(tab==='updates'){
+    var posts=updates();
+    html='<div class="pane"><h1>Updates</h1><p class="sub">Post under a campaign. You can add pictures.</p><div class="card" style="padding:14px"><label>Campaign</label><select id="ucamp">'+list.map(function(c){return '<option value="'+esc(c.id)+'">'+esc(c.title)+'</option>'}).join('')+'</select><label>Update</label><textarea id="utext"></textarea><label class="btn" style="display:inline-flex;align-items:center">Add pictures<input id="upics" type="file" accept="image/*" multiple class="hide"></label><div id="uprev" class="row" style="margin-top:8px"></div><button class="btn" id="upost" type="button">Post update</button></div>';
+    posts.forEach(function(p){
+      var c=list.find(function(x){return x.id===p.camp});
+      html+='<div class="card" style="padding:14px;margin-top:10px"><strong>'+esc(c?c.title:'Campaign')+'</strong><p style="margin-top:8px">'+esc(p.text)+'</p>';
+      (p.photos||[]).forEach(function(src){html+='<img src="'+src+'" alt="" style="width:72px;height:72px;object-fit:cover;border-radius:8px;margin:8px 8px 0 0">'});
+      html+='</div>';
+    });
+    html+='</div>';
+  }else if(tab==='settings'){
+    html='<div class="pane"><h1>Account settings</h1><div class="card" style="padding:16px;margin-top:12px"><p>'+esc(u.name||'')+'</p><p class="note">'+esc(u.email)+'</p><label>New email</label><input id="nem" value="'+esc(u.email)+'"><button class="btn" id="saveEm" type="button">Save email</button><label>New password</label><input id="pw1" type="password"><label>Confirm</label><input id="pw2" type="password"><button class="btn" id="savePw" type="button">Save password</button><p class="note" id="setMsg"></p></div></div>';
+  }
+  box.innerHTML=html;
+  box.querySelectorAll('[data-open]').forEach(function(b){b.onclick=function(){openId=openId===b.getAttribute('data-open')?'':b.getAttribute('data-open');render()}});
+  box.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){editId=b.getAttribute('data-edit');render()}});
+  box.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){if(confirm('Delete this campaign?')){HF.deleteCampaign(b.getAttribute('data-del'));render()}}});
+  box.querySelectorAll('[data-share]').forEach(function(b){b.onclick=function(){var link=HF.shortLink(b.getAttribute('data-share'));navigator.clipboard&&navigator.clipboard.writeText(link);b.textContent='Copied'}});
+  box.querySelectorAll('[data-method]').forEach(function(b){b.onclick=function(){method=b.getAttribute('data-method');render()}});
+  var extra=document.getElementById('extra');
+  if(extra){
+    if(method==='mtn'||method==='airtel') extra.innerHTML='<label>Name on the account</label><input id="aname" placeholder="Full name"><label>Phone number</label><input id="addr" placeholder="07…">';
+    else extra.innerHTML='<label>'+method.toUpperCase()+' wallet</label><input id="addr" placeholder="Wallet address">';
+  }
+  var wBtn=document.getElementById('wBtn');
+  if(wBtn) wBtn.onclick=function(){
+    var available=money(camps()).available;
+    var amount=parseFloat(document.getElementById('amt').value);
+    var msg=document.getElementById('wMsg');
+    if(!(amount>0)){msg.textContent='Enter an amount.';return}
+    if(amount>available){msg.textContent='Only $'+available.toLocaleString()+' is available. The rest is still inside the 10-day hold.';return}
+    var r=HF.requestWithdraw({method:method,address:(document.getElementById('addr')||{}).value||'',accountName:(document.getElementById('aname')||{}).value||'',amount:amount,note:document.getElementById('note').value,network:method==='usdt'?'TRC20':method.toUpperCase()});
+    msg.textContent=r.ok?'Requested. It goes out on the next 10th or 25th.':(r.err||'Could not request');
+    if(r.ok) setTimeout(render,600);
+  };
+  var upost=document.getElementById('upost');
+  if(upost){
+    var pics=[];
+    document.getElementById('upics').onchange=function(){
+      pics=[]; var files=this.files||[]; var left=files.length;
+      if(!left){document.getElementById('uprev').innerHTML='';return}
+      Array.prototype.forEach.call(files,function(file){
+        var rd=new FileReader();
+        rd.onload=function(){pics.push(rd.result); if(!--left){document.getElementById('uprev').innerHTML=pics.map(function(s){return '<img src="'+s+'" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:8px">'}).join('')}};
+        rd.readAsDataURL(file);
+      });
+    };
+    upost.onclick=function(){
+      var text=document.getElementById('utext').value.trim();
+      if(!text&&!pics.length) return;
+      var all=updates(); all.unshift({camp:document.getElementById('ucamp').value,text:text,photos:pics.slice(0,4)});
+      saveUpdates(all); render();
+    };
+  }
+  var saveEm=document.getElementById('saveEm');
+  if(saveEm){
+    saveEm.onclick=function(){
+      var email=document.getElementById('nem').value.trim().toLowerCase();
+      var msg=document.getElementById('setMsg');
+      if(email.indexOf('@')<0){msg.textContent='Enter a valid email.';return}
+      var users=JSON.parse(localStorage.getItem('hopeforus_users')||'[]');
+      var me=users.find(function(x){return x.email===u.email});
+      if(me){me.email=email;localStorage.setItem('hopeforus_users',JSON.stringify(users));u.email=email;localStorage.setItem('hopeforus_user',JSON.stringify(u));msg.textContent='Email updated.'}
+    };
+    document.getElementById('savePw').onclick=function(){
+      var a=document.getElementById('pw1').value, b=document.getElementById('pw2').value, msg=document.getElementById('setMsg');
+      if(a.length<6){msg.textContent='Password needs 6 characters.';return}
+      if(a!==b){msg.textContent='Passwords do not match.';return}
+      var users=JSON.parse(localStorage.getItem('hopeforus_users')||'[]');
+      var me=users.find(function(x){return x.email===u.email});
+      if(me){var s='hf_'+a+'_salt'; try{me.pass=btoa(unescape(encodeURIComponent(s))).slice(0,48)}catch(e){me.pass=s} localStorage.setItem('hopeforus_users',JSON.stringify(users)); msg.textContent='Password updated.'}
+    };
+  }
+}
+if(HF.isAdmin&&HF.isAdmin()){document.getElementById('adminNav').classList.remove('hide');document.getElementById('adminMenu').classList.remove('hide')}
+document.getElementById('searchBtn').onclick=function(){location.href='/'};
+document.getElementById('avBtn').onclick=function(){document.getElementById('menu').classList.toggle('hide')};
+document.getElementById('homeBtn').onclick=function(){location.href='/'};
+document.getElementById('lo').onclick=function(){HF.logout();location.href='login.html'};
+document.getElementById('photoBtn').onclick=function(){document.getElementById('photoFile').click()};
+document.getElementById('photoFile').onchange=function(){var f=this.files&&this.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){av=rd.result;localStorage.setItem('hf_avatar_'+u.email,av);drawAv()};rd.readAsDataURL(f)};
+document.querySelectorAll('[data-tab]').forEach(function(el){el.addEventListener('click',function(){if(el.id)return;setTab(el.getAttribute('data-tab'))})});
+document.addEventListener('pointerdown',function(e){var m=document.getElementById('menu');if(!m.contains(e.target)&&e.target!==document.getElementById('avBtn')) m.classList.add('hide')});
+drawAv(); render();
+</script>
+</body>
+</html>
