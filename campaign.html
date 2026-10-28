@@ -155,38 +155,48 @@ if(!c){
   return;
 }
 (function(){
+  function norm(s){return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"")}
   var giftList=[];
   try{giftList=JSON.parse(localStorage.getItem("hopeforus_gifts")||"[]")}catch(e){}
   if(!Array.isArray(giftList)) giftList=[];
+  var urlId=norm(id);
+  var cid=norm(c.id);
+  var ccode=norm(c.code);
+  var ctitle=norm(c.title);
   var mine=giftList.filter(function(g){
     if(!g) return false;
-    if(String(g.campaignId)===String(c.id)) return true;
-    return String(g.title||"")===String(c.title||"");
+    var gid=norm(g.campaignId);
+    var gt=norm(g.title);
+    if(gid && (gid===cid || gid===ccode || gid===urlId)) return true;
+    if(gt && ctitle && (gt===ctitle || (gt.length>12 && (ctitle.indexOf(gt)===0 || gt.indexOf(ctitle)===0)))) return true;
+    return false;
   });
-  if(!mine.length) return;
   var sample=null;
   if(typeof SAMPLES!=="undefined"&&Array.isArray(SAMPLES)){
-    for(var i=0;i<SAMPLES.length;i++){ if(SAMPLES[i]&&SAMPLES[i].id===c.id){ sample=SAMPLES[i]; break; } }
+    for(var i=0;i<SAMPLES.length;i++){ if(SAMPLES[i]&&(SAMPLES[i].id===c.id||norm(SAMPLES[i].id)===urlId)){ sample=SAMPLES[i]; break; } }
   }
+  var lead=[];
+  var seen={};
+  function pushDonor(d){
+    if(!d) return;
+    var key=norm(d.name)+"|"+Number(d.amount||0)+"|"+(d.giftId||"");
+    if(seen[key]) return;
+    seen[key]=1;
+    lead.push(d);
+  }
+  mine.forEach(function(g){ pushDonor({name:g.donor||"Anonymous", amount:Number(g.amount)||0, time:"Just now", giftId:g.id}); });
+  (Array.isArray(c.donors)?c.donors:[]).forEach(function(d){ if(d&&(d.giftId||d.time==="Just now")) pushDonor(d); });
+  var base=(sample&&Array.isArray(sample.donors))?sample.donors:(Array.isArray(c.donors)?c.donors:[]);
+  base.forEach(function(d){ if(d&&!d.giftId && d.time!=="Just now") pushDonor(d); });
+  if(lead.length) c.donors=lead;
   var giftSum=0;
   mine.forEach(function(g){ giftSum+=Number(g.amount)||0; });
-  var baseRaised=sample?Number(sample.raised)||0:Number(c.raised)||0;
-  var baseCount=sample?Number(sample.donations)||0:(Number(c.donations)||0);
-  var baseDonors=(sample&&Array.isArray(sample.donors))?sample.donors.slice():(Array.isArray(c.donors)?c.donors.slice():[]);
-  if(!sample){
-    var seen={};
-    baseDonors.forEach(function(d){ if(d&&d.giftId) seen[d.giftId]=1; });
-    var missing=mine.filter(function(g){ return !seen[g.id]; });
-    c.donors=missing.map(function(g){ return {name:g.donor||"Anonymous", amount:Number(g.amount)||0, time:"Just now", giftId:g.id}; }).concat(baseDonors);
-    return;
+  if(sample && giftSum){
+    var baseRaised=Number(sample.raised)||0;
+    var stored=Number(c.raised)||0;
+    c.raised=Math.max(stored, baseRaised+giftSum);
+    c.donations=Math.max(Number(c.donations)||0, (Number(sample.donations)||0)+mine.length);
   }
-  var stored=Number(c.raised)||0;
-  var already=sample && stored+0.01>=baseRaised+giftSum && stored<=baseRaised+giftSum+0.5;
-  c.raised=already?stored:baseRaised+giftSum;
-  c.donations=already?(Number(c.donations)||baseCount+mine.length):baseCount+mine.length;
-  c.donors=mine.map(function(g){
-    return {name:g.donor||"Anonymous", amount:Number(g.amount)||0, time:"Just now"};
-  }).concat(baseDonors);
 })();
 var raised=Number(c.raised)||0,goal=Math.max(1,Number(c.goal)||1);
 var p=Math.min(100,Math.round(raised/goal*100));
