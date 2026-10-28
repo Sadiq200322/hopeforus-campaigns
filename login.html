@@ -58,7 +58,8 @@ code{font-size:.85rem}
   <div class="panel" id="code">
     <div class="steps"><i class="on" id="c1"></i><i id="c2"></i></div>
     <div id="codeStep1">
-      <label>Email</label>
+      <p class="sub" id="codeWho" style="margin-top:0">Enter the email on the account.</p>
+      <label id="cemailLabel">Email</label>
       <input type="email" id="cemail" placeholder="you@email.com" autocomplete="username">
       <p class="err" id="cerr"></p>
       <p class="ok" id="cok"></p>
@@ -113,7 +114,19 @@ code{font-size:.85rem}
     document.getElementById('title').textContent = titles[name][0];
     document.getElementById('sub').textContent = titles[name][1];
   }
-  document.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){show(b.getAttribute('data-view'))}});
+  document.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){
+    var name=b.getAttribute('data-view');
+    if(name==='code'){
+      var known=document.getElementById('email').value.trim().toLowerCase();
+      if(known.indexOf('@')>0){
+        document.getElementById('cemail').value=known;
+        document.getElementById('cemail').style.display='none';
+        document.getElementById('cemailLabel').style.display='none';
+        document.getElementById('codeWho').textContent='We will send the code to '+known+'. You only enter the code next.';
+      }
+    }
+    show(name);
+  }});
   if(location.hash==='#code') show('code');
   if(location.hash==='#reset') show('reset');
 
