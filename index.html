@@ -69,7 +69,7 @@
 </div>
 </div>
 </div>
-</footer><script src="ui.js?v=4"></script><script src="app.js"></script><script src="shared-camps.js"></script><script src="clear-test-data.js"></script><script src="campaigns-data.js"></script><script src="how-works.js"></script><script src="discover.js"></script><script>
+</footer><script src="ui.js?v=4"></script><script src="app.js"></script><script src="supabase.js"></script><script src="shared-camps.js"></script><script src="clear-test-data.js"></script><script src="campaigns-data.js"></script><script src="how-works.js"></script><script src="discover.js"></script><script>
 if(typeof SAMPLES==="undefined")var SAMPLES=[];
 function esc(s){var a=String.fromCharCode(38);return String(s||"").replace(/&/g,a+"amp;").replace(/</g,a+"lt;").replace(/>/g,a+"gt;").replace(/"/g,a+"quot;")}
 function money(n,c){c=c||"USD";var s=Number(n).toLocaleString();return c==="EUR"?"\u20ac"+s:c==="GBP"?"\u00a3"+s:"$"+s}
@@ -179,6 +179,11 @@ window.renderCampaigns=renderCampaigns;
     });
     try{localStorage.setItem("hopeforus_campaigns",JSON.stringify(list))}catch(e){}
     paint();
+  }
+  if(window.HFDB){
+    HFDB.list().then(function(rows){
+      (rows||[]).forEach(function(c){ if(c&&c.status==='approved') addRemote([c]); });
+    }).catch(function(){});
   }
   if(window.HFShared){ HFShared.pull().then(addRemote).catch(function(){ paint(); }); }
   else paint();
