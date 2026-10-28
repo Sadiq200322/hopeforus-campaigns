@@ -1,9 +1,13 @@
 /* HopeForUs mobile-first + no layout leaks */
 html,body{overflow-x:hidden!important;max-width:100vw!important}
-.disc .in,.topics .in,.how-in,.stats,.hero,.wrap{
+@media(max-width:859px){
+.disc .in,.topics .in,.how-in,.stats,.hero,.wrap,.ftop-in,.tr-in,.ft-grid,.ft-bar,.ft-note{
   max-width:100%!important;
   padding-left:max(16px,env(safe-area-inset-left))!important;
   padding-right:max(16px,env(safe-area-inset-right))!important;
+}
+.discover-grid,.more-grid{grid-template-columns:1fr!important}
+.ftop-hero,.tr-in{grid-template-columns:1fr!important}
 }
 .hdr{
   max-width:100%!important;
