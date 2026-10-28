@@ -212,7 +212,18 @@
     var owner=String(c.ownerEmail||c.organizerEmail||'').toLowerCase();
     var row={id:'g_'+Date.now().toString(36), campaignId:c.id, title:c.title, ownerEmail:owner, donor:donor, amount:amount, note:String(payload.note||'').trim(), at:Date.now()};
     var gifts=load(GIFTS_KEY,[]); gifts.unshift(row); save(GIFTS_KEY,gifts);
-    updateCampaignRaised(c.id, (Number(c.raised)||0)+amount, (Number(c.donations)||0)+1);
+    var saved=ensureInStorage(c.id);
+    if(saved){
+      var list=load(CAMPS_KEY,[]);
+      var target=list.find(function(x){return x&&x.id===c.id});
+      if(target){
+        target.raised=(Number(c.raised)||0)+amount;
+        target.donations=(Number(c.donations)||0)+1;
+        if(!Array.isArray(target.donors)) target.donors=[];
+        target.donors.unshift({name:donor, amount:amount, time:'Just now', giftId:row.id});
+        save(CAMPS_KEY, list);
+      }
+    }
     if(owner) addNotice({email:owner, title:donor+' donated $'+amount, body:c.title, kind:'donation'});
     return {ok:true, row:row};
   }
