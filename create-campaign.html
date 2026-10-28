@@ -31,9 +31,11 @@ input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:12
 .chip.on{border-color:var(--p);background:var(--soft);color:var(--pd)}
 .choice{display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;padding:16px;border:1.5px solid var(--line);border-radius:14px;background:#fff;margin-bottom:10px}
 .choice.on{border-color:var(--p);background:var(--soft)}
-.amt{display:flex;align-items:center;height:56px;border:1.5px solid var(--line);border-radius:14px;padding:0 14px;gap:8px}
-.amt input{border:0;padding:0;font-size:1.05rem;font-weight:600}
-.amt .cur{background:var(--panel);border-radius:8px;padding:4px 8px;font-size:.75rem;font-weight:700;color:var(--muted)}
+/* Goal amount: USD label left, clear numbers — no overlap */
+.amt{display:flex;align-items:center;height:56px;border:1.5px solid var(--line);border-radius:12px;padding:0 6px 0 12px;gap:10px;background:#fff}
+.amt .cur{flex-shrink:0;background:#f3f4f6;border-radius:8px;padding:6px 10px;font-size:.8rem;font-weight:700;color:#374151;letter-spacing:.02em}
+.amt input{border:0 !important;outline:none;padding:0 10px 0 0 !important;margin:0;font-size:1.15rem;font-weight:700;flex:1;min-width:0;width:auto !important;background:transparent;border-radius:0;height:100%}
+.amt input:focus{outline:none;box-shadow:none}
 .auto{margin-top:16px;background:var(--panel);border-radius:14px;padding:16px}
 .auto .badge{display:inline-block;background:var(--soft);color:var(--p);font-size:.7rem;font-weight:700;padding:3px 8px;border-radius:6px}
 .sw{width:48px;height:28px;border-radius:999px;border:0;background:#d1d5db;position:relative;flex-shrink:0}
@@ -62,13 +64,13 @@ input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:12
 <body>
 <div class="shell">
   <aside class="side">
-    <a class="logo" href="index.html"><img src="logo-mark.svg" alt=""> HopeForUs</a>
+    <a class="logo" href="/"><img src="logo-mark.svg" alt=""> HopeForUs</a>
     <div class="stepn" id="stepn">1 of 6</div>
     <h1 id="stitle">Let's begin your fundraising journey</h1>
     <p id="ssub">We're here to guide you every step of the way.</p>
   </aside>
   <section class="main">
-    <div class="topr" id="topr"><a href="login.html">Sign in</a></div>
+    <div class="topr" id="topr"><a href="/login">Sign in</a></div>
     <div class="body" id="body"></div>
     <div class="foot">
       <div class="prog"><i id="prog"></i></div>
