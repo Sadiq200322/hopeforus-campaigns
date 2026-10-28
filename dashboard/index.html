@@ -76,10 +76,12 @@ th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #eee;vertical-ali
 .badge.pending{background:#fef3c7;color:#92400e}.badge.approved{background:#d1fae5;color:#065f46}.badge.rejected{background:#fee2e2;color:#991b1b}
 .admin-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
 .admin-tabs button{height:40px;padding:0 14px;border-radius:999px;border:1px solid #e5e5e5;background:#fff;font-weight:700;cursor:pointer}
-.approve-card{background:#fff;border:1px solid #eee;border-radius:16px;padding:14px}
-.approve-head{display:flex;gap:14px;align-items:center;width:100%;border:0;background:transparent;text-align:left;padding:0;cursor:pointer}
-.approve-head .shot{width:112px;height:112px;border-radius:14px;object-fit:cover;background:#eee;flex:0 0 112px}
-.story-btn{display:block;width:100%;min-height:52px;margin-top:12px;border-radius:14px;border:1px solid #ddd;background:#f4f0ff;color:#4C1D95;font-weight:800;font-size:16px;cursor:pointer}
+.approve-card{background:#fff;border:1px solid #eee;border-radius:14px;padding:10px 12px}
+.approve-row{display:flex;gap:10px;align-items:center;width:100%;border:0;background:transparent;text-align:left;padding:0;cursor:pointer}
+.approve-row .shot{width:56px;height:56px;border-radius:10px;object-fit:cover;background:#eee;flex:0 0 56px}
+.mini-btn{height:32px;padding:0 12px;border-radius:999px;border:1px solid #e5e5e5;background:#fff;font-size:13px;font-weight:700;cursor:pointer}
+.mini-btn.go{background:#4C1D95;color:#fff;border-color:#4C1D95}
+.mini-btn.bad{background:#fff;color:#b91c1c;border-color:#fecaca}
 .ph{width:128px;flex:0 0 128px}
 .ph img,.ph video{width:128px;height:96px;object-fit:cover;border-radius:12px;background:#eee}
 .ph .mini{display:flex;gap:4px;margin-top:6px}
@@ -289,21 +291,24 @@ function render(){
       if(!waiting.length) htmlA+='<p class="note">'+(q?'No match.':'Nothing is waiting for approval.')+'</p>';
       htmlA+='<div class="camp-grid">';
       waiting.forEach(function(c){
-        var st=c.status==='approved'?'Approved':(c.status==='rejected'?'Rejected':'Waiting');
+        var st=c.status==='rejected'?'Rejected':'Waiting';
         var open=window.reviewId===c.id;
-        var shot=c.image?'<img class="shot" src="'+esc(c.image)+'" alt="">':'<span class="shot"></span>';
-        htmlA+='<article class="approve-card"><button type="button" class="approve-head" data-review="'+esc(c.id)+'">'+shot+'<span><strong style="font-size:1.05rem">'+esc(c.title||'Campaign')+'</strong><span class="note" style="display:block">'+esc(c.ownerEmail||c.organizerEmail||c.organizer||'No email')+' · '+st+'</span></span></button>';
-        htmlA+='<button type="button" class="story-btn" data-review="'+esc(c.id)+'">'+(open?'Hide story':'Open story')+'</button>';
+        var shot=c.image?'<img class="shot" src="'+esc(c.image)+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<span class="shot"></span>';
+        htmlA+='<article class="approve-card"><button type="button" class="approve-row" data-open="'+esc(c.id)+'">'+shot+'<span style="flex:1;min-width:0"><strong>'+esc(c.title||'Campaign')+'</strong><span class="note" style="display:block">'+esc(c.ownerEmail||c.organizerEmail||c.organizer||'No email')+' · '+st+'</span></span></button>';
         if(open){
-          htmlA+='<div style="white-space:pre-wrap;margin:12px 0;line-height:1.55;font-size:1rem">'+esc(c.story||'No story was saved with this campaign.')+'</div>';
+          htmlA+='<div style="white-space:pre-wrap;margin:10px 0 8px;line-height:1.5">'+esc(c.story||'No story was saved with this campaign.')+'</div>';
           htmlA+='<label>Donation link</label><input data-dlink="'+esc(c.id)+'" placeholder="https://" value="'+esc(c.donationLink||'')+'">';
         }
-        htmlA+='<div style="display:flex;gap:8px;margin-top:10px"><button class="btn" type="button" data-st="approved" data-cid="'+esc(c.id)+'" style="width:auto;margin:0">Approve</button><button type="button" data-st="rejected" data-cid="'+esc(c.id)+'" style="height:48px;padding:0 18px;border:0;border-radius:999px;background:#fee2e2;color:#991b1b;font-weight:800;cursor:pointer">Reject</button></div></article>';
+        htmlA+='<div style="display:flex;gap:6px;margin-top:8px"><button class="mini-btn go" type="button" data-st="approved" data-cid="'+esc(c.id)+'">Approve</button><button class="mini-btn bad" type="button" data-st="rejected" data-cid="'+esc(c.id)+'">Reject</button></div></article>';
       });
       htmlA+='</div></div>';
       box.innerHTML=htmlA;
       var aq=document.getElementById('approveQ');
       if(aq) aq.oninput=function(){ window.approveQ=aq.value; render(); aq.focus(); var v=aq.value; aq.setSelectionRange(v.length,v.length); };
+      box.querySelectorAll('[data-open]').forEach(function(b){b.onclick=function(e){
+        e.preventDefault();
+        window.openReview(b.getAttribute('data-open'));
+      }});
       box.querySelectorAll('[data-st]').forEach(function(b){b.onclick=function(){
         var id=b.getAttribute('data-cid');
         var status=b.getAttribute('data-st');
@@ -505,15 +510,11 @@ document.getElementById('lo').onclick=function(){HF.logout();location.href='/log
 document.getElementById('photoBtn').onclick=function(){document.getElementById('photoFile').click()};
 document.getElementById('photoFile').onchange=function(){var f=this.files&&this.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){av=rd.result;localStorage.setItem('hf_avatar_'+u.email,av);drawAv()};rd.readAsDataURL(f)};
 document.querySelectorAll('[data-tab]').forEach(function(el){el.addEventListener('click',function(){setTab(el.getAttribute('data-tab'))})});
-document.addEventListener('click',function(e){
-  var rev=e.target.closest&&e.target.closest('[data-review]');
-  if(!rev) return;
-  e.preventDefault();
-  var id=rev.getAttribute('data-review');
+document.addEventListener('pointerdown',function(e){var m=document.getElementById('menu');if(m&&!m.contains(e.target)&&e.target!==document.getElementById('avBtn')) m.classList.add('hide')});
+window.openReview=function(id){
   window.reviewId=window.reviewId===id?'':id;
   render();
-});
-document.addEventListener('pointerdown',function(e){var m=document.getElementById('menu');if(m&&!m.contains(e.target)&&e.target!==document.getElementById('avBtn')) m.classList.add('hide')});
+};
 drawAv();
 if(window.HFShared){ HFShared.sync().then(function(){ render(); }); }
 else render();
