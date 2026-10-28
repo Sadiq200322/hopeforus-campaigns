@@ -99,24 +99,6 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 <script src="campaigns-data.js"></script>
 <script>
 (function(){
-try {
-  if (!localStorage.getItem('hopeforus_cleared_v3')) {
-    localStorage.removeItem('hopeforus_users');
-    localStorage.removeItem('hopeforus_user');
-    localStorage.removeItem('hopeforus_otp');
-    localStorage.removeItem('hopeforus_pending_donations');
-    var camps = [];
-    try { camps = JSON.parse(localStorage.getItem('hopeforus_campaigns') || '[]'); } catch(e) {}
-    if (Array.isArray(camps)) {
-      camps = camps.filter(function(c) {
-        return c && !c.ownerId && !c.ownerEmail && !c.organizerEmail;
-      });
-      localStorage.setItem('hopeforus_campaigns', JSON.stringify(camps));
-    }
-    localStorage.setItem('hopeforus_cleared_v3', '1');
-  }
-} catch(e) {}
-
 var u=null;try{u=JSON.parse(localStorage.getItem("hopeforus_user")||"null")}catch(e){}
 var ha=document.getElementById("hdrActions");
 if(u&&u.email){
