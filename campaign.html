@@ -97,6 +97,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 <div class="wrap" id="app"><p style="padding:40px;color:#666">Loading campaign…</p></div>
 <footer class="ft">© 2026 HopeForUs</footer>
 <script src="campaigns-data.js"></script>
+<script src="shared-camps.js"></script>
 <script>
 (function(){
 var u=null;try{u=JSON.parse(localStorage.getItem("hopeforus_user")||"null")}catch(e){}
@@ -133,6 +134,14 @@ if(!c&&typeof SAMPLES!=="undefined"){
   for(var j=0;j<SAMPLES.length;j++){if(matchCamp(SAMPLES[j])){c=SAMPLES[j];break}}
 }
 if(!c){
+  if(window.HFShared && !sessionStorage.getItem('hf_pulled_'+id)){
+    sessionStorage.setItem('hf_pulled_'+id,'1');
+    document.getElementById("app").innerHTML='<p style="padding:40px">Loading campaign…</p>';
+    HFShared.pull().then(function(list){ HFShared.merge(list); location.reload(); }).catch(function(){
+      document.getElementById("app").innerHTML='<p style="padding:40px">Campaign not found. <a href="/" style="color:#7C3AED">Back home</a></p>';
+    });
+    return;
+  }
   document.getElementById("app").innerHTML='<p style="padding:40px">Campaign not found. <a href="/" style="color:#7C3AED">Back home</a></p>';
   return;
 }
