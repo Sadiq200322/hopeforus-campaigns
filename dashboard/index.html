@@ -37,8 +37,8 @@ main{flex:1;min-width:0;padding:28px 20px 88px}
 @media(min-width:800px){main{padding:32px 36px 48px}}
 h1{font-size:1.25rem;font-weight:800}
 .sub{color:#6b6b6b;font-size:1rem;margin:4px 0 14px;line-height:1.45}
-.stat,.card,.camp{background:#fff;border:1px solid #e7e5e1;border-radius:18px;color:#1c1c1c}
-.camp{overflow:hidden}
+.stat,.card{background:#fff;border:1px solid #e7e5e1;border-radius:18px;color:#1c1c1c}
+.camp{background:transparent;border:0;border-radius:16px;overflow:hidden;color:inherit;box-shadow:none}
 .camp-grid{display:flex;flex-direction:column;gap:14px;margin-top:18px}
 .bar{height:6px;background:#ececec;border-radius:99px;margin:10px 0 6px;overflow:hidden}
 .camp-top{display:flex;flex-direction:column;width:100%;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
@@ -221,7 +221,7 @@ function render(){
   if(tab==='home'){
     html='<div class="pane"><div class="card" style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;padding:22px 26px;background:#f6f1dc;border:0;font-size:1.05rem"><div><strong>Great work</strong><div class="note" style="margin:0">Next payout '+nextPayout()+'</div></div><p>Gifts can be withdrawn 10 days after they arrive. Payouts go out on the 10th and 25th.</p></div>'
       +'<div class="stats" style="margin-top:16px"><div class="stat">Withdrawn<b>$'+m.withdrawn.toLocaleString()+'</b><span>Already paid out</span></div><div class="stat">Balance<b>$'+m.balance.toLocaleString()+'</b><span>Still yours</span></div><div class="stat">Available<b>$'+m.available.toLocaleString()+'</b><span>Ready to request</span></div><div class="stat">On hold<b>$'+m.hold.toLocaleString()+'</b><span>Waiting 10 days</span></div></div>';
-    if(!list.length) html+='<p class="sub">No campaigns yet. <a href="create-campaign.html">Start one</a>.</p>';
+    if(!list.length) html+='<p class="sub">No campaigns yet. <a href="/create-campaign.html">Start one</a>.</p>';
     html+='<div class="camp-grid">';
     list.forEach(function(c){
       var goal=Number(c.goal)||1, pct=Math.min(100,Math.round(((Number(c.raised)||0)/goal)*100));
@@ -230,8 +230,31 @@ function render(){
       html+='</article>';
     });
     html+='</div></div>';
+  }else if(tab==='donations' && HF.isAdmin()){
+    var allG=HF.listGifts();
+    var allC=HF.adminCampaigns();
+    html='<div class="pane"><h1>Donations received</h1><p class="sub">Add a gift and the organizer sees the name, the amount, and the campaign.</p><div class="card" style="padding:14px"><label>Campaign</label><select id="gcamp">'+allC.map(function(c){return '<option value="'+esc(c.id)+'">'+esc(c.title||c.id)+'</option>'}).join('')+'</select><label>Donor name</label><input id="gname" placeholder="Name"><label>Amount (USD)</label><input id="gamt" inputmode="decimal" placeholder="25"><button class="btn" id="gadd" type="button">Add donation</button><p class="note" id="gmsg"></p></div>';
+    html+='<div class="card" style="padding:8px 14px;margin-top:12px">';
+    if(!allG.length) html+='<p class="note">None yet.</p>';
+    allG.forEach(function(g){html+='<div class="donor"><div style="flex:1"><strong>'+esc(g.donor)+'</strong><div class="note">'+esc(g.title)+'</div></div><div><strong>$'+Number(g.amount).toLocaleString()+'</strong></div></div>'});
+    html+='</div></div>';
   }else if(tab==='donations'){
-    html='<div class="pane"><h1>Donations Received</h1><p class="sub">$' + m.received.toLocaleString() + ' total. The day\'s total and who gave are emailed by the team. This desk does not send that email.</p><div class="card" style="padding:14px"><p class="note">Donor names show here when gifts are recorded.</p></div></div>';
+    var mine=HF.listGifts(u.email);
+    var sum=mine.reduce(function(n,g){return n+Number(g.amount||0)},0);
+    html='<div class="pane"><h1>Donations Received</h1><p class="sub">$'+sum.toLocaleString()+' from '+mine.length+' gifts.</p><div class="card" style="padding:8px 14px">';
+    if(!mine.length) html+='<p class="note">No gifts recorded yet.</p>';
+    mine.forEach(function(g){html+='<div class="donor"><div style="flex:1"><strong>'+esc(g.donor)+'</strong><div class="note">'+esc(g.title)+(g.note?' · '+esc(g.note):'')+'</div></div><div style="text-align:right"><strong>$'+Number(g.amount).toLocaleString()+'</strong><div class="note">'+(g.at?new Date(g.at).toLocaleDateString():'')+'</div></div></div>'});
+    html+='</div></div>';
+  }else if(tab==='transfers' && HF.isAdmin()){
+    var reqs=HF.listWithdrawals();
+    html='<div class="pane"><h1>Withdrawal requests</h1><p class="sub">These are requests from organizers. This is not your own withdrawal.</p><div class="card" style="padding:8px 14px;overflow-x:auto"><table><tr><th>Organizer</th><th>Method</th><th>Amount</th><th>Details</th><th>Status</th><th></th></tr>';
+    if(!reqs.length) html+='<tr><td colspan="6">No requests yet.</td></tr>';
+    reqs.forEach(function(w){
+      html+='<tr><td>'+esc(w.email)+'</td><td>'+esc(String(w.method||'').toUpperCase())+'</td><td>$'+esc(w.amount)+'</td><td>'+esc(w.accountName||'')+' '+esc(w.address||'')+'</td><td>'+esc(w.status)+'</td><td>';
+      if(w.status==='pending') html+='<button class="btn" type="button" data-w="'+esc(w.id)+'" data-ws="approved" style="margin-right:6px">Pay</button><button class="btn" type="button" data-w="'+esc(w.id)+'" data-ws="rejected" style="background:#fee2e2;color:#991b1b">Reject</button>';
+      html+='</td></tr>';
+    });
+    html+='</table></div></div>';
   }else if(tab==='transfers'){
     var wd=HF.listWithdrawals(u.email);
     html='<div class="pane"><h1>Transfers</h1><p class="sub">Available: $'+m.available.toLocaleString()+'. Balance: $'+m.balance.toLocaleString()+'. Withdrawn: $'+m.withdrawn.toLocaleString()+'.</p><div class="card" style="padding:14px"><div class="pills">'
@@ -241,15 +264,16 @@ function render(){
     if(!wd.length) html+='<p class="note">None yet.</p>';
     else wd.forEach(function(w){html+='<div class="donor"><div style="flex:1"><strong>$'+w.amount+'</strong> · '+esc(w.method).toUpperCase()+'<div class="note">'+esc(w.status)+'</div></div></div>'});
     html+='</div></div>';
+  }else if(tab==='updates' && HF.isAdmin()){
+    var notes=HF.listNotices('all').concat(HF.listNotices(u.email));
+    html='<div class="pane"><h1>Updates</h1><p class="sub">This goes to every organizer. They also see donation and withdrawal notices here.</p><div class="card" style="padding:14px"><label>Title</label><input id="ntitle" placeholder="What changed"><label>Details</label><textarea id="nbody"></textarea><button class="btn" id="npost" type="button">Send to everyone</button><p class="note" id="nmsg"></p></div>';
+    notes.forEach(function(n){html+='<div class="card" style="padding:14px;margin-top:10px"><strong>'+esc(n.title)+'</strong><p class="note">'+esc(n.body)+'</p></div>'});
+    html+='</div>';
   }else if(tab==='updates'){
-    var posts=updates();
-    html='<div class="pane"><h1>Updates</h1><p class="sub">Post under a campaign. You can add pictures.</p><div class="card" style="padding:14px"><label>Campaign</label><select id="ucamp">'+list.map(function(c){return '<option value="'+esc(c.id)+'">'+esc(c.title)+'</option>'}).join('')+'</select><label>Update</label><textarea id="utext"></textarea><label class="btn" style="display:inline-flex;align-items:center">Add pictures<input id="upics" type="file" accept="image/*" multiple class="hide"></label><div id="uprev" class="row" style="margin-top:8px"></div><button class="btn" id="upost" type="button">Post update</button></div>';
-    posts.forEach(function(p){
-      var c=list.find(function(x){return x.id===p.camp});
-      html+='<div class="card" style="padding:14px;margin-top:10px"><strong>'+esc(c?c.title:'Campaign')+'</strong><p style="margin-top:8px">'+esc(p.text)+'</p>';
-      (p.photos||[]).forEach(function(src){html+='<img src="'+src+'" alt="" style="width:72px;height:72px;object-fit:cover;border-radius:8px;margin:8px 8px 0 0">'});
-      html+='</div>';
-    });
+    var notesU=HF.listNotices(u.email);
+    html='<div class="pane"><h1>Updates</h1><p class="sub">Site news, gifts on your campaigns, and withdrawal updates.</p>';
+    if(!notesU.length) html+='<p class="note">Nothing new.</p>';
+    notesU.forEach(function(n){html+='<div class="card" style="padding:14px;margin-top:10px"><strong>'+esc(n.title)+'</strong><p class="note">'+esc(n.body)+' · '+(n.at?new Date(n.at).toLocaleString():'')+'</p></div>'});
     html+='</div>';
   }else if(tab==='settings'){
     html='<div class="pane"><h1>Account settings</h1><div class="card" style="padding:16px;margin-top:12px"><p>'+esc(u.name||'')+'</p><p class="note">'+esc(u.email)+'</p><label>New email</label><input id="nem" value="'+esc(u.email)+'"><button class="btn" id="saveEm" type="button">Save email</button><label>New password</label><input id="pw1" type="password"><label>Confirm</label><input id="pw2" type="password"><button class="btn" id="savePw" type="button">Save password</button><p class="note" id="setMsg"></p></div></div>';
@@ -275,6 +299,21 @@ function render(){
     var r=HF.requestWithdraw({method:method,address:(document.getElementById('addr')||{}).value||'',accountName:(document.getElementById('aname')||{}).value||'',amount:amount,note:document.getElementById('note').value,network:method==='usdt'?'TRC20':method.toUpperCase()});
     msg.textContent=r.ok?'Requested. It goes out on the next 10th or 25th.':(r.err||'Could not request');
     if(r.ok) setTimeout(render,600);
+  };
+  box.querySelectorAll('[data-w]').forEach(function(b){b.onclick=function(){HF.setWithdrawStatus(b.getAttribute('data-w'), b.getAttribute('data-ws')); render()}});
+  var gadd=document.getElementById('gadd');
+  if(gadd) gadd.onclick=function(){
+    var r=HF.addGift({campaignId:document.getElementById('gcamp').value, donor:document.getElementById('gname').value, amount:document.getElementById('gamt').value});
+    var msg=document.getElementById('gmsg');
+    msg.textContent=r.ok?'Donation added.':(r.err||'Could not add');
+    if(r.ok) setTimeout(render,400);
+  };
+  var npost=document.getElementById('npost');
+  if(npost) npost.onclick=function(){
+    var r=HF.postSiteUpdate(document.getElementById('ntitle').value, document.getElementById('nbody').value);
+    var msg=document.getElementById('nmsg');
+    msg.textContent=r.ok?'Sent.':(r.err||'Could not send');
+    if(r.ok) setTimeout(render,400);
   };
   var upost=document.getElementById('upost');
   if(upost){
@@ -319,7 +358,7 @@ if(HF.isAdmin&&HF.isAdmin()){document.getElementById('adminNav').classList.remov
 document.getElementById('searchBtn').onclick=function(){location.href='/'};
 document.getElementById('avBtn').onclick=function(){document.getElementById('menu').classList.toggle('hide')};
 document.getElementById('homeBtn').onclick=function(){location.href='/'};
-document.getElementById('lo').onclick=function(){HF.logout();location.href='login.html'};
+document.getElementById('lo').onclick=function(){HF.logout();location.href='/login.html'};
 document.getElementById('photoBtn').onclick=function(){document.getElementById('photoFile').click()};
 document.getElementById('photoFile').onchange=function(){var f=this.files&&this.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){av=rd.result;localStorage.setItem('hf_avatar_'+u.email,av);drawAv()};rd.readAsDataURL(f)};
 document.querySelectorAll('[data-tab]').forEach(function(el){el.addEventListener('click',function(){if(el.id)return;setTab(el.getAttribute('data-tab'))})});
