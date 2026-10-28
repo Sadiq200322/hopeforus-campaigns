@@ -119,6 +119,7 @@ th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #eee;vertical-ali
   <button type="button" data-tab="transfers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18M5 10V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3M5 10v8h14v-8"/><path d="M12 13v3"/></svg>Transfers</button>
   <button type="button" data-tab="updates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6h14M5 12h9M5 18h6"/></svg>Updates</button>
 </nav>
+<script src="/campaigns-data.js"></script>
 <script src="/app.js"></script>
 <script>
 var u=HF.session();
@@ -126,6 +127,15 @@ if(!u){ location.replace('/login.html?return='+encodeURIComponent('/dashboard/')
 var tab=(HF.isAdmin&&HF.isAdmin()&&location.hash==='#admin')?'admin':'home', openId='', editId='', method='usdt', adminView='overview';
 var av=localStorage.getItem('hf_avatar_'+u.email)||'';
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function allCamps(){
+  var by={}, list=[];
+  try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
+  if(!Array.isArray(list)) list=[];
+  list.forEach(function(c){ if(c&&c.id) by[c.id]=c; });
+  (HF.adminCampaigns?HF.adminCampaigns():[]).forEach(function(c){ if(c&&c.id&&!by[c.id]) by[c.id]=c; });
+  return Object.keys(by).map(function(k){ return by[k]; });
+}
+function isUserCamp(c){ return !!(c&&(c.ownerEmail||c.ownerId||c.organizerEmail)); }
 function camps(){return HF.myCampaigns(u)||[]}
 function money(list){
   var now=Date.now(), ten=10*86400000, received=0, hold=0, ready=0;
@@ -161,7 +171,7 @@ function setTab(name){tab=name;openId='';editId='';document.getElementById('menu
 function render(){
   document.querySelectorAll('[data-tab]').forEach(function(el){el.classList.toggle('on', el.getAttribute('data-tab')===tab)});
   if(HF.isAdmin&&HF.isAdmin()){
-    var waitN=(HF.adminCampaigns()||[]).filter(function(c){return c&&c.status!=='approved'&&c.status!=='rejected'}).length;
+    var waitN=allCamps().filter(isUserCamp).filter(function(c){return c.status!=='approved'&&c.status!=='rejected'}).length;
     var nav=document.getElementById('adminNav');
     if(nav) nav.innerHTML='<i>✓</i> Approve'+(waitN?' ('+waitN+')':'');
   }
@@ -266,16 +276,26 @@ function render(){
   if(tab==='admin'){
     if(!(HF.isAdmin&&HF.isAdmin())) tab='home';
     else {
-      var waiting=(HF.adminCampaigns()||[]).filter(function(c){ return c && c.status!=='approved' && c.status!=='rejected'; });
-      var htmlA='<div class="pane"><h1>Approve</h1><p class="sub">Every campaign a user creates lands here. Approve it and it goes on the dashboard and the main page.</p>';
-      if(!waiting.length) htmlA+='<p class="note">Nothing is waiting.</p>';
+      var waiting=allCamps().filter(isUserCamp);
+      var q=(window.approveQ||'').toLowerCase();
+      if(q) waiting=waiting.filter(function(c){
+        return (c.title||'').toLowerCase().indexOf(q)>=0 || (c.ownerEmail||'').toLowerCase().indexOf(q)>=0 || (c.organizerEmail||'').toLowerCase().indexOf(q)>=0 || (c.organizer||'').toLowerCase().indexOf(q)>=0;
+      });
+      var htmlA='<div class="pane"><h1>Approve</h1><p class="sub">Every campaign a user account creates is listed here. Search by title or email. Approve it and it goes on the dashboard and the main page.</p><input id="approveQ" placeholder="Search title or email" value="'+esc(window.approveQ||'')+'">';
+      if(!waiting.length) htmlA+='<p class="note">No user campaigns are stored in this browser yet. A campaign shows here after that person publishes it on this device.</p>';
       htmlA+='<div class="camp-grid">';
       waiting.forEach(function(c){
-        htmlA+='<article class="camp"><div class="camp-top"><img src="'+esc(c.image||'')+'" alt=""><div class="body"><strong>'+esc(c.title||'Campaign')+'</strong><div class="note">'+esc(c.ownerEmail||c.organizer||'No organizer email')+'</div></div></div>';
-        htmlA+='<div class="acts"><button class="btn" type="button" data-st="approved" data-cid="'+esc(c.id)+'">Approve</button><button class="btn" type="button" data-st="rejected" data-cid="'+esc(c.id)+'" style="background:#fee2e2;color:#991b1b">Reject</button></div></article>';
+        var st=c.status==='approved'?'Approved':(c.status==='rejected'?'Rejected':'Waiting');
+        htmlA+='<article class="camp"><div class="camp-top"><img src="'+esc(c.image||'')+'" alt=""><div class="body"><strong>'+esc(c.title||'Campaign')+'</strong><div class="note">'+esc(c.ownerEmail||c.organizerEmail||c.organizer||'No email')+' · '+st+'</div></div></div>';
+        htmlA+='<div class="acts">';
+        if(c.status!=='approved') htmlA+='<button class="btn" type="button" data-st="approved" data-cid="'+esc(c.id)+'">Approve</button>';
+        if(c.status!=='rejected') htmlA+='<button class="btn" type="button" data-st="rejected" data-cid="'+esc(c.id)+'" style="background:#fee2e2;color:#991b1b">Reject</button>';
+        htmlA+='</div></article>';
       });
       htmlA+='</div></div>';
       box.innerHTML=htmlA;
+      var aq=document.getElementById('approveQ');
+      if(aq) aq.oninput=function(){ window.approveQ=aq.value; render(); aq.focus(); var v=aq.value; aq.setSelectionRange(v.length,v.length); };
       box.querySelectorAll('[data-st]').forEach(function(b){b.onclick=function(){
         HF.setCampaignStatus(b.getAttribute('data-cid'), b.getAttribute('data-st'));
         if(b.getAttribute('data-st')==='approved') setTab('home'); else render();
@@ -297,8 +317,8 @@ function render(){
     html+='</div></div>';
   }else if(tab==='donations' && HF.isAdmin()){
     var allG=HF.listGifts();
-    var allC=HF.adminCampaigns();
-    html='<div class="pane"><h1>Donations received</h1><p class="sub">Add a gift and the organizer sees the name, the amount, and the campaign.</p><div class="card" style="padding:14px"><label>Campaign</label><select id="gcamp">'+allC.map(function(c){return '<option value="'+esc(c.id)+'">'+esc(c.title||c.id)+'</option>'}).join('')+'</select><label>Donor name</label><input id="gname" placeholder="Name"><label>Amount (USD)</label><input id="gamt" inputmode="decimal" placeholder="25"><button class="btn" id="gadd" type="button">Add donation</button><p class="note" id="gmsg"></p></div>';
+    var allC=allCamps();
+    html='<div class="pane"><h1>Donations received</h1><p class="sub">Search for a campaign, then add the donor and the amount.</p><div class="card" style="padding:14px"><label>Campaign</label><input id="gfind" placeholder="Search title or email" autocomplete="off"><input id="gcamp" type="hidden"><div id="gpick"></div><label>Donor name</label><input id="gname" placeholder="Name"><label>Amount (USD)</label><input id="gamt" inputmode="decimal" placeholder="25"><button class="btn" id="gadd" type="button">Add donation</button><p class="note" id="gmsg"></p></div>';
     html+='<div class="card" style="padding:8px 14px;margin-top:12px">';
     if(!allG.length) html+='<p class="note">None yet.</p>';
     allG.forEach(function(g){html+='<div class="donor"><div style="flex:1"><strong>'+esc(g.donor)+'</strong><div class="note">'+esc(g.title)+'</div></div><div><strong>$'+Number(g.amount).toLocaleString()+'</strong></div></div>'});
@@ -371,9 +391,37 @@ function render(){
     if(r.ok) setTimeout(render,600);
   };
   box.querySelectorAll('[data-w]').forEach(function(b){b.onclick=function(){HF.setWithdrawStatus(b.getAttribute('data-w'), b.getAttribute('data-ws')); render()}});
+  var gfind=document.getElementById('gfind');
+  if(gfind){
+    var pool=allCamps();
+    function showPicks(){
+      var q=gfind.value.trim().toLowerCase();
+      var pick=document.getElementById('gpick');
+      if(!q){ pick.innerHTML=''; return; }
+      var hits=pool.filter(function(c){
+        var blob=((c.title||'')+' '+(c.ownerEmail||'')+' '+(c.organizerEmail||'')+' '+(c.organizer||'')).toLowerCase();
+        return blob.indexOf(q)>=0;
+      }).slice(0,8);
+      pick.innerHTML=hits.length?hits.map(function(c){
+        return '<button type="button" data-pick="'+esc(c.id)+'" style="display:block;width:100%;text-align:left;border:0;background:#f7f5fb;border-radius:10px;padding:8px 10px;margin-top:6px;cursor:pointer"><strong>'+esc(c.title||c.id)+'</strong><div class="note">'+esc(c.ownerEmail||c.organizerEmail||c.organizer||'Campaign')+'</div></button>';
+      }).join(''):'<p class="note">No match.</p>';
+      pick.querySelectorAll('[data-pick]').forEach(function(b){
+        b.onclick=function(){
+          document.getElementById('gcamp').value=b.getAttribute('data-pick');
+          var found=pool.find(function(x){return x.id===b.getAttribute('data-pick')});
+          gfind.value=found?(found.title||''):'';
+          pick.innerHTML='<p class="note">Selected.</p>';
+        };
+      });
+    }
+    gfind.oninput=showPicks;
+  }
   var gadd=document.getElementById('gadd');
   if(gadd) gadd.onclick=function(){
-    var r=HF.addGift({campaignId:document.getElementById('gcamp').value, donor:document.getElementById('gname').value, amount:document.getElementById('gamt').value});
+    var id=(document.getElementById('gcamp').value||'').trim();
+    var msg=document.getElementById('gmsg');
+    if(!id){ msg.textContent='Search and select a campaign first.'; return; }
+    var r=HF.addGift({campaignId:id, donor:document.getElementById('gname').value, amount:document.getElementById('gamt').value});
     var msg=document.getElementById('gmsg');
     msg.textContent=r.ok?'Donation added.':(r.err||'Could not add');
     if(r.ok) setTimeout(render,400);
