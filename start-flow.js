@@ -299,7 +299,9 @@ function publish(){
     }
   }
   try{localStorage.setItem("hopeforus_last_share",shortShareUrl(code))}catch(e){}
-  location.href="/dashboard/?submitted=1";
+  var go=function(){ location.href="/dashboard/?submitted=1"; };
+  if(window.HFShared){ HFShared.push(camp).then(go).catch(go); }
+  else go();
 }
 $("back").onclick=function(){
   if(step===0)return;
