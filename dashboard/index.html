@@ -124,6 +124,7 @@ th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #eee;vertical-ali
   <button type="button" data-tab="transfers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18M5 10V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3M5 10v8h14v-8"/><path d="M12 13v3"/></svg>Transfers</button>
   <button type="button" data-tab="updates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6h14M5 12h9M5 18h6"/></svg>Updates</button>
 </nav>
+<script src="/supabase.js"></script>
 <script src="/shared-camps.js"></script>
 <script src="/campaigns-data.js"></script>
 <script src="/app.js"></script>
@@ -282,12 +283,36 @@ function render(){
   if(tab==='admin'){
     if(!(HF.isAdmin&&HF.isAdmin())) tab='home';
     else {
+      if(window.HFDB && window._sbApprove!=='done'){
+        if(window._sbApprove!=='loading'){
+          window._sbApprove='loading';
+          box.innerHTML='<div class="pane"><h1>Approve</h1><p class="note">Loading campaigns from the server…</p></div>';
+          HFDB.list().then(function(rows){
+            var list=[]; try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
+            if(!Array.isArray(list)) list=[];
+            var by={}; list.forEach(function(c){ if(c&&c.id) by[c.id]=c; });
+            (rows||[]).forEach(function(c){
+              if(!c||!c.id) return;
+              var cur=by[c.id]||{};
+              by[c.id]=Object.assign({}, cur, c, {image:c.image||cur.image||''});
+            });
+            try{localStorage.setItem('hopeforus_campaigns', JSON.stringify(Object.keys(by).map(function(k){return by[k]})))}catch(e){}
+            window._sbApprove='done';
+            render();
+          }).catch(function(err){
+            window._sbApprove='done';
+            window._sbErr=String(err&&err.message||err||'');
+            render();
+          });
+        }
+        return;
+      }
       var waiting=allCamps().filter(function(c){ return c && c.status!=='approved' && c.status!=='rejected' && (c.ownerEmail||c.ownerId||c.organizerEmail||c.story); });
       var q=(window.approveQ||'').toLowerCase();
       if(q) waiting=waiting.filter(function(c){
         return (c.title||'').toLowerCase().indexOf(q)>=0 || (c.ownerEmail||'').toLowerCase().indexOf(q)>=0 || (c.organizerEmail||'').toLowerCase().indexOf(q)>=0 || (c.organizer||'').toLowerCase().indexOf(q)>=0 || (c.id||'').toLowerCase().indexOf(q)>=0;
       });
-      var htmlA='<div class="pane"><h1>Approve</h1><p class="sub">These are not approved yet. Search if you need one. Approve sends it to the dashboard and the main page.</p><input id="approveQ" placeholder="Search title or email" value="'+esc(window.approveQ||'')+'">';
+      var htmlA='<div class="pane"><h1>Approve</h1><p class="sub">These are not approved yet. Tap one to open it, add the donation link, and approve.</p>'+(window._sbErr?'<p class="note">Server: '+esc(window._sbErr)+'</p>':'')+'<input id="approveQ" placeholder="Search title or email" value="'+esc(window.approveQ||'')+'">';
       if(!waiting.length) htmlA+='<p class="note">'+(q?'No match.':'Nothing is waiting for approval.')+'</p>';
       htmlA+='<div class="camp-grid">';
       waiting.forEach(function(c){
@@ -486,8 +511,22 @@ window.openReview=function(id){
   render();
 };
 drawAv();
-if(window.HFShared){ HFShared.sync().then(function(){ render(); }); }
-else render();
+function pushLocalToServer(){
+  if(!window.HFDB) return;
+  var list=[]; try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
+  (list||[]).forEach(function(c){
+    if(!c||!(c.ownerEmail||c.ownerId||c.organizerEmail)) return;
+    var img=c.image||'';
+    var job=Promise.resolve(img);
+    if(String(img).indexOf('data:')===0) job=HFDB.upload(img, c.id+'_cover.jpg').catch(function(){ return ''; });
+    job.then(function(url){
+      if(url) c.image=url;
+      return HFDB.save(c);
+    }).catch(function(){});
+  });
+}
+if(window.HFShared){ HFShared.sync().then(function(){ pushLocalToServer(); render(); }); }
+else { pushLocalToServer(); render(); }
 </script>
 </body>
 </html>
