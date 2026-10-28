@@ -76,7 +76,14 @@ th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #eee;vertical-ali
 .badge.pending{background:#fef3c7;color:#92400e}.badge.approved{background:#d1fae5;color:#065f46}.badge.rejected{background:#fee2e2;color:#991b1b}
 .admin-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
 .admin-tabs button{height:40px;padding:0 14px;border-radius:999px;border:1px solid #e5e5e5;background:#fff;font-weight:700;cursor:pointer}
-.admin-tabs button.on{background:#4C1D95;color:#fff;border-color:#4C1D95}
+.gals{display:flex;gap:10px;overflow:auto;padding-bottom:6px}
+.ph{width:128px;flex:0 0 128px}
+.ph img,.ph video{width:128px;height:96px;object-fit:cover;border-radius:12px;background:#eee}
+.ph .mini{display:flex;gap:4px;margin-top:6px}
+.ph .mini button{border:0;background:#f4f2f8;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer}
+.crop{margin-top:12px;padding:12px;border:1px solid #eee;border-radius:16px}
+.crop canvas{width:100%;max-width:360px;border-radius:12px;touch-action:none;cursor:grab;background:#111}
+
 </style>
 </head>
 <body>
@@ -89,7 +96,7 @@ th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #eee;vertical-ali
       <button type="button" id="photoBtn">Change photo</button>
       <button type="button" data-tab="donations">Donations Received</button>
       <button type="button" data-tab="settings">Account settings</button>
-      <button type="button" data-tab="admin" id="adminMenu" class="hide">Admin settings</button>
+      <button type="button" data-tab="admin" id="adminMenu" class="hide">Waiting</button>
       <a href="/create-campaign.html">Start a new fundraiser</a>
       <button type="button" id="lo">Sign out</button>
     </div>
@@ -102,7 +109,7 @@ th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #eee;vertical-ali
     <button class="side" data-tab="donations" type="button"><i>♡</i> Donations</button>
     <button class="side" data-tab="transfers" type="button"><i>$</i> Transfers</button>
     <button class="side" data-tab="updates" type="button"><i>✎</i> Updates</button>
-    <button class="side hide" id="adminNav" data-tab="admin" type="button"><i>⚙</i> Admin</button>
+    <button class="side hide" id="adminNav" data-tab="admin" type="button"><i>◷</i> Waiting</button>
   </aside>
   <main id="main"></main>
 </div>
@@ -137,8 +144,12 @@ function nextPayout(){
 }
 function saveCamp(c){
   var list=[]; try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
+  if(!Array.isArray(list)) list=[];
   var i=list.findIndex(function(x){return x&&x.id===c.id});
-  if(i>=0){list[i].title=c.title;list[i].story=c.story;list[i].goal=c.goal;localStorage.setItem('hopeforus_campaigns',JSON.stringify(list))}
+  var fields={title:c.title,story:c.story,goal:c.goal,image:c.image,images:c.images||[],video:c.video||''};
+  if(i>=0){ Object.keys(fields).forEach(function(k){list[i][k]=fields[k]}); }
+  else { var copy={}; Object.keys(c).forEach(function(k){copy[k]=c[k]}); Object.keys(fields).forEach(function(k){copy[k]=fields[k]}); list.unshift(copy); }
+  localStorage.setItem('hopeforus_campaigns',JSON.stringify(list));
 }
 function updates(){try{return JSON.parse(localStorage.getItem('hf_updates_'+u.email)||'[]')}catch(e){return []}}
 function saveUpdates(list){localStorage.setItem('hf_updates_'+u.email,JSON.stringify(list))}
@@ -149,72 +160,126 @@ function drawAv(){
 function setTab(name){tab=name;openId='';editId='';document.getElementById('menu').classList.add('hide');if(name==='admin')location.hash='admin';else if(location.hash==='#admin')history.replaceState(null,'',location.pathname);render()}
 function render(){
   document.querySelectorAll('[data-tab]').forEach(function(el){el.classList.toggle('on', el.getAttribute('data-tab')===tab)});
-  var box=document.getElementById('main'), list=camps(), m=money(list), html='';
+  if(HF.isAdmin&&HF.isAdmin()){
+    var waitN=(HF.adminCampaigns()||[]).filter(function(c){return c&&c.status!=='approved'&&c.status!=='rejected'}).length;
+    var nav=document.getElementById('adminNav');
+    if(nav) nav.innerHTML='<i>◷</i> Waiting'+(waitN?' ('+waitN+')':'');
+  }
+  var box=document.getElementById('main'), all=camps(), list=all, m=money(all), html='';
+  if(HF.isAdmin&&HF.isAdmin() && tab==='home') list=all.filter(function(c){return c.status==='approved'});
   if(editId){
-    var c=list.find(function(x){return x.id===editId});
+    var c=all.find(function(x){return x.id===editId}) || (HF.adminCampaigns?HF.adminCampaigns():[]).find(function(x){return x.id===editId});
     if(!c){editId='';render();return}
-    html='<div class="pane"><form id="editForm" class="card" style="padding:16px"><img src="'+esc(c.image||'')+'" alt="" style="width:100%;height:160px;object-fit:cover;border-radius:12px;margin-bottom:12px">'
-      +'<h1>Edit campaign</h1><label>Name</label><input id="eTitle" value="'+esc(c.title)+'"><label>Story</label><textarea id="eStory">'+esc(c.story||'')+'</textarea><label>Goal (USD)</label><input id="eGoal" value="'+esc(c.goal)+'">'
+    if(!Array.isArray(c.images)||!c.images.length) c.images=c.image?[c.image]:[];
+    html='<div class="pane"><form id="editForm" class="card" style="padding:16px"><h1>Edit campaign</h1>'
+      +'<label>Photos and video</label><div class="gals" id="gals"></div>'
+      +'<div class="row"><label class="btn" style="display:inline-flex">Add photos<input id="addPhotos" type="file" accept="image/*" multiple class="hide"></label>'
+      +'<label class="btn" style="display:inline-flex;background:#fff;color:#4C1D95;border:1px solid #e5e5e5">Add video<input id="addVideo" type="file" accept="video/*" class="hide"></label></div>'
+      +(c.video?'<p class="note" id="vidNote">A video is attached. It plays on the campaign page.</p>':'<p class="note" id="vidNote"></p>')
+      +'<div id="cropBox" class="crop hide"><strong>Crop</strong><p class="note">Drag the photo. Use the slider to zoom. Save crop replaces that photo.</p><canvas id="cropCvs" width="360" height="360"></canvas><input id="cropZoom" type="range" min="1" max="3" step="0.01" value="1" style="width:100%;max-width:360px"><div class="row"><button class="btn" id="cropSave" type="button">Save crop</button><button class="btn" id="cropCancel" type="button" style="background:transparent;color:#333;border:1px solid #e5e5e5">Cancel</button></div></div>'
+      +'<label>Name</label><input id="eTitle" value="'+esc(c.title)+'"><label>Story</label><textarea id="eStory">'+esc(c.story||'')+'</textarea><label>Goal (USD)</label><input id="eGoal" value="'+esc(c.goal)+'">'
       +'<p class="note">$'+(Number(c.raised)||0).toLocaleString()+' already raised. That number stays.</p><div class="row"><button class="btn" type="submit">Save</button><button class="btn" type="button" id="back" style="background:transparent;color:#333;border:1px solid #e5e5e5">Back</button></div></form></div>';
     box.innerHTML=html;
+    var cropIndex=-1, cropImg=null, cropZoom=1, cropX=0, cropY=0;
+    function paintCrop(){
+      var canvas=document.getElementById('cropCvs'); if(!canvas||!cropImg) return;
+      var ctx=canvas.getContext('2d'), s=360;
+      var scale=cropZoom*Math.max(s/cropImg.width, s/cropImg.height);
+      var w=cropImg.width*scale, h=cropImg.height*scale;
+      ctx.fillStyle='#111'; ctx.fillRect(0,0,s,s);
+      ctx.drawImage(cropImg,(s-w)/2+cropX,(s-h)/2+cropY,w,h);
+    }
+    function drawGals(){
+      var boxg=document.getElementById('gals');
+      c.image=c.images[0]||'';
+      var h='';
+      c.images.forEach(function(src,i){
+        h+='<div class="ph"><img src="'+src+'" alt=""><div class="mini">'
+          +(i?'<button type="button" data-front="'+i+'">Front</button>':'<button type="button" disabled>Cover</button>')
+          +'<button type="button" data-crop="'+i+'">Crop</button><button type="button" data-rm="'+i+'">Remove</button></div></div>';
+      });
+      if(c.video) h+='<div class="ph"><video src="'+c.video+'" muted></video><div class="mini"><button type="button" id="rmVid">Remove video</button></div></div>';
+      if(!h) h='<p class="note">No photo yet.</p>';
+      boxg.innerHTML=h;
+      boxg.querySelectorAll('[data-front]').forEach(function(b){b.onclick=function(){var i=+b.getAttribute('data-front'); var pic=c.images.splice(i,1)[0]; c.images.unshift(pic); drawGals()}});
+      boxg.querySelectorAll('[data-rm]').forEach(function(b){b.onclick=function(){c.images.splice(+b.getAttribute('data-rm'),1); drawGals()}});
+      boxg.querySelectorAll('[data-crop]').forEach(function(b){b.onclick=function(){openCrop(+b.getAttribute('data-crop'))}});
+      var rv=document.getElementById('rmVid'); if(rv) rv.onclick=function(){c.video=''; document.getElementById('vidNote').textContent=''; drawGals()};
+    }
+    function fileToImage(file, cb){
+      var reader=new FileReader();
+      reader.onload=function(){
+        var im=new Image();
+        im.onload=function(){
+          var max=1400, w=im.width, h=im.height, sc=Math.min(1, max/Math.max(w,h));
+          var canvas=document.createElement('canvas'); canvas.width=Math.round(w*sc); canvas.height=Math.round(h*sc);
+          canvas.getContext('2d').drawImage(im,0,0,canvas.width,canvas.height);
+          cb(canvas.toDataURL('image/jpeg',0.86));
+        };
+        im.src=reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+    function openCrop(i){
+      cropIndex=i; cropZoom=1; cropX=0; cropY=0;
+      cropImg=new Image();
+      cropImg.onload=function(){ document.getElementById('cropBox').classList.remove('hide'); document.getElementById('cropZoom').value='1'; paintCrop(); };
+      cropImg.src=c.images[i];
+    }
+    drawGals();
+    document.getElementById('addPhotos').onchange=function(){
+      var files=Array.prototype.slice.call(this.files||[]);
+      files.forEach(function(file){ fileToImage(file, function(url){ c.images.push(url); drawGals(); }); });
+      this.value='';
+    };
+    document.getElementById('addVideo').onchange=function(){
+      var file=this.files&&this.files[0]; this.value='';
+      if(!file) return;
+      if(file.size>2500000){ document.getElementById('vidNote').textContent='Video must be under 2.5 MB.'; return; }
+      var reader=new FileReader();
+      reader.onload=function(){ c.video=reader.result; document.getElementById('vidNote').textContent='Video added. It plays on the campaign page.'; drawGals(); };
+      reader.readAsDataURL(file);
+    };
+    var cvs=document.getElementById('cropCvs'), dragging=false, lx=0, ly=0;
+    cvs.onpointerdown=function(e){ dragging=true; lx=e.clientX; ly=e.clientY; cvs.setPointerCapture(e.pointerId); };
+    cvs.onpointermove=function(e){ if(!dragging) return; cropX+=e.clientX-lx; cropY+=e.clientY-ly; lx=e.clientX; ly=e.clientY; paintCrop(); };
+    cvs.onpointerup=function(){ dragging=false; };
+    document.getElementById('cropZoom').oninput=function(){ cropZoom=Number(this.value)||1; paintCrop(); };
+    document.getElementById('cropCancel').onclick=function(){ document.getElementById('cropBox').classList.add('hide'); };
+    document.getElementById('cropSave').onclick=function(){
+      if(cropIndex<0) return;
+      c.images[cropIndex]=cvs.toDataURL('image/jpeg',0.86);
+      document.getElementById('cropBox').classList.add('hide');
+      drawGals();
+    };
     document.getElementById('back').onclick=function(){editId='';render()};
-    document.getElementById('editForm').onsubmit=function(e){e.preventDefault();c.title=document.getElementById('eTitle').value.trim()||c.title;c.story=document.getElementById('eStory').value.trim();c.goal=Number(document.getElementById('eGoal').value)||c.goal;saveCamp(c);editId='';render()};
+    document.getElementById('editForm').onsubmit=function(e){
+      e.preventDefault();
+      c.title=document.getElementById('eTitle').value.trim()||c.title;
+      c.story=document.getElementById('eStory').value.trim();
+      c.goal=Number(document.getElementById('eGoal').value)||c.goal;
+      c.image=c.images[0]||c.image||'';
+      saveCamp(c); editId=''; render();
+    };
     return;
   }
   if(tab==='admin'){
     if(!(HF.isAdmin&&HF.isAdmin())) tab='home';
     else {
-      var users=HF.adminUsers(), campsAll=HF.adminCampaigns(), wdAll=HF.listWithdrawals(), reps=HF.listReports?HF.listReports():[];
-      var views=['overview','users','campaigns','withdrawals','reports'];
-      var htmlA='<div class="pane"><h1>Admin settings</h1><div class="admin-tabs">';
-      views.forEach(function(v){ htmlA+='<button type="button" data-av="'+v+'" class="'+(adminView===v?'on':'')+'">'+v.charAt(0).toUpperCase()+v.slice(1)+'</button>'; });
-      htmlA+='</div>';
-      if(adminView==='overview'){
-        var pending=campsAll.filter(function(c){return (c.status||'pending')==='pending'||!c.donationLink}).length;
-        var openR=reps.filter(function(r){return r.status==='open'}).length;
-        htmlA+='<div class="stats"><div class="stat">Users<b>'+users.length+'</b><span>Accounts</span></div><div class="stat">Campaigns<b>'+campsAll.length+'</b><span>'+pending+' need a link</span></div><div class="stat">Withdrawals<b>'+wdAll.filter(function(w){return w.status==='pending'}).length+'</b><span>Waiting to pay</span></div><div class="stat">Reports<b>'+openR+'</b><span>Open</span></div></div>';
-      } else if(adminView==='users'){
-        htmlA+='<div class="card" style="padding:8px 12px;overflow-x:auto"><table><tr><th>Name</th><th>Email</th><th>Verified</th><th>Joined</th></tr>';
-        users.forEach(function(person){ htmlA+='<tr><td>'+esc(person.name)+(person.isAdmin?' <span class="badge approved">admin</span>':'')+'</td><td>'+esc(person.email)+'</td><td>'+(person.verified?'Yes':'No')+'</td><td>'+(person.created?new Date(person.created).toLocaleDateString():'—')+'</td></tr>'; });
-        htmlA+='</table></div>';
-      } else if(adminView==='campaigns'){
-        htmlA+='<div class="card" style="padding:8px 12px;overflow-x:auto"><table><tr><th>Title</th><th>Owner</th><th>Status</th><th>Donation link</th><th></th></tr>';
-        campsAll.forEach(function(c){
-          var st=c.status||'pending';
-          htmlA+='<tr><td>'+esc(c.title||c.id)+'</td><td>'+esc(c.ownerEmail||c.organizer||'')+'</td><td><span class="badge '+(st==='rejected'?'rejected':st==='pending'?'pending':'approved')+'">'+esc(st)+'</span></td>';
-          htmlA+='<td><input data-link="'+esc(c.id)+'" value="'+esc(c.donationLink||'')+'" placeholder="https://"></td>';
-          htmlA+='<td><button class="btn" type="button" data-save="'+esc(c.id)+'" style="margin:0 6px 0 0">Save</button><button class="btn" type="button" data-st="approved" data-cid="'+esc(c.id)+'" style="margin:0 6px 0 0">Approve</button><button class="btn" type="button" data-st="rejected" data-cid="'+esc(c.id)+'" style="background:#fee2e2;color:#991b1b">Reject</button></td></tr>';
-        });
-        htmlA+='</table></div>';
-      } else if(adminView==='withdrawals'){
-        htmlA+='<div class="card" style="padding:8px 12px;overflow-x:auto"><table><tr><th>User</th><th>Method</th><th>Amount</th><th>Details</th><th>Status</th><th></th></tr>';
-        wdAll.forEach(function(w){
-          htmlA+='<tr><td>'+esc(w.email)+'</td><td>'+esc(String(w.method||'').toUpperCase())+'</td><td>$'+esc(w.amount)+'</td><td>'+esc(w.accountName||'')+' '+esc(w.address||'')+'</td><td><span class="badge '+(w.status==='approved'?'approved':w.status==='rejected'?'rejected':'pending')+'">'+esc(w.status)+'</span></td><td>';
-          if(w.status==='pending') htmlA+='<button class="btn" type="button" data-w="'+esc(w.id)+'" data-ws="approved" style="margin:0 6px 0 0">Pay</button><button class="btn" type="button" data-w="'+esc(w.id)+'" data-ws="rejected" style="background:#fee2e2;color:#991b1b">Reject</button>';
-          htmlA+='</td></tr>';
-        });
-        htmlA+='</table></div>';
-      } else {
-        htmlA+='<div class="card" style="padding:8px 12px;overflow-x:auto"><table><tr><th>When</th><th>Campaign</th><th>Reason</th><th>Reporter</th><th>Status</th><th></th></tr>';
-        reps.forEach(function(r){
-          htmlA+='<tr><td>'+(r.created?new Date(r.created).toLocaleString():'')+'</td><td>'+esc(r.campaignTitle||r.campaignId||'')+'</td><td>'+esc(r.reason)+'</td><td>'+esc(r.name)+' '+esc(r.email)+'</td><td>'+esc(r.status)+'</td><td>';
-          if(r.status==='open') htmlA+='<button class="btn" type="button" data-rid="'+esc(r.id)+'" data-rs="resolved" style="margin-right:6px">Resolve</button><button class="btn" type="button" data-rid="'+esc(r.id)+'" data-rs="dismissed" style="background:#fee2e2;color:#991b1b">Dismiss</button>';
-          htmlA+='</td></tr>';
-        });
-        if(!reps.length) htmlA+='<tr><td colspan="6">No reports yet.</td></tr>';
-        htmlA+='</table></div>';
-      }
-      htmlA+='</div>';
+      var waiting=(HF.adminCampaigns()||[]).filter(function(c){ return c && c.status!=='approved' && c.status!=='rejected'; });
+      var htmlA='<div class="pane"><h1>Waiting for approval</h1><p class="sub">These campaigns are not on the dashboard yet. Approve one and it moves there.</p>';
+      if(!waiting.length) htmlA+='<p class="note">Nothing is waiting.</p>';
+      htmlA+='<div class="camp-grid">';
+      waiting.forEach(function(c){
+        htmlA+='<article class="camp"><div class="camp-top"><img src="'+esc(c.image||'')+'" alt=""><div class="body"><strong>'+esc(c.title||'Campaign')+'</strong><div class="note">'+esc(c.ownerEmail||c.organizer||'No organizer email')+'</div></div></div>';
+        htmlA+='<div class="acts"><button class="btn" type="button" data-st="approved" data-cid="'+esc(c.id)+'">Approve</button><button class="btn" type="button" data-st="rejected" data-cid="'+esc(c.id)+'" style="background:#fee2e2;color:#991b1b">Reject</button></div></article>';
+      });
+      htmlA+='</div></div>';
       box.innerHTML=htmlA;
-      box.querySelectorAll('[data-av]').forEach(function(b){b.onclick=function(){adminView=b.getAttribute('data-av');render()}});
-      box.querySelectorAll('[data-save]').forEach(function(b){b.onclick=function(){
-        var id=b.getAttribute('data-save'); var inp=box.querySelector('[data-link="'+id+'"]'); var url=(inp&&inp.value||'').trim();
-        if(url && url.indexOf('http')!==0){alert('Link must start with https://');return}
-        HF.setCampaignDonationLink(id,url); if(url) HF.setCampaignStatus(id,'approved'); render();
+      box.querySelectorAll('[data-st]').forEach(function(b){b.onclick=function(){
+        HF.setCampaignStatus(b.getAttribute('data-cid'), b.getAttribute('data-st'));
+        if(b.getAttribute('data-st')==='approved') setTab('home'); else render();
       }});
-      box.querySelectorAll('[data-st]').forEach(function(b){b.onclick=function(){HF.setCampaignStatus(b.getAttribute('data-cid'), b.getAttribute('data-st')); render()}});
-      box.querySelectorAll('[data-w]').forEach(function(b){b.onclick=function(){HF.setWithdrawStatus(b.getAttribute('data-w'), b.getAttribute('data-ws')); render()}});
-      box.querySelectorAll('[data-rid]').forEach(function(b){b.onclick=function(){HF.setReportStatus(b.getAttribute('data-rid'), b.getAttribute('data-rs')); render()}});
       return;
     }
   }
@@ -225,7 +290,7 @@ function render(){
     html+='<div class="camp-grid">';
     list.forEach(function(c){
       var goal=Number(c.goal)||1, pct=Math.min(100,Math.round(((Number(c.raised)||0)/goal)*100));
-      html+='<article class="camp"><button class="camp-top" data-open="'+esc(c.id)+'" type="button"><img src="'+esc(c.image||'')+'" alt=""><div class="body"><strong>'+esc(c.title||'Campaign')+'</strong><div class="bar"><i style="width:'+pct+'%"></i></div><div>$'+(Number(c.raised)||0).toLocaleString()+' raised of $'+goal.toLocaleString()+'</div></div></button>';
+      html+='<article class="camp"><button class="camp-top" data-open="'+esc(c.id)+'" type="button"><img src="'+esc(c.image||'')+'" alt=""><div class="body"><strong>'+esc(c.title||'Campaign')+'</strong>'+(c.status==='pending'?'<div class="note">Waiting for approval</div>':'')+'<div class="bar"><i style="width:'+pct+'%"></i></div><div>$'+(Number(c.raised)||0).toLocaleString()+' raised of $'+goal.toLocaleString()+'</div></div></button>';
       if(openId===c.id) html+='<div class="acts"><button type="button" data-edit="'+esc(c.id)+'">Edit</button><button class="go" type="button" data-share="'+esc(c.code||c.id)+'">Share</button><button class="bad" type="button" data-del="'+esc(c.id)+'">Delete</button></div>';
       html+='</article>';
     });
