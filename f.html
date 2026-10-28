@@ -16,23 +16,40 @@
   if(!code){document.getElementById('msg').innerHTML='Invalid link. <a href="/">Home</a>';return}
   var list=[];try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
   if(!Array.isArray(list))list=[];
+
+  // Known short codes → campaign ids
+  var KNOWN = {
+    'EEPBA7': 'c_mvs4qsny', // Save Molly
+    'VY84Q4': 'c_mvs9eg5p'  // Save Lola
+  };
+
   function match(x){
     if(!x)return false;
     var c=(x.code||'').toString().toUpperCase();
     var id=(x.id||'').toString().toUpperCase();
-    return c===code || id===code;
+    return c===code || id===code || (KNOWN[code] && x.id===KNOWN[code]);
   }
   function go(c){
-    location.replace('/campaign.html?id='+encodeURIComponent(c.id)+'&from=share');
+    var rid = (c && c.id) ? c.id : (KNOWN[code] || code);
+    location.replace('/campaign.html?id='+encodeURIComponent(rid)+'&code='+encodeURIComponent(code)+'&from=share');
   }
-  var c=list.find(match);
-  if(!c && typeof SAMPLES!=='undefined') c=SAMPLES.find(match);
-  if(c && c.status!=='rejected' && c.status!=='deleted' && !c.deleted){ go(c); return; }
-  if(code==='EEPBA7'){ location.replace('/campaign.html?id=c_mvs4qsny&from=share'); return; }
+  function alive(c){
+    return c && c.status!=='rejected' && c.status!=='deleted' && !c.deleted;
+  }
+
+  var c=list.find(function(x){ return match(x) && alive(x); });
+  if(!c && typeof SAMPLES!=='undefined') c=SAMPLES.find(function(x){ return match(x) && alive(x); });
+  if(c){ go(c); return; }
+
+  if(KNOWN[code]){
+    location.replace('/campaign.html?id='+encodeURIComponent(KNOWN[code])+'&code='+encodeURIComponent(code)+'&from=share');
+    return;
+  }
+
   if(window.HFDB){
     HFDB.list().then(function(rows){
-      var hit=(rows||[]).find(function(x){ return match(x) && x.status!=='rejected' && x.status!=='deleted' && !x.deleted; });
-      if(!hit && code==='EEPBA7') hit=(rows||[]).find(function(x){ return x && x.id==='c_mvs4qsny'; });
+      var hit=(rows||[]).find(function(x){ return match(x) && alive(x); });
+      if(!hit && KNOWN[code]) hit=(rows||[]).find(function(x){ return x && x.id===KNOWN[code]; });
       if(hit){
         var idx=list.findIndex(function(x){return x&&x.id===hit.id});
         if(idx>=0) list[idx]=Object.assign({}, list[idx], hit);
