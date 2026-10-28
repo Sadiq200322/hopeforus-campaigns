@@ -53,10 +53,7 @@
   // Rebuild header into clean 3-zone layout
   var hdr=document.querySelector(".hdr");
   if(hdr){
-    var logoHtml='<a href="index.html" class="logo"><img src="logo-mark.svg" width="26" height="26" alt=""> HopeForUs</a>';
-    // Try keep existing logo mark if present
-    var oldLogo=hdr.querySelector(".logo");
-    if(oldLogo) logoHtml=oldLogo.outerHTML;
+    var logoHtml='<a href="/" class="logo"><img src="/logo-mark.svg" width="26" height="26" alt=""> HopeForUs</a>';
 
     var leftHtml=
       '<button type="button" class="ibtn mob" aria-label="Search" onclick="var e=document.getElementById(\'disc\');if(e)e.scrollIntoView({behavior:\'smooth\'})">'+
@@ -68,9 +65,9 @@
     var rightHtml="";
     if(loggedIn){
       rightHtml=
-        '<a href="dashboard.html" class="nlink desk-only">My campaigns</a>'+
+        '<a href="/dashboard/" class="nlink desk-only">Your profile</a>'+
         '<a href="create-campaign.html" class="btn-p desk-only">New fundraiser</a>'+
-        '<a href="dashboard.html" class="user-chip desk-only">'+name+'<span class="av">'+name.charAt(0).toUpperCase()+'</span></a>'+
+        '<a href="/dashboard/" class="user-chip desk-only">'+name+'<span class="av">'+name.charAt(0).toUpperCase()+'</span></a>'+
         '<button type="button" class="ibtn js-menu" id="mBtn" aria-label="Menu">'+
         '<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>';
     }else{
@@ -106,14 +103,14 @@
   var items, actions;
   if(loggedIn){
     items=
-      '<a class="pn-item" href="dashboard.html"><span class="row"><span><span class="t">Manage your activity</span><span class="d">Campaigns, withdrawals, donations and share analytics</span></span><span class="chev">›</span></span></a>'+
+      '<a class="pn-item" href="/dashboard/"><span class="row"><span><span class="t">Your profile</span><span class="d">Campaigns, withdrawals, donations and settings</span></span><span class="chev">›</span></span></a>'+
       '<a class="pn-item" href="#disc" data-close="1"><span class="row"><span><span class="t">Donate</span><span class="d">Discover fundraisers to support</span></span><span class="chev">›</span></span></a>'+
       '<a class="pn-item" href="create-campaign.html"><span class="row"><span><span class="t">Fundraise</span><span class="d">Start fundraising, tips, and resources</span></span><span class="chev">›</span></span></a>'+
       '<a class="pn-item" href="#how" data-close="1"><span class="row"><span><span class="t">About</span><span class="d">How it works, pricing, and more</span></span><span class="chev">›</span></span></a>'+
       '<a class="pn-item" href="mailto:support@hopeforus.com"><span class="row"><span><span class="t">Help Center</span><span class="d">Technical support and help</span></span><span class="chev">›</span></span></a>';
     actions=
       '<a class="pn-cta" href="create-campaign.html">New fundraiser</a>'+
-      '<a class="pn-ghost" href="dashboard.html">My desk</a>'+
+      '<a class="pn-ghost" href="/dashboard/">Your profile</a>'+
       '<a class="pn-ghost" href="#" id="pnLogout">Log out</a>';
   }else{
     items=
