@@ -299,8 +299,7 @@ function publish(){
     }
   }
   try{localStorage.setItem("hopeforus_last_share",shortShareUrl(code))}catch(e){}
-  // Clean short URL only — no .html in the share link
-  location.href="/c/"+encodeURIComponent(code);
+  location.href="/dashboard/?submitted=1";
 }
 $("back").onclick=function(){
   if(step===0)return;
