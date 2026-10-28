@@ -33,7 +33,7 @@ input:focus{outline:none;border-color:var(--p)}
 </head>
 <body>
 <header class="hdr">
-  <a href="index.html" class="logo">HopeForUs</a>
+  <a href="/" class="logo">HopeForUs</a>
   <button class="back" id="backBtn">← Back</button>
 </header>
 <div class="wrap">
@@ -57,7 +57,7 @@ input:focus{outline:none;border-color:var(--p)}
   <input type="text" id="name" placeholder="Your name">
   <p class="err" id="err"></p>
   <button type="button" class="go" id="goBtn">Continue to pay</button>
-  <p class="note">Payment by card (Apple Pay if available). Processed securely by Tribute. Each donation is tagged with the campaign ID so you can track who gave and to which campaign.</p>
+  <p class="note">Payment by card (Apple Pay if available). After you pay, you will return to this campaign on HopeForUs.</p>
 </div>
 <script src="campaigns-data.js"></script>
 <script src="tribute-config.js"></script>
@@ -77,8 +77,11 @@ if (!c) {
   document.getElementById("goBtn").disabled = true;
   return;
 }
+var shortKey = (c.code || c.id || id).toString();
+var returnUrl = location.origin + "/c/" + encodeURIComponent(shortKey) + "?donated=1";
+var failUrl = location.origin + "/c/" + encodeURIComponent(shortKey) + "?donate_failed=1";
 document.getElementById("campTitle").textContent = c.title || "";
-document.getElementById("backBtn").onclick = function() { location.href = "campaign.html?id=" + encodeURIComponent(id); };
+document.getElementById("backBtn").onclick = function() { location.href = "/c/" + encodeURIComponent(shortKey); };
 
 var u = null;
 try { u = JSON.parse(localStorage.getItem("hopeforus_user") || "null"); } catch(e) {}
@@ -117,7 +120,6 @@ async function getShopId(cfg) {
   return null;
 }
 
-// Pre-check shop on load
 (async function checkShop() {
   var cfg = window.HOPEFORUS_TRIBUTE || {};
   if (!cfg.apiKey) return;
@@ -138,7 +140,7 @@ async function createTributeOrder(amountUsd, donorEmail, donorName) {
   if (amountCents < 100) amountCents = 100;
   var shopId = await getShopId(cfg);
   if (!shopId) {
-    alert("No Tribute Shop found.\n\nCreate a Shop in the Tribute mini-app first (look for Shop / Create Shop). Then try again.\n\nDocs: https://wiki.tribute.tg/for-shops/api");
+    alert("No Tribute Shop found.\n\nCreate a Shop in the Tribute mini-app first (look for Shop / Create Shop). Then try again.");
     document.getElementById("shopBanner").classList.add("show");
     return null;
   }
@@ -151,8 +153,8 @@ async function createTributeOrder(amountUsd, donorEmail, donorName) {
     comment: "campaign:" + (c.id || "") + (c.code ? "|code:" + c.code : ""),
     customerId: "camp_" + (c.id || ""),
     email: donorEmail || undefined,
-    successUrl: location.origin + "/campaign.html?id=" + encodeURIComponent(id) + "&donated=1",
-    failUrl: location.origin + "/campaign.html?id=" + encodeURIComponent(id) + "&donate_failed=1",
+    successUrl: returnUrl,
+    failUrl: failUrl,
     period: "onetime",
     preferredPaymentMethods: [{type:"card"},{type:"apple_pay"}]
   };
@@ -175,7 +177,7 @@ async function createTributeOrder(amountUsd, donorEmail, donorName) {
     return await res.json();
   } catch (e) {
     console.error(e);
-    alert("Network / CORS error. Tribute may block direct browser requests from this domain. A small backend proxy will be needed.");
+    alert("Network / CORS error. Tribute may block direct browser requests from this domain.");
     return null;
   }
 }
