@@ -179,7 +179,83 @@
     var r=list.find(function(x){return x.id===id});
     if(!r) return false;
     r.status=status;r.updated=Date.now();
-    save(WITHDRAW_KEY,list);return true;
+    save(WITHDRAW_KEY,list);
+    addNotice({email:r.email, title:'Withdrawal '+status, body:'$'+r.amount+' via '+(r.method||''), kind:'withdraw'});
+    return true;
+  }
+
+  var GIFTS_KEY='hopeforus_gifts';
+  var NOTICES_KEY='hopeforus_notices';
+  function addNotice(n){
+    var list=load(NOTICES_KEY,[]);
+    list.unshift({id:'n_'+Date.now().toString(36), email:String(n.email||'all').toLowerCase(), title:n.title||'Update', body:n.body||'', kind:n.kind||'update', at:Date.now()});
+    save(NOTICES_KEY, list.slice(0,200));
+  }
+  function listNotices(email){
+    email=String(email||'').toLowerCase();
+    return load(NOTICES_KEY,[]).filter(function(n){return n.email==='all'||n.email===email});
+  }
+  function postSiteUpdate(title, body){
+    var u=session(); if(!u||!u.isAdmin) return {ok:false, err:'Admin only'};
+    title=String(title||'').trim(); if(!title) return {ok:false, err:'Write an update'};
+    addNotice({email:'all', title:title, body:String(body||'').trim(), kind:'update'});
+    return {ok:true};
+  }
+  function addGift(payload){
+    var u=session(); if(!u||!u.isAdmin) return {ok:false, err:'Admin only'};
+    var camps=getAllCampaigns();
+    var c=camps.find(function(x){return x&&x.id===payload.campaignId});
+    if(!c) return {ok:false, err:'Pick a campaign'};
+    var amount=parseFloat(payload.amount);
+    if(!(amount>0)) return {ok:false, err:'Enter an amount'};
+    var donor=String(payload.donor||'Anonymous').trim()||'Anonymous';
+    var owner=String(c.ownerEmail||c.organizerEmail||'').toLowerCase();
+    var row={id:'g_'+Date.now().toString(36), campaignId:c.id, title:c.title, ownerEmail:owner, donor:donor, amount:amount, note:String(payload.note||'').trim(), at:Date.now()};
+    var gifts=load(GIFTS_KEY,[]); gifts.unshift(row); save(GIFTS_KEY,gifts);
+    updateCampaignRaised(c.id, (Number(c.raised)||0)+amount, (Number(c.donations)||0)+1);
+    if(owner) addNotice({email:owner, title:donor+' donated $'+amount, body:c.title, kind:'donation'});
+    return {ok:true, row:row};
+  }
+  function listGifts(email){
+    var gifts=load(GIFTS_KEY,[]);
+    if(!email) return gifts;
+    email=String(email).toLowerCase();
+    return gifts.filter(function(g){return g.ownerEmail===email});
+  }
+  function beginCode(email){
+    email=String(email||'').toLowerCase().trim();
+    var u=users().find(function(x){return x.email===email});
+    if(!u) return {ok:false, err:'No account with that email'};
+    var code=String(Math.floor(100000+Math.random()*900000));
+    sessionStorage.setItem('hopeforus_code', JSON.stringify({email:email, code:code, ts:Date.now()}));
+    return {ok:true, code:code, email:email};
+  }
+  function readCode(email, code){
+    var p; try{p=JSON.parse(sessionStorage.getItem('hopeforus_code')||'null')}catch(e){p=null}
+    email=String(email||'').toLowerCase().trim();
+    if(!p||p.email!==email||String(p.code)!==String(code||'').trim()) return {ok:false, err:'That code is wrong'};
+    if(Date.now()-p.ts>15*60*1000) return {ok:false, err:'That code expired. Ask for a new one'};
+    var u=users().find(function(x){return x.email===email});
+    if(!u) return {ok:false, err:'No account with that email'};
+    return {ok:true, user:u};
+  }
+  function loginWithCode(email, code){
+    var r=readCode(email, code); if(!r.ok) return r;
+    sessionStorage.removeItem('hopeforus_code');
+    setSession(r.user);
+    return {ok:true, user:r.user};
+  }
+  function resetPassword(email, code, password){
+    if(!password||password.length<6) return {ok:false, err:'Password needs 6 characters'};
+    var r=readCode(email, code); if(!r.ok) return r;
+    var list=users();
+    var u=list.find(function(x){return x.email===r.user.email});
+    if(!u) return {ok:false, err:'No account'};
+    u.pass=hash(password);
+    saveUsers(list);
+    sessionStorage.removeItem('hopeforus_code');
+    setSession(u);
+    return {ok:true, user:u};
   }
 
   function submitReport(payload){
@@ -314,6 +390,8 @@
     ownsCampaign:ownsCampaign,myCampaigns:myCampaigns,deleteCampaign:deleteCampaign,
     shortLink:shortLink,realShareUrl:realShareUrl,trackClick:trackClick,getClicks:getClicks,clicksForUser:clicksForUser,
     requestWithdraw:requestWithdraw,listWithdrawals:listWithdrawals,setWithdrawStatus:setWithdrawStatus,
+    addGift:addGift,listGifts:listGifts,listNotices:listNotices,postSiteUpdate:postSiteUpdate,
+    beginCode:beginCode,loginWithCode:loginWithCode,resetPassword:resetPassword,
     submitReport:submitReport,listReports:listReports,setReportStatus:setReportStatus,
     isAdmin:isAdmin,adminUsers:adminUsers,adminCampaigns:adminCampaigns,
     setCampaignStatus:setCampaignStatus,setCampaignDonationLink:setCampaignDonationLink,
