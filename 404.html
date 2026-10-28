@@ -35,16 +35,13 @@ a{color:#7C3AED;font-weight:600}
     return;
   }
 
+  // Short share links: /c/EEPBA7 or /f/EEPBA7 or /campaign/EEPBA7
   if ((first === 'c' || first === 'campaign' || first === 'f') && second) {
-    var id = second;
-    if (first === 'f') {
-      location.replace('/f.html?c=' + encodeURIComponent(id.toUpperCase()));
-    } else {
-      location.replace('/campaign.html?id=' + encodeURIComponent(id));
-    }
+    location.replace('/f.html?c=' + encodeURIComponent(second.toUpperCase()));
     return;
   }
 
+  // Bare code: /EEPBA7
   if (parts.length === 1 && first && first !== '404.html' && first.indexOf('.') === -1) {
     location.replace('/f.html?c=' + encodeURIComponent(first.toUpperCase()));
     return;
