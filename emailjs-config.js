@@ -5,5 +5,5 @@ window.HOPEFORUS_EMAILJS = {
   publicKey: "HHYAAwQ9y_LhuJ7qR",
   serviceId: "service_w6qtun6",
   templateId: "template_zukhkib",
-  reportEmail: "ijogasadiq11@gmail.com"
+  reportEmail: "admin@hopeforus.com"
 };
