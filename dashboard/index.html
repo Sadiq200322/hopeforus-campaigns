@@ -171,7 +171,7 @@ function setTab(name){tab=name;openId='';editId='';document.getElementById('menu
 function render(){
   document.querySelectorAll('[data-tab]').forEach(function(el){el.classList.toggle('on', el.getAttribute('data-tab')===tab)});
   if(HF.isAdmin&&HF.isAdmin()){
-    var waitN=allCamps().filter(isUserCamp).filter(function(c){return c.status!=='approved'&&c.status!=='rejected'}).length;
+    var waitN=allCamps().filter(function(c){return c&&c.status!=='approved'&&c.status!=='rejected'}).length;
     var nav=document.getElementById('adminNav');
     if(nav) nav.innerHTML='<i>✓</i> Approve'+(waitN?' ('+waitN+')':'');
   }
@@ -276,13 +276,13 @@ function render(){
   if(tab==='admin'){
     if(!(HF.isAdmin&&HF.isAdmin())) tab='home';
     else {
-      var waiting=allCamps().filter(isUserCamp);
+      var waiting=allCamps().filter(function(c){ return c && c.status!=='approved' && c.status!=='rejected'; });
       var q=(window.approveQ||'').toLowerCase();
       if(q) waiting=waiting.filter(function(c){
-        return (c.title||'').toLowerCase().indexOf(q)>=0 || (c.ownerEmail||'').toLowerCase().indexOf(q)>=0 || (c.organizerEmail||'').toLowerCase().indexOf(q)>=0 || (c.organizer||'').toLowerCase().indexOf(q)>=0;
+        return (c.title||'').toLowerCase().indexOf(q)>=0 || (c.ownerEmail||'').toLowerCase().indexOf(q)>=0 || (c.organizerEmail||'').toLowerCase().indexOf(q)>=0 || (c.organizer||'').toLowerCase().indexOf(q)>=0 || (c.id||'').toLowerCase().indexOf(q)>=0;
       });
-      var htmlA='<div class="pane"><h1>Approve</h1><p class="sub">Every campaign a user account creates is listed here. Search by title or email. Approve it and it goes on the dashboard and the main page.</p><input id="approveQ" placeholder="Search title or email" value="'+esc(window.approveQ||'')+'">';
-      if(!waiting.length) htmlA+='<p class="note">No user campaigns are stored in this browser yet. A campaign shows here after that person publishes it on this device.</p>';
+      var htmlA='<div class="pane"><h1>Approve</h1><p class="sub">These are not approved yet. Search if you need one. Approve sends it to the dashboard and the main page.</p><input id="approveQ" placeholder="Search title or email" value="'+esc(window.approveQ||'')+'">';
+      if(!waiting.length) htmlA+='<p class="note">'+(q?'No match.':'Nothing is waiting for approval.')+'</p>';
       htmlA+='<div class="camp-grid">';
       waiting.forEach(function(c){
         var st=c.status==='approved'?'Approved':(c.status==='rejected'?'Rejected':'Waiting');
@@ -298,7 +298,7 @@ function render(){
       if(aq) aq.oninput=function(){ window.approveQ=aq.value; render(); aq.focus(); var v=aq.value; aq.setSelectionRange(v.length,v.length); };
       box.querySelectorAll('[data-st]').forEach(function(b){b.onclick=function(){
         HF.setCampaignStatus(b.getAttribute('data-cid'), b.getAttribute('data-st'));
-        if(b.getAttribute('data-st')==='approved') setTab('home'); else render();
+        render();
       }});
       return;
     }
