@@ -1,4 +1,4 @@
-/* Refresh raised from Supabase so admin-set amounts always show */
+/* Refresh raised from Supabase — keep the higher of local and remote so gifts never get wiped to 0 */
 (function(){
   if(!window.HFDB) return;
   var params = new URLSearchParams(location.search);
@@ -9,13 +9,19 @@
       if(!remote) return;
       var list = [];
       try { list = JSON.parse(localStorage.getItem('hopeforus_campaigns') || '[]'); } catch(e){}
-      var local = list.find(function(c){ return c && (c.id === id || c.code === id); });
-      if(local && Number(remote.raised) > Number(local.raised || 0)){
-        local.raised = remote.raised;
-        local.donations = remote.donations || local.donations;
+      if(!Array.isArray(list)) list = [];
+      var local = list.find(function(c){ return c && (c.id === id || String(c.code||'').toUpperCase() === id.toUpperCase()); });
+      var rr = Number(remote.raised) || 0;
+      var lr = local ? (Number(local.raised) || 0) : 0;
+      var rd = Number(remote.donations) || 0;
+      var ld = local ? (Number(local.donations) || 0) : 0;
+      if(rr > lr && local){
+        local.raised = rr;
+        local.donations = Math.max(ld, rd);
         try { localStorage.setItem('hopeforus_campaigns', JSON.stringify(list)); } catch(e){}
         location.reload();
       }
+      // If local is higher, leave it alone (do not overwrite with 0 or lower)
     }).catch(function(){});
   }, 800);
 })();
