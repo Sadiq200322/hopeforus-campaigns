@@ -240,6 +240,11 @@ function render(){
     html+='</div></div>';
   }else if(tab==='donations'){
     var mine=HF.listGifts(u.email);
+    var seen={};
+    mine.forEach(function(g){seen[g.id]=1});
+    var idset={};
+    list.forEach(function(c){if(c&&c.id)idset[c.id]=1; if(c&&c.code)idset[c.code]=1});
+    HF.listGifts().forEach(function(g){ if(!seen[g.id] && (idset[g.campaignId]||idset[g.code])){ mine.push(g); seen[g.id]=1; } });
     var sum=mine.reduce(function(n,g){return n+Number(g.amount||0)},0);
     html='<div class="pane"><h1>Donations Received</h1><p class="sub">$'+sum.toLocaleString()+' from '+mine.length+' gifts.</p><div class="card" style="padding:8px 14px">';
     if(!mine.length) html+='<p class="note">No gifts recorded yet.</p>';
