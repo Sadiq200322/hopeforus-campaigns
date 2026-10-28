@@ -4,25 +4,33 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HopeForUs</title>
-<style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;color:#1a1a1a;background:#fff}.box{text-align:center;padding:24px}a{color:#02a95c;font-weight:600}</style>
+<style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;color:#1a1a1a;background:#fff}.box{text-align:center;padding:24px}a{color:#7C3AED;font-weight:600}</style>
 </head>
 <body>
 <div class="box" id="msg">Opening fundraiser…</div>
-<script src="app.js"></script>
 <script src="campaigns-data.js"></script>
 <script>
 (function(){
   var code=(new URLSearchParams(location.search).get('c')||'').toUpperCase().trim();
-  if(!code){document.getElementById('msg').innerHTML='Invalid link. <a href="index.html">Home</a>';return}
-  try{HF.trackClick(code)}catch(e){}
+  if(!code){document.getElementById('msg').innerHTML='Invalid link. <a href="/">Home</a>';return}
   var list=[];try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
-  var c=list.find(function(x){return (x.code||'').toUpperCase()===code || String(x.id).toUpperCase()===code});
-  if(!c && typeof SAMPLES!=='undefined'){
-    var s=SAMPLES.find(function(x){return (x.code||'').toUpperCase()===code || String(x.id).toUpperCase()===code || String(x.id).toUpperCase()==='SAMPLE_'+code});
-    if(s){location.replace('campaign.html?id='+encodeURIComponent(s.id)+'&from=share');return}
+  if(!Array.isArray(list))list=[];
+  function match(x){
+    if(!x)return false;
+    var c=(x.code||'').toString().toUpperCase();
+    var id=(x.id||'').toString().toUpperCase();
+    return c===code || id===code;
   }
-  if(c){location.replace('campaign.html?id='+encodeURIComponent(c.id)+'&from=share');return}
-  document.getElementById('msg').innerHTML='Fundraiser not found for <strong>'+code+'</strong>. <a href="index.html">Browse campaigns</a>';
+  var c=list.find(match);
+  if(!c && typeof SAMPLES!=='undefined'){
+    c=SAMPLES.find(match);
+  }
+  if(c){
+    // Go to campaign page but prefer short path in history when possible
+    location.replace('/campaign.html?id='+encodeURIComponent(c.id)+'&from=share');
+    return;
+  }
+  document.getElementById('msg').innerHTML='Fundraiser not found. <a href="/">Browse campaigns</a>';
 })();
 </script>
 </body>
