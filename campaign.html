@@ -97,9 +97,8 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 <div class="wrap" id="app"><p style="padding:40px;color:#666">Loading campaign…</p></div>
 <footer class="ft">© 2026 HopeForUs</footer>
 <script src="campaigns-data.js"></script>
-<script src="shared-camps.js"></script>
 <script src="supabase.js"></script>
-<script src="fix-load.js"></script>
+<script src="shared-camps.js"></script>
 <script>
 (function(){
 var u=null;try{u=JSON.parse(localStorage.getItem("hopeforus_user")||"null")}catch(e){}
@@ -135,20 +134,222 @@ for(var i=0;i<list.length;i++){if(matchCamp(list[i])){c=list[i];break}}
 if(!c&&typeof SAMPLES!=="undefined"){
   for(var j=0;j<SAMPLES.length;j++){if(matchCamp(SAMPLES[j])){c=SAMPLES[j];break}}
 }
+function remember(found){
+  var list2=[]; try{list2=JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")}catch(e){}
+  if(!Array.isArray(list2)) list2=[];
+  var idx=list2.findIndex(function(x){return x&&x.id===found.id});
+  if(idx>=0) list2[idx]=Object.assign({}, list2[idx], found, {code:found.code||list2[idx].code||""});
+  else list2.push(found);
+  try{localStorage.setItem("hopeforus_campaigns", JSON.stringify(list2));}catch(e){}
+}
+function notFound(){
+  document.getElementById("app").innerHTML='<p style="padding:40px">Campaign not found. <a href="/" style="color:#7C3AED">Back home</a></p>';
+}
 if(!c){
-  if(window.HFShared && !sessionStorage.getItem('hf_pulled_'+id)){
-    sessionStorage.setItem('hf_pulled_'+id,'1');
+  var key='hf_pub_'+idLower;
+  if(!sessionStorage.getItem(key) && (window.HFDB || window.HFShared)){
+    sessionStorage.setItem(key,'1');
     document.getElementById("app").innerHTML='<p style="padding:40px">Loading campaign…</p>';
-    HFShared.pull().then(function(list){ HFShared.merge(list); location.reload(); }).catch(function(){
-      document.getElementById("app").innerHTML='<p style="padding:40px">Campaign not found. <a href="/" style="color:#7C3AED">Back home</a></p>';
-    });
+    var loadDb = window.HFDB ? HFDB.list() : Promise.resolve([]);
+    loadDb.then(function(rows){
+      var found=null;
+      (rows||[]).forEach(function(x){ if(!found && matchCamp(x)) found=x; });
+      if(!found && idLower==="eepba7"){
+        (rows||[]).forEach(function(x){ if(!found && x && x.id==="c_mvs4qsny"){ found=x; found.code="EEPBA7"; } });
+      }
+      if(found && found.status!=="rejected"){ remember(found); location.reload(); return; }
+      if(window.HFShared){
+        return HFShared.pull().then(function(remote){
+          HFShared.merge(remote);
+          var hit=null;
+          (remote||[]).forEach(function(x){ if(!hit && matchCamp(x)) hit=x; });
+          if(!hit && idLower==="eepba7"){
+            (remote||[]).forEach(function(x){ if(!hit && x && x.id==="c_mvs4qsny"){ hit=x; hit.code="EEPBA7"; } });
+          }
+          if(hit && hit.status!=="rejected"){ remember(hit); location.reload(); return; }
+          notFound();
+        });
+      }
+      notFound();
+    }).catch(function(){ notFound(); });
     return;
   }
-  document.getElementById("app").innerHTML='<p style="padding:40px">Campaign not found. <a href="/" style="color:#7C3AED">Back home</a></p>';
+  notFound();
   return;
 }
-/* rest of original script continues - this is a truncated version for the push; full file is on disk */
+(function(){
+  function norm(s){return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"")}
+  var giftList=[];
+  try{giftList=JSON.parse(localStorage.getItem("hopeforus_gifts")||"[]")}catch(e){}
+  if(!Array.isArray(giftList)) giftList=[];
+  var urlId=norm(id);
+  var cid=norm(c.id);
+  var ccode=norm(c.code);
+  var ctitle=norm(c.title);
+  var mine=giftList.filter(function(g){
+    if(!g) return false;
+    var gid=norm(g.campaignId);
+    var gt=norm(g.title);
+    if(gid && (gid===cid || gid===ccode || gid===urlId)) return true;
+    if(gt && ctitle && (gt===ctitle || (gt.length>12 && (ctitle.indexOf(gt)===0 || gt.indexOf(ctitle)===0)))) return true;
+    return false;
+  });
+  var sample=null;
+  if(typeof SAMPLES!=="undefined"&&Array.isArray(SAMPLES)){
+    for(var i=0;i<SAMPLES.length;i++){ if(SAMPLES[i]&&(SAMPLES[i].id===c.id||norm(SAMPLES[i].id)===urlId)){ sample=SAMPLES[i]; break; } }
+  }
+  var lead=[];
+  var seen={};
+  function pushDonor(d){
+    if(!d) return;
+    var key=norm(d.name)+"|"+Number(d.amount||0)+"|"+(d.giftId||"");
+    if(seen[key]) return;
+    seen[key]=1;
+    lead.push(d);
+  }
+  mine.forEach(function(g){ pushDonor({name:g.donor||"Anonymous", amount:Number(g.amount)||0, time:"Just now", giftId:g.id}); });
+  (Array.isArray(c.donors)?c.donors:[]).forEach(function(d){ if(d&&(d.giftId||d.time==="Just now")) pushDonor(d); });
+  var base=(sample&&Array.isArray(sample.donors))?sample.donors:(Array.isArray(c.donors)?c.donors:[]);
+  base.forEach(function(d){ if(d&&!d.giftId && d.time!=="Just now") pushDonor(d); });
+  if(lead.length) c.donors=lead;
+  var giftSum=0;
+  mine.forEach(function(g){ giftSum+=Number(g.amount)||0; });
+  if(sample && giftSum){
+    var baseRaised=Number(sample.raised)||0;
+    var stored=Number(c.raised)||0;
+    c.raised=Math.max(stored, baseRaised+giftSum);
+    c.donations=Math.max(Number(c.donations)||0, (Number(sample.donations)||0)+mine.length);
+  }
+})();
+var raised=Number(c.raised)||0,goal=Math.max(1,Number(c.goal)||1);
+var p=Math.min(100,Math.round(raised/goal*100));
+var story=c.story||"";
+var shortCode=(c.code||c.id||id||'').toString();
+var shareUrl=(location.origin||'https://munowatchplus.watch')+'/c/'+encodeURIComponent(shortCode);
+var shareEnc=encodeURIComponent(shareUrl);
+try{
+  if(history.replaceState){
+    var want='/c/'+encodeURIComponent(shortCode);
+    var keep=location.search.indexOf('donated')>=0?location.search:'';
+    if(location.pathname+location.search !== want+keep) history.replaceState(null,'',want+keep);
+  }
+}catch(e){}
+var donorsArr=c.donors||[];
+(function(){
+  var giftList=[];
+  try{giftList=JSON.parse(localStorage.getItem("hopeforus_gifts")||"[]")}catch(e){}
+  if(!Array.isArray(giftList)) return;
+  function norm(s){return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"")}
+  var mine=giftList.filter(function(g){
+    if(!g) return false;
+    if(String(g.campaignId)===String(c.id)) return true;
+    if(c.code && String(g.campaignId)===String(c.code)) return true;
+    var gt=norm(g.title), ct=norm(c.title);
+    return gt && ct && (gt===ct || gt.indexOf(ct)===0 || ct.indexOf(gt)===0);
+  });
+  if(!mine.length) return;
+  var have={};
+  donorsArr.forEach(function(d){ if(d&&d.giftId) have[d.giftId]=1; });
+  var add=mine.filter(function(g){
+    if(have[g.id]) return false;
+    var name=g.donor||"Anonymous";
+    var amt=Number(g.amount)||0;
+    return !donorsArr.some(function(d){ return d && d.name===name && Number(d.amount)===amt && d.time==="Just now"; });
+  });
+  if(!add.length) return;
+  donorsArr=add.map(function(g){
+    return {name:g.donor||"Anonymous", amount:Number(g.amount)||0, time:"Just now", giftId:g.id};
+  }).concat(donorsArr);
+  c.donors=donorsArr;
+  c.donations=(Number(c.donations)||0);
+  if(c.donations<donorsArr.length) c.donations=Math.max(c.donations, (Number(c.donations)||0));
+})();
+var donors=donorsArr.slice(0,12).map(function(d){
+  var n=(d.name||"A").charAt(0).toUpperCase();
+  return '<div class="donor"><div class="d-av">'+n+'</div><div><strong>'+esc(d.name)+'</strong><div style="color:#666">'+money(d.amount,c.currency)+(d.time?' · '+esc(d.time):'')+'</div></div></div>';
+}).join("");
+var ringCirc=2*Math.PI*26;
+var ringOff=ringCirc*(1-Math.min(1,p/100));
+var topDonor=donorsArr[0]||null;
+var recentTxt=topDonor?(esc(topDonor.name||"Someone")+" donated "+money(topDonor.amount,c.currency)+" \u203a"):((c.donations||0)+" donations");
+var scCirc=2*Math.PI*22;
+var scOff=scCirc*(1-Math.min(1,p/100));
+var img=c.image||"";
+var donationLink=(c.donationLink||"").trim();
+var isLive=!!donationLink && (c.status!=="rejected");
+var donateBtn=isLive
+  ? '<a href="'+esc(donationLink)+'" class="btn-donate" target="_blank" rel="noopener">Donate</a>'
+  : '<button type="button" class="btn-donate disabled">Under review</button>';
+var reviewNote=isLive ? '' : '<div class="review-note">Donations open after admin review</div>';
+var shareCard=
+  '<div class="share-promo">'+
+  '<h3>Sharing helps more than you think</h3>'+
+  '<p class="sub">On average, <strong>each share can inspire $50</strong> in donations by helping this fundraiser reach more people.</p>'+
+  '<div class="sc-frame">'+
+  '<div class="sc-inner">'+
+  '<div class="sc-left">'+
+  '<div><div class="sc-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="#7C3AED"><path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16.8 5.6 21.2 8 14 2 9.2h7.6z"/></svg> HopeForUs</div>'+
+  '<div class="sc-title">'+esc(c.title)+'</div></div>'+
+  '<div class="sc-org">Organized for<strong>'+esc(c.beneficiary||c.organizer||"")+'</strong></div>'+
+  '</div>'+
+  '<div class="sc-right">'+(img?'<img src="'+img+'" alt="">':'')+
+  '<div class="sc-heart"><svg width="18" height="18" viewBox="0 0 24 24" fill="#7C3AED"><path d="M12 21s-7-4.35-9.5-8.5C.5 9 2.5 5 6.5 5c2 0 3.5 1.2 5.5 3.2C14 6.2 15.5 5 17.5 5c4 0 6 4 4 7.5C19 16.65 12 21 12 21z"/></svg></div>'+
+  '<div class="sc-overlay">'+
+  '<div class="sc-pct"><svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="22" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="28" cy="28" r="22" fill="none" stroke="#7C3AED" stroke-width="5" stroke-linecap="round" stroke-dasharray="'+scCirc.toFixed(1)+'" stroke-dashoffset="'+scOff.toFixed(1)+'"/></svg><span>'+p+'%</span></div>'+
+  '<span class="sc-raised">'+money(raised,c.currency)+' raised</span>'+
+  '<span class="sc-donow">Donate now!</span>'+
+  '</div></div></div>'+
+  '<div class="sc-icons">'+
+  '<button type="button" class="ic-copy" id="scCopy" title="Copy link"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 8h6v6M8 14H5a2 2 0 01-2-2V5a2 2 0 012-2v3"/></svg></button>'+
+  '<a class="ic-fb" href="https://www.facebook.com/sharer/sharer.php?u='+shareEnc+'" target="_blank" rel="noopener" title="Facebook"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07C0 18.1 4.39 23.09 10.13 24v-8.44H7.08v-3.49h3.04v-2.66c0-3.02 1.79-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.95h-1.51c-1.49 0-1.95.93-1.95 1.89v2.28h3.32l-.53 3.49h-2.79V24C19.61 23.09 24 18.1 24 12.07z"/></svg></a>'+
+  '<a class="ic-wa" href="https://wa.me/?text='+shareEnc+'" target="_blank" rel="noopener" title="WhatsApp"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.12 1.52 5.85L.05 24l6.34-1.66A11.94 11.94 0 0012 24c6.63 0 12-5.37 12-12S18.63 0 12 0zm5.15 16.4c-.25.7-1.44 1.32-2.01 1.41-.51.08-1.16.11-1.87-.12-.43-.14-.98-.33-1.69-.63-2.98-1.29-4.93-4.29-5.08-4.49-.15-.2-1.22-1.61-1.22-3.07 0-1.46.77-2.18 1.04-2.48.28-.3.6-.37.8-.37h.57c.18 0 .43-.08.67.5.25.59.85 2.05.92 2.2.07.15.12.32.02.52-.1.2-.15.33-.3.5-.15.17-.32.39-.45.52-.15.14-.3.3-.13.6.17.29.76 1.26 1.64 2.04 1.13 1.01 2.08 1.32 2.38 1.47.29.15.47.13.64-.07.17-.2.74-.86.94-1.16.2-.3.4-.25.67-.15.27.09 1.73.81 2.03.96.3.15.5.22.57.35.08.12.08.71-.17 1.41z"/></svg></a>'+
+  '<a class="ic-ms" href="https://www.facebook.com/dialog/send?link='+shareEnc+'&app_id=291494419107518&redirect_uri='+shareEnc+'" target="_blank" rel="noopener" title="Messenger"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 4.97 0 11.11c0 3.5 1.72 6.62 4.41 8.65V24l4.04-2.22c1.1.3 2.27.47 3.55.47 6.63 0 12-4.97 12-11.11S18.63 0 12 0zm1.2 15l-3.06-3.26L4.5 15l6.55-6.95L14.2 11.3 19.5 9l-6.3 6z"/></svg></a>'+
+  '<a class="ic-li" href="https://www.linkedin.com/sharing/share-offsite/?url='+shareEnc+'" target="_blank" rel="noopener" title="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 110-4.12 2.06 2.06 0 010 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.73V1.73C24 .77 23.21 0 22.23 0z"/></svg></a>'+
+  '</div></div></div>';
+var html='<div class="main">'+
+  (c.video?'<div class="hero-img"><video src="'+esc(c.video)+'" controls playsinline style="width:100%;height:100%;object-fit:cover"></video></div>':(img?'<div class="hero-img"><img src="'+img+'" alt=""></div>':''))+
+  '<h1>'+esc(c.title)+'</h1>'+
+  '<div class="section"><div class="story" id="story">'+esc(story)+'</div>'+(story.length>400?'<button type="button" class="read-more" id="readMore">Read more</button>':'')+'</div>'+
+  shareCard+
+  '<p style="margin:16px 0 8px;font-size:.85rem"><a href="/report?id='+encodeURIComponent(c.id)+'" style="color:#6b7280;text-decoration:underline">Report this campaign</a></p>'+
+  (donors?'<div class="section"><h3>'+(c.donations||donorsArr.length)+' donations</h3><div class="donors">'+donors+'</div></div>':'')+
+  '</div>'+
+  '<aside class="side"><div class="card">'+
+  '<div class="raise-row"><div class="ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="#e8e8e8" stroke-width="6"/><circle cx="32" cy="32" r="26" fill="none" stroke="#7C3AED" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+ringCirc.toFixed(1)+'" stroke-dashoffset="'+ringOff.toFixed(1)+'"/></svg><div class="ring-pct">'+p+'%</div></div>'+
+  '<div class="raise-meta"><div class="raised">'+money(raised,c.currency)+' raised <span>of '+moneyShort(goal,c.currency)+'</span></div>'+
+  '<div class="recent-line">'+recentTxt+'</div></div></div>'+
+  '<div class="btn-row">'+donateBtn+
+  '<button type="button" class="btn-share" id="shareBtn">Share</button></div>'+
+  reviewNote+
+  '</div></aside>';
+document.getElementById("app").innerHTML=html;
+var rm=document.getElementById("readMore");
+if(rm){var st=document.getElementById("story");st.classList.add("clamp");rm.onclick=function(){st.classList.toggle("clamp");rm.textContent=st.classList.contains("clamp")?"Read more":"Show less";};}
+
+function showToast(msg){
+  var t=document.getElementById("copyToast");
+  if(!t)return;
+  t.textContent=msg||"Link copied";
+  t.classList.add("on");
+  setTimeout(function(){t.classList.remove("on");},1600);
+}
+function copyLink(){
+  function ok(){showToast("Link copied");}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(shareUrl).then(ok).catch(function(){
+      var ta=document.createElement("textarea");ta.value=shareUrl;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");ok()}catch(e){}document.body.removeChild(ta);
+    });
+  }else{
+    var ta=document.createElement("textarea");ta.value=shareUrl;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");ok()}catch(e){}document.body.removeChild(ta);
+  }
+}
+var sc=document.getElementById("scCopy");
+if(sc)sc.onclick=copyLink;
+var shareBtn=document.getElementById("shareBtn");
+if(shareBtn)shareBtn.onclick=copyLink;
 })();
 </script>
+<div class="copy-toast" id="copyToast">Link copied</div>
+<script src="fx.js"></script>
 </body>
 </html>

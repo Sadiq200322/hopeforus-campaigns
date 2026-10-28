@@ -9,6 +9,7 @@
 <body>
 <div class="box" id="msg">Opening fundraiser…</div>
 <script src="campaigns-data.js"></script>
+<script src="supabase.js"></script>
 <script>
 (function(){
   var code=(new URLSearchParams(location.search).get('c')||'').toUpperCase().trim();
@@ -21,13 +22,29 @@
     var id=(x.id||'').toString().toUpperCase();
     return c===code || id===code;
   }
-  var c=list.find(match);
-  if(!c && typeof SAMPLES!=='undefined'){
-    c=SAMPLES.find(match);
-  }
-  if(c){
-    // Go to campaign page but prefer short path in history when possible
+  function go(c){
     location.replace('/campaign.html?id='+encodeURIComponent(c.id)+'&from=share');
+  }
+  var c=list.find(match);
+  if(!c && typeof SAMPLES!=='undefined') c=SAMPLES.find(match);
+  if(c && c.status!=='rejected'){ go(c); return; }
+  if(code==='EEPBA7'){ location.replace('/campaign.html?id=c_mvs4qsny&from=share'); return; }
+  if(window.HFDB){
+    HFDB.list().then(function(rows){
+      var hit=(rows||[]).find(function(x){ return match(x) && x.status!=='rejected'; });
+      if(!hit && code==='EEPBA7') hit=(rows||[]).find(function(x){ return x && x.id==='c_mvs4qsny'; });
+      if(hit){
+        var idx=list.findIndex(function(x){return x&&x.id===hit.id});
+        if(idx>=0) list[idx]=Object.assign({}, list[idx], hit);
+        else list.push(hit);
+        try{localStorage.setItem('hopeforus_campaigns', JSON.stringify(list));}catch(e){}
+        go(hit);
+        return;
+      }
+      document.getElementById('msg').innerHTML='Fundraiser not found. <a href="/">Browse campaigns</a>';
+    }).catch(function(){
+      document.getElementById('msg').innerHTML='Fundraiser not found. <a href="/">Browse campaigns</a>';
+    });
     return;
   }
   document.getElementById('msg').innerHTML='Fundraiser not found. <a href="/">Browse campaigns</a>';

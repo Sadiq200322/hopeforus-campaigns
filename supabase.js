@@ -7,6 +7,22 @@
     if(extra) Object.keys(extra).forEach(function(k){ h[k]=extra[k]; });
     return h;
   }
+  function codeFromMedia(media){
+    if(!Array.isArray(media)) return '';
+    for(var i=0;i<media.length;i++){
+      var m=media[i];
+      if(m && (m.type==='share' || m.kind==='share') && m.code) return String(m.code);
+    }
+    return '';
+  }
+  function withShare(media, code){
+    var list=Array.isArray(media)?media.slice():[];
+    if(!code) return list;
+    var has=false;
+    list.forEach(function(m){ if(m && (m.type==='share' || m.kind==='share')){ m.code=String(code); has=true; } });
+    if(!has) list.push({type:'share', code:String(code)});
+    return list;
+  }
   function rowFrom(c){
     return {
       id:c.id,
@@ -18,7 +34,7 @@
       raised:Number(c.raised)||0,
       donations:Number(c.donations)||0,
       image_url:c.image_url||c.image||'',
-      media:Array.isArray(c.media)?c.media:[],
+      media:withShare(Array.isArray(c.media)?c.media:[], c.code||''),
       status:c.status||'pending',
       donation_link:c.donationLink||c.donation_link||'',
       created_at:c.createdAt||c.created_at||new Date().toISOString()
@@ -26,13 +42,25 @@
   }
   function campFrom(r){
     if(!r) return null;
+    var img=r.image_url||'';
+    if(String(img).indexOf('data:')===0) img='';
+    var media=Array.isArray(r.media)?r.media:[];
+    if(!img){
+      for(var i=0;i<media.length;i++){
+        var m=media[i];
+        var u=(m&&(m.url||m.dataUrl))||'';
+        if(String(u).indexOf('http')===0){ img=u; break; }
+      }
+    }
+    media=media.filter(function(m){ return m && m.type!=='share' && m.kind!=='share'; });
     return {
       id:r.id, title:r.title||'', story:r.story||'',
       ownerEmail:r.owner_email||'', organizerEmail:r.owner_email||'', organizer:r.organizer||'',
       goal:Number(r.goal)||0, raised:Number(r.raised)||0, donations:Number(r.donations)||0,
-      image:r.image_url||'', image_url:r.image_url||'',
-      media:Array.isArray(r.media)?r.media:[],
+      image:img, image_url:img,
+      media:media,
       status:r.status||'pending', donationLink:r.donation_link||'',
+      code:codeFromMedia(r.media)||'',
       createdAt:r.created_at||''
     };
   }
