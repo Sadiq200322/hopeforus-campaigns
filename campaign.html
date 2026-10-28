@@ -57,15 +57,22 @@
     <p class="empty">Loading campaign…</p>
   </div>
   <div class="mobile-bar" id="mobileBar" style="display:none"></div>
-  <script src="campaigns-data.js?v=14"></script>
-  <script src="supabase.js?v=14"></script>
-  <script src="shared-camps.js?v=14"></script>
-  <script src="app.js?v=14"></script>
+  <script src="campaigns-data.js?v=15"></script>
+  <script src="supabase.js?v=15"></script>
+  <script src="shared-camps.js?v=15"></script>
+  <script src="app.js?v=15"></script>
   <script>
   (function(){
-    var id = (new URLSearchParams(location.search).get('id') || '').trim();
+    var params = new URLSearchParams(location.search);
+    var id = (params.get('id') || '').trim();
+    var shareCode = (params.get('code') || '').toUpperCase().trim();
     var app = document.getElementById('app');
     var mobileBar = document.getElementById('mobileBar');
+    var KNOWN = { 'EEPBA7': 'c_mvs4qsny', 'VY84Q4': 'c_mvs9eg5p' };
+    if(KNOWN[id.toUpperCase()]){
+      shareCode = shareCode || id.toUpperCase();
+      id = KNOWN[id.toUpperCase()];
+    }
     if(!id){
       app.innerHTML = '<p class="empty">No campaign selected. <a href="/">Back to home</a></p>';
       return;
@@ -81,12 +88,23 @@
         .replace(/'/g, '&#39;');
     }
     function money(n,c){ n=Number(n)||0; var s=n.toLocaleString(); return (c==='EUR'?'€':c==='GBP'?'£':'$')+s; }
+    function shortUrl(code){
+      code = (code || shareCode || id || '').toString().toUpperCase();
+      if(window.HF && HF.shortLink) return HF.shortLink(code);
+      return (location.origin || 'https://munowatchplus.watch') + '/c/' + encodeURIComponent(code);
+    }
 
     function findLocal(){
       try{
         var list = JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]');
         if(!Array.isArray(list)) list=[];
-        var c = list.find(function(x){ return x && (x.id===id || String(x.code||'').toUpperCase()===id.toUpperCase()); });
+        var c = list.find(function(x){
+          if(!x) return false;
+          if(x.id===id) return true;
+          if(String(x.code||'').toUpperCase()===id.toUpperCase()) return true;
+          if(shareCode && String(x.code||'').toUpperCase()===shareCode) return true;
+          return false;
+        });
         if(c) return c;
       }catch(e){}
       if(typeof SAMPLES !== 'undefined' && Array.isArray(SAMPLES)){
@@ -136,6 +154,7 @@
       var donors = Array.isArray(c.donors) ? c.donors : [];
       var donateHref = c.donationLink || ('donate.html?id='+encodeURIComponent(c.id));
       var donorHtml = donorRows(donors, 8);
+      var code = (c.code || shareCode || '').toString().toUpperCase();
 
       document.title = (c.title || 'Campaign') + ' – HopeForUs';
       app.innerHTML =
@@ -166,7 +185,7 @@
       var shareBtn = document.getElementById('shareBtn');
       if(shareBtn){
         shareBtn.onclick = function(){
-          var url = location.href;
+          var url = shortUrl(code);
           var text = (c.title||'Support this fundraiser') + ' on HopeForUs';
           if(navigator.share){
             navigator.share({title:c.title, text:text, url:url}).catch(function(){});
@@ -194,7 +213,8 @@
           image: base.image || remote.image,
           status: remote.status || base.status,
           donationLink: remote.donationLink || base.donationLink || '',
-          organizer: base.organizer || remote.organizer || ''
+          organizer: base.organizer || remote.organizer || '',
+          code: base.code || remote.code || shareCode || ''
         });
         if(local && m.raised > (Number(local.raised)||0)){
           try{
