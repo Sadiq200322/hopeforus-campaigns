@@ -300,8 +300,27 @@ function publish(){
   }
   try{localStorage.setItem("hopeforus_last_share",shortShareUrl(code))}catch(e){}
   var go=function(){ location.href="/dashboard/?submitted=1"; };
-  if(window.HFShared){ HFShared.push(camp).then(go).catch(go); }
-  else go();
+  function finish(){
+    if(window.HFShared) HFShared.push(camp).then(go).catch(go);
+    else go();
+  }
+  if(window.HFDB){
+    var jobs=(camp.media||[]).map(function(m,i){
+      var src=m&&(m.dataUrl||m.url||'');
+      if(!src||String(src).indexOf('data:')!==0) return Promise.resolve(m);
+      var ext=m.type==='video'?'mp4':'jpg';
+      return HFDB.upload(src, camp.id+'_'+i+'.'+ext).then(function(url){
+        return {type:m.type||'image', url:url, name:m.name||''};
+      }).catch(function(){ return {type:m.type||'image', name:m.name||''}; });
+    });
+    Promise.all(jobs).then(function(media){
+      camp.media=media.filter(function(m){ return m&&(m.url||m.dataUrl); });
+      var cover='';
+      camp.media.forEach(function(m){ if(!cover&&m.type!=='video'&&m.url) cover=m.url; });
+      if(cover) camp.image=cover;
+      return HFDB.save(camp);
+    }).then(finish).catch(function(){ finish(); });
+  } else finish();
 }
 $("back").onclick=function(){
   if(step===0)return;
