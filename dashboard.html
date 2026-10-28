@@ -36,13 +36,10 @@ header{position:sticky;top:0;z-index:40;height:64px;display:grid;grid-template-c
 main{flex:1;min-width:0;padding:28px 20px 88px}
 @media(min-width:800px){main{padding:32px 36px 48px}}
 h1{font-size:1.25rem;font-weight:800}
-.sub{color:var(--muted);font-size:.88rem;margin:4px 0 14px;line-height:1.45}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-@media(min-width:800px){.stats{grid-template-columns:repeat(4,1fr)}}
-.camp-grid{display:flex;flex-direction:column;gap:12px;margin-top:16px}
-.stat{padding:10px 12px}
-.stat b{display:block;font-size:1.15rem;margin-top:2px}
-.stat span{color:#777;font-size:.72rem}
+.sub{color:#6b6b6b;font-size:1rem;margin:4px 0 14px;line-height:1.45}
+.stat,.card,.camp{background:#fff;border:1px solid #e7e5e1;border-radius:18px;color:#1c1c1c}
+.camp{overflow:hidden}
+.camp-grid{display:flex;flex-direction:column;gap:14px;margin-top:18px}
 .bar{height:6px;background:#ececec;border-radius:99px;margin:10px 0 6px;overflow:hidden}
 .camp-top{display:flex;flex-direction:column;width:100%;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
 @media(min-width:640px){.camp-top{flex-direction:row}}
