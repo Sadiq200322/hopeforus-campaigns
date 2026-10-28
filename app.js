@@ -210,7 +210,7 @@
     if(!(amount>0)) return {ok:false, err:'Enter an amount'};
     var donor=String(payload.donor||'Anonymous').trim()||'Anonymous';
     var owner=String(c.ownerEmail||c.organizerEmail||'').toLowerCase();
-    var row={id:'g_'+Date.now().toString(36), campaignId:c.id, title:c.title, ownerEmail:owner, donor:donor, amount:amount, note:String(payload.note||'').trim(), at:Date.now()};
+    var row={id:'g_'+Date.now().toString(36), campaignId:c.id, code:c.code||c.id, title:c.title, ownerEmail:owner, donor:donor, amount:amount, note:String(payload.note||'').trim(), at:Date.now()};
     var gifts=load(GIFTS_KEY,[]); gifts.unshift(row); save(GIFTS_KEY,gifts);
     var saved=ensureInStorage(c.id);
     if(saved){
@@ -231,7 +231,15 @@
     var gifts=load(GIFTS_KEY,[]);
     if(!email) return gifts;
     email=String(email).toLowerCase();
-    return gifts.filter(function(g){return g.ownerEmail===email});
+    var byId={};
+    getAllCampaigns().forEach(function(c){ if(c&&c.id) byId[c.id]=c; });
+    return gifts.filter(function(g){
+      if(String(g.ownerEmail||'').toLowerCase()===email) return true;
+      var c=byId[g.campaignId];
+      if(!c) return false;
+      var owner=String(c.ownerEmail||c.organizerEmail||'').toLowerCase();
+      return owner===email;
+    });
   }
   function beginCode(email){
     email=String(email||'').toLowerCase().trim();
