@@ -32,6 +32,7 @@ button{height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--lin
   <a class="back" href="/dashboard/#admin">← Back to Approve</a>
   <div id="app"><p class="note">Loading campaign…</p></div>
 </div>
+<script src="/supabase.js"></script>
 <script src="/shared-camps.js"></script>
 <script src="/campaigns-data.js"></script>
 <script src="/app.js"></script>
@@ -93,7 +94,8 @@ function paint(c){
     HF.setCampaignStatus(c.id, 'approved');
     c.status='approved'; c.donationLink=url;
     var done=function(){ location.href='/dashboard/#admin'; };
-    if(window.HFShared) HFShared.push(c).then(done).catch(done); else done();
+    var push=window.HFDB?HFDB.update(c.id,{status:'approved',donation_link:url}).catch(function(){}):Promise.resolve();
+    push.then(function(){ return window.HFShared?HFShared.push(c):null; }).then(done).catch(done);
   };
   document.getElementById('no').onclick=function(){
     HF.setCampaignStatus(c.id, 'rejected');
@@ -106,10 +108,14 @@ var id=idFromUrl();
 var camp=findCamp(id);
 if(camp) paint(camp);
 else document.getElementById('app').innerHTML='<p class="note">Loading campaign…</p>';
-var pull=window.HFShared?HFShared.pull():Promise.resolve([]);
-pull.then(function(list){
-  if(window.HFShared) HFShared.merge(list);
-  paint(findCamp(id, list));
+var jobs=[];
+if(window.HFDB) jobs.push(HFDB.one(id).catch(function(){ return null; }));
+if(window.HFShared) jobs.push(HFShared.pull().then(function(list){ HFShared.merge(list); return list; }).catch(function(){ return []; }));
+Promise.all(jobs).then(function(parts){
+  var remote=parts[0];
+  var list=parts[1]||[];
+  var found=remote||findCamp(id, list);
+  paint(found);
 }).catch(function(){ if(!camp) paint(null); });
 </script>
 </body>
