@@ -23,7 +23,12 @@ header{position:sticky;top:0;z-index:40;height:64px;display:grid;grid-template-c
 .layout{display:flex;min-height:calc(100vh - 64px);width:100%}
 .layout > aside{display:none;width:230px;flex:0 0 230px;padding:28px 18px}
 @media(min-width:800px){.layout > aside{display:block}body{padding-bottom:0}.mob{display:none!important}}
-.pane{width:100%;max-width:860px}
+.pane{width:100%}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+@media(min-width:800px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stat{padding:22px 20px}
+.stat b{display:block;font-size:1.8rem;margin-top:6px}
+.stat span{color:#777;font-size:.85rem}
 .side{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;color:#1c1c1c;font:inherit;font-weight:700;font-size:.95rem;padding:8px 10px;border-radius:999px;cursor:pointer;margin-bottom:6px}
 .side.on{background:#ece7f8}
 .side i{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#eceae6;font-style:normal}
@@ -152,7 +157,7 @@ function render(){
     return;
   }
   if(tab==='home'){
-    html='<div class="pane"><div class="card" style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;padding:16px 18px;background:#f6f1dc;border:0"><div><strong>Great work</strong><div class="note" style="margin:0">Next payout '+nextPayout()+'</div></div><p>Gifts can be withdrawn 10 days after they arrive. Payouts go out on the 10th and 25th.</p></div>'
+    html='<div class="pane"><div class="card" style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;padding:22px 26px;background:#f6f1dc;border:0;font-size:1.05rem"><div><strong>Great work</strong><div class="note" style="margin:0">Next payout '+nextPayout()+'</div></div><p>Gifts can be withdrawn 10 days after they arrive. Payouts go out on the 10th and 25th.</p></div>'
       +'<div class="stats" style="margin-top:16px"><div class="stat">Withdrawn<b>$'+m.withdrawn.toLocaleString()+'</b><span>Already paid out</span></div><div class="stat">Balance<b>$'+m.balance.toLocaleString()+'</b><span>Still yours</span></div><div class="stat">Available<b>$'+m.available.toLocaleString()+'</b><span>Ready to request</span></div><div class="stat">On hold<b>$'+m.hold.toLocaleString()+'</b><span>Waiting 10 days</span></div></div>';
     if(!list.length) html+='<p class="sub">No campaigns yet. <a href="create-campaign.html">Start one</a>.</p>';
     html+='<div class="camp-grid">';
