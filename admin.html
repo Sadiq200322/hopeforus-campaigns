@@ -67,11 +67,13 @@ th{color:#5c5c5c;font-weight:600}
   <button class="tab" data-p="users">Users</button>
   <button class="tab" data-p="campaigns">Campaigns</button>
   <button class="tab" data-p="withdraws">Withdrawals</button>
+  <button class="tab" data-p="reports">Reports</button>
 </div>
 <div class="panel on" id="overview"></div>
 <div class="panel" id="users"></div>
 <div class="panel" id="campaigns"></div>
 <div class="panel" id="withdraws"></div>
+<div class="panel" id="reports"></div>
 
 <div class="modal-bg" id="detailModal">
   <div class="modal">
@@ -98,7 +100,7 @@ document.querySelectorAll('.tab').forEach(function(t){
   };
 });
 
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function esc(s){return String(s||'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');}
 function money(n,c){n=Number(n)||0;c=c||'USD';var pre=c==='EUR'?'€':c==='GBP'?'£':'$';return pre+n.toLocaleString();}
 var currentDetailId=null;
 
@@ -174,7 +176,8 @@ function render(){
   var camps=HF.adminCampaigns();
   var wd=HF.listWithdrawals();
   var pending=camps.filter(function(c){return (c.status||'pending')==='pending' || !c.donationLink;});
-  document.getElementById('overview').innerHTML='<div class="stat"><div><strong>'+users.length+'</strong><span>Users</span></div><div><strong>'+camps.length+'</strong><span>Campaigns</span></div><div><strong>'+pending.length+'</strong><span>Need review</span></div><div><strong>'+wd.filter(function(w){return w.status==="pending"}).length+'</strong><span>Pending withdraws</span></div></div>'+(pending.length?'<div class="pending-banner">'+pending.length+' campaign'+(pending.length>1?'s':'')+' waiting for a donation link.</div>':'')+'<div class="card"><h3>Quick actions</h3><p style="color:#5c5c5c;font-size:.9rem">Click a campaign title to review and approve. Clean URLs are live: /admin · /c/campaign-id</p></div>';
+  var openReports=(HF.listReports?HF.listReports():[]).filter(function(r){return r.status==='open'}).length;
+  document.getElementById('overview').innerHTML='<div class="stat"><div><strong>'+users.length+'</strong><span>Users</span></div><div><strong>'+camps.length+'</strong><span>Campaigns</span></div><div><strong>'+pending.length+'</strong><span>Need review</span></div><div><strong>'+wd.filter(function(w){return w.status==="pending"}).length+'</strong><span>Pending withdraws</span></div><div><strong>'+openReports+'</strong><span>Open reports</span></div></div>'+(pending.length?'<div class="pending-banner">'+pending.length+' campaign'+(pending.length>1?'s':'')+' waiting for a donation link.</div>':'')+'<div class="card"><h3>Quick actions</h3><p style="color:#5c5c5c;font-size:.9rem">Click a campaign title to review and approve. Reports appear under the Reports tab.</p></div>';
   var uh='<div class="card"><h3>All users</h3><div style="overflow-x:auto"><table><tr><th>Name</th><th>Email</th><th>Verified</th><th>Joined</th></tr>';
   users.forEach(function(u){uh+='<tr><td>'+esc(u.name)+(u.isAdmin?' <span class="badge approved">admin</span>':'')+'</td><td>'+esc(u.email)+'</td><td>'+(u.verified?'Yes':'No')+'</td><td>'+(u.created?new Date(u.created).toLocaleDateString():'—')+'</td></tr>';});
   document.getElementById('users').innerHTML=uh+'</table></div></div>';
@@ -204,6 +207,38 @@ function render(){
   });
   document.getElementById('withdraws').innerHTML=wh+'</table></div></div>';
   document.querySelectorAll('#withdraws .btn').forEach(function(b){b.onclick=function(){HF.setWithdrawStatus(b.dataset.w,b.dataset.s);render()};});
+  var reps=HF.listReports?HF.listReports():[];
+  var openCount=reps.filter(function(r){return r.status==='open'}).length;
+  var rh='<div class="card"><h3>Campaign reports ('+reps.length+')'+(openCount?' · <span class="badge pending">'+openCount+' open</span>':'')+'</h3>';
+  if(!reps.length){rh+='<p style="color:#6b7280;font-size:.9rem">No reports yet. Anyone can report from a campaign page without signing in.</p></div>';}
+  else{
+    rh+='<div style="overflow-x:auto"><table><tr><th>When</th><th>Campaign</th><th>Reason</th><th>Reporter</th><th>Status</th><th></th></tr>';
+    reps.forEach(function(r){
+      rh+='<tr><td style="white-space:nowrap;font-size:.75rem">'+(r.created?new Date(r.created).toLocaleString():'—')+'</td>';
+      rh+='<td><strong>'+esc(r.campaignTitle||r.campaignId||'—')+'</strong><div style="font-size:.75rem;color:#6b7280">'+esc(r.campaignCode||r.campaignId)+'</div></td>';
+      rh+='<td>'+esc(r.reason)+'</td>';
+      rh+='<td>'+esc(r.name)+'<div style="font-size:.75rem"><a href="mailto:'+esc(r.email)+'">'+esc(r.email)+'</a></div>'+(r.address?'<div style="font-size:.75rem;color:#6b7280">'+esc(r.address)+'</div>':'')+'</td>';
+      rh+='<td><span class="badge '+(r.status==='open'?'pending':r.status==='resolved'?'approved':'rejected')+'">'+esc(r.status)+'</span></td>';
+      rh+='<td style="min-width:160px">';
+      if(r.status==='open'){
+        rh+='<button class="btn btn-g" data-rid="'+esc(r.id)+'" data-rs="resolved">Resolve</button> ';
+        rh+='<button class="btn btn-r" data-rid="'+esc(r.id)+'" data-rs="dismissed">Dismiss</button>';
+      }
+      rh+=' <button class="btn btn-o" data-rview="'+esc(r.id)+'">View</button></td></tr>';
+    });
+    rh+='</table></div></div>';
+  }
+  document.getElementById('reports').innerHTML=rh;
+  document.querySelectorAll('#reports .btn[data-rid]').forEach(function(b){
+    b.onclick=function(){HF.setReportStatus(b.dataset.rid,b.dataset.rs);render();};
+  });
+  document.querySelectorAll('#reports .btn[data-rview]').forEach(function(b){
+    b.onclick=function(){
+      var r=reps.find(function(x){return x.id===b.dataset.rview});
+      if(!r)return;
+      alert('Campaign: '+(r.campaignTitle||r.campaignId)+'\nReason: '+r.reason+'\nReporter: '+r.name+' <'+r.email+'>\nAddress: '+(r.address||'—')+'\n\nDetails:\n'+r.details+'\n\nLinks:\n'+(r.links||'(none)'));
+    };
+  });
 }
 render();
 </script>
