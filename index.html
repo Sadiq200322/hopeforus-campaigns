@@ -69,7 +69,7 @@
 </div>
 </div>
 </div>
-</footer><script src="ui.js?v=12"></script><script src="app.js?v=12"></script><script src="supabase.js?v=12"></script><script src="shared-camps.js?v=12"></script><script src="clear-test-data.js"></script><script src="campaigns-data.js?v=12"></script><script src="how-works.js"></script><script src="discover.js?v=12"></script><script>
+</footer><script src="ui.js?v=12"></script><script src="app.js?v=12"></script><script src="supabase.js?v=12"></script><script src="shared-camps.js?v=12"></script><script src="clear-test-data.js"></script><script src="campaigns-data.js?v=12"></script><script src="how-works.js"></script><script src="discover.js?v=13"></script><script>
 if(typeof SAMPLES==="undefined")var SAMPLES=[];
 function esc(s){var a=String.fromCharCode(38);return String(s||"").replace(/&/g,a+"amp;").replace(/</g,a+"lt;").replace(/>/g,a+"gt;").replace(/"/g,a+"quot;")}
 function money(n,c){c=c||"USD";var s=Number(n).toLocaleString();return c==="EUR"?"\u20ac"+s:c==="GBP"?"\u00a3"+s:"$"+s}
@@ -186,6 +186,8 @@ window.renderCampaigns=renderCampaigns;
       else {
         if(c.status) hit.status=c.status;
         if(c.donationLink) hit.donationLink=c.donationLink;
+        var rr=Number(c.raised)||0, lr=Number(hit.raised)||0;
+        if(rr>lr){ hit.raised=rr; hit.donations=Math.max(Number(hit.donations)||0, Number(c.donations)||0); }
         if(!hit.image&&c.image) hit.image=c.image;
         if(!hit.story&&c.story) hit.story=c.story;
         if(!hit.title&&c.title) hit.title=c.title;
@@ -195,6 +197,7 @@ window.renderCampaigns=renderCampaigns;
     try{localStorage.setItem("hopeforus_campaigns",JSON.stringify(list))}catch(e){}
     paint();
   }
+  paint();
   if(window.HFDB){
     HFDB.list().then(function(rows){
       addRemote(rows||[]);
