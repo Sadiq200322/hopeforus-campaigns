@@ -83,20 +83,12 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
   position:relative;
   overflow:hidden;
 }
-/* Wide soft white arc — matches GoFundMe bottom curve */
-.yel:after{
-  content:'';
-  position:absolute;
-  left:50%;
-  bottom:0;
-  width:160%;
-  height:clamp(64px,12vw,140px);
-  transform:translateX(-50%);
-  background:#fff;
-  border-radius:50% 50% 0 0;
-  z-index:0;
-  pointer-events:none;
+/* Downward arc: yellow is lowest in the center, like GoFundMe */
+.yel{
+  border-bottom-left-radius:50% clamp(88px,12vw,170px);
+  border-bottom-right-radius:50% clamp(88px,12vw,170px);
 }
+.yel:after{content:none;display:none}
 .yel-inner{
   position:relative;
   z-index:1;
