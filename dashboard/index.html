@@ -119,6 +119,7 @@ th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #eee;vertical-ali
   <button type="button" data-tab="transfers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18M5 10V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3M5 10v8h14v-8"/><path d="M12 13v3"/></svg>Transfers</button>
   <button type="button" data-tab="updates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6h14M5 12h9M5 18h6"/></svg>Updates</button>
 </nav>
+<script src="/shared-camps.js"></script>
 <script src="/campaigns-data.js"></script>
 <script src="/app.js"></script>
 <script>
@@ -171,7 +172,7 @@ function setTab(name){tab=name;openId='';editId='';document.getElementById('menu
 function render(){
   document.querySelectorAll('[data-tab]').forEach(function(el){el.classList.toggle('on', el.getAttribute('data-tab')===tab)});
   if(HF.isAdmin&&HF.isAdmin()){
-    var waitN=allCamps().filter(function(c){return c&&c.status!=='approved'&&c.status!=='rejected'}).length;
+    var waitN=allCamps().filter(function(c){return c&&c.status!=='approved'&&c.status!=='rejected'&&(c.ownerEmail||c.ownerId||c.organizerEmail)}).length;
     var nav=document.getElementById('adminNav');
     if(nav) nav.innerHTML='<i>✓</i> Approve'+(waitN?' ('+waitN+')':'');
   }
@@ -276,7 +277,7 @@ function render(){
   if(tab==='admin'){
     if(!(HF.isAdmin&&HF.isAdmin())) tab='home';
     else {
-      var waiting=allCamps().filter(function(c){ return c && c.status!=='approved' && c.status!=='rejected'; });
+      var waiting=allCamps().filter(function(c){ return c && c.status!=='approved' && c.status!=='rejected' && (c.ownerEmail||c.ownerId||c.organizerEmail||c.story); });
       var q=(window.approveQ||'').toLowerCase();
       if(q) waiting=waiting.filter(function(c){
         return (c.title||'').toLowerCase().indexOf(q)>=0 || (c.ownerEmail||'').toLowerCase().indexOf(q)>=0 || (c.organizerEmail||'').toLowerCase().indexOf(q)>=0 || (c.organizer||'').toLowerCase().indexOf(q)>=0 || (c.id||'').toLowerCase().indexOf(q)>=0;
@@ -286,18 +287,43 @@ function render(){
       htmlA+='<div class="camp-grid">';
       waiting.forEach(function(c){
         var st=c.status==='approved'?'Approved':(c.status==='rejected'?'Rejected':'Waiting');
+        var open=window.reviewId===c.id;
         htmlA+='<article class="camp"><div class="camp-top"><img src="'+esc(c.image||'')+'" alt=""><div class="body"><strong>'+esc(c.title||'Campaign')+'</strong><div class="note">'+esc(c.ownerEmail||c.organizerEmail||c.organizer||'No email')+' · '+st+'</div></div></div>';
-        htmlA+='<div class="acts">';
-        if(c.status!=='approved') htmlA+='<button class="btn" type="button" data-st="approved" data-cid="'+esc(c.id)+'">Approve</button>';
-        if(c.status!=='rejected') htmlA+='<button class="btn" type="button" data-st="rejected" data-cid="'+esc(c.id)+'" style="background:#fee2e2;color:#991b1b">Reject</button>';
-        htmlA+='</div></article>';
+        htmlA+='<div style="padding:0 12px 12px"><button type="button" data-review="'+esc(c.id)+'" style="height:36px;padding:0 14px;border-radius:999px;border:1px solid #e5e5e5;background:#fff;font-weight:700;cursor:pointer">'+(open?'Hide story':'Open story')+'</button>';
+        if(open){
+          htmlA+='<div style="white-space:pre-wrap;margin:12px 0;line-height:1.5">'+esc(c.story||'No story was saved with this campaign.')+'</div>';
+          htmlA+='<label>Donation link</label><input data-dlink="'+esc(c.id)+'" placeholder="https://" value="'+esc(c.donationLink||'')+'">';
+        }
+        htmlA+='<div style="display:flex;gap:8px;margin-top:10px"><button class="btn" type="button" data-st="approved" data-cid="'+esc(c.id)+'" style="width:auto;margin:0">Approve</button><button type="button" data-st="rejected" data-cid="'+esc(c.id)+'" style="height:42px;padding:0 16px;border:0;border-radius:999px;background:#fee2e2;color:#991b1b;font-weight:800;cursor:pointer">Reject</button></div></div></article>';
       });
       htmlA+='</div></div>';
       box.innerHTML=htmlA;
       var aq=document.getElementById('approveQ');
       if(aq) aq.oninput=function(){ window.approveQ=aq.value; render(); aq.focus(); var v=aq.value; aq.setSelectionRange(v.length,v.length); };
+      box.querySelectorAll('[data-review]').forEach(function(b){b.onclick=function(){
+        var id=b.getAttribute('data-review');
+        window.reviewId=window.reviewId===id?'':id;
+        render();
+      }});
       box.querySelectorAll('[data-st]').forEach(function(b){b.onclick=function(){
-        HF.setCampaignStatus(b.getAttribute('data-cid'), b.getAttribute('data-st'));
+        var id=b.getAttribute('data-cid');
+        var status=b.getAttribute('data-st');
+        var inp=box.querySelector('[data-dlink="'+id+'"]');
+        var url=inp?(inp.value||'').trim():'';
+        if(status==='approved'){
+          if(!url||url.indexOf('http')!==0){ alert('Open the story, paste the donation link (https://…), then approve.'); return; }
+          HF.setCampaignDonationLink(id, url);
+          HF.setCampaignStatus(id, 'approved');
+        } else {
+          HF.setCampaignStatus(id, 'rejected');
+        }
+        var camp=allCamps().find(function(x){return x&&x.id===id});
+        if(camp){
+          camp.status=status;
+          if(status==='approved') camp.donationLink=url;
+          if(window.HFShared) HFShared.push(camp);
+        }
+        window.reviewId='';
         render();
       }});
       return;
@@ -481,7 +507,9 @@ document.getElementById('photoBtn').onclick=function(){document.getElementById('
 document.getElementById('photoFile').onchange=function(){var f=this.files&&this.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){av=rd.result;localStorage.setItem('hf_avatar_'+u.email,av);drawAv()};rd.readAsDataURL(f)};
 document.querySelectorAll('[data-tab]').forEach(function(el){el.addEventListener('click',function(){setTab(el.getAttribute('data-tab'))})});
 document.addEventListener('pointerdown',function(e){var m=document.getElementById('menu');if(!m.contains(e.target)&&e.target!==document.getElementById('avBtn')) m.classList.add('hide')});
-drawAv(); render();
+drawAv();
+if(window.HFShared){ HFShared.sync().then(function(){ render(); }); }
+else render();
 </script>
 </body>
 </html>
