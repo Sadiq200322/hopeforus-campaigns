@@ -243,6 +243,7 @@
         target.donors.unshift({name:donor, amount:amount, time:'Just now', giftId:row.id});
         save(CAMPS_KEY, list);
         syncRaisedToRemote(c.id, newRaised, newDons);
+        if(w.HFDB && HFDB.publishDonors) HFDB.publishDonors(c.id, target.donors);
       }
     }
     if(owner) addNotice({email:owner, title:donor+' donated $'+amount, body:c.title, kind:'donation'});
