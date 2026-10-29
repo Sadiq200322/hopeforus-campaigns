@@ -3,16 +3,26 @@ if(!u){ location.replace('/login?return='+encodeURIComponent('/dashboard/')); th
 var tab=(HF.isAdmin&&HF.isAdmin()&&location.hash==='#admin')?'admin':'home', openId='', editId='', openUser='', method='usdt', adminView='overview';
 var av=localStorage.getItem('hf_avatar_'+u.email)||'';
 if(window.HF&&HF.getUserAvatar){ var ga=HF.getUserAvatar(u.email); if(ga) av=ga; }
-function esc(s){return String(s==null?'':s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"').replace(/'/g,'&#39;')}
+function esc(s){var a=String.fromCharCode(38);return String(s==null?'':s).replace(/&/g,a+'amp;').replace(/</g,a+'lt;').replace(/>/g,a+'gt;').replace(/"/g,a+'quot;').replace(/'/g,'&#39;')}
+function readLocalCamps(){
+  var list=[]; try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
+  return Array.isArray(list)?list:[];
+}
 function allCamps(){
-  var by={}, list=[];
-  try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
-  if(!Array.isArray(list)) list=[];
-  list.forEach(function(c){ if(c&&c.id) by[c.id]=c; });
-  (HF.adminCampaigns?HF.adminCampaigns():[]).forEach(function(c){ if(c&&c.id&&!by[c.id]) by[c.id]=c; });
+  var by={};
+  readLocalCamps().forEach(function(c){ if(c&&c.id) by[c.id]=c; });
+  if(HF.adminCampaigns) (HF.adminCampaigns()||[]).forEach(function(c){ if(c&&c.id&&!by[c.id]) by[c.id]=c; });
   return Object.keys(by).map(function(k){ return by[k]; });
 }
-function camps(){return HF.myCampaigns(u)||[]}
+function camps(){
+  var email=String((u&&u.email)||'').toLowerCase();
+  if(HF.isAdmin&&HF.isAdmin()) return allCamps();
+  return allCamps().filter(function(c){
+    if(!c||c.deleted||c.status==='deleted') return false;
+    var oe=String(c.ownerEmail||c.organizerEmail||'').toLowerCase();
+    return oe&&oe===email;
+  });
+}
 function money(list){
   var now=Date.now(), ten=10*86400000, received=0, hold=0, ready=0;
   list.forEach(function(c){
@@ -25,14 +35,19 @@ function money(list){
   return {received:received,hold:hold,ready:ready,withdrawn:withdrawn,balance:Math.max(0,received-withdrawn),available:Math.max(0,ready-withdrawn)};
 }
 function saveCamp(c){
-  var list=[]; try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
-  if(!Array.isArray(list)) list=[];
+  var list=readLocalCamps();
   var i=list.findIndex(function(x){return x&&x.id===c.id});
-  var fields={title:c.title,story:c.story,goal:c.goal,image:c.image,images:c.images||[],video:c.video||'',organizerAvatar:c.organizerAvatar||'',ownerAvatar:c.ownerAvatar||''};
-  if(i>=0){ Object.keys(fields).forEach(function(k){list[i][k]=fields[k]}); }
-  else { var copy={}; Object.keys(c).forEach(function(k){copy[k]=c[k]}); Object.keys(fields).forEach(function(k){copy[k]=fields[k]}); list.unshift(copy); }
+  var fields={title:c.title,story:c.story,goal:c.goal,image:c.image,images:c.images||[],video:c.video||'',organizerAvatar:c.organizerAvatar||'',ownerAvatar:c.ownerAvatar||'',status:c.status};
+  if(i>=0){ Object.keys(fields).forEach(function(k){ if(fields[k]!==undefined) list[i][k]=fields[k]; }); }
+  else { list.unshift(Object.assign({}, c, fields)); }
   localStorage.setItem('hopeforus_campaigns',JSON.stringify(list));
   if(HF.saveCampaign) try{HF.saveCampaign(list[i>=0?i:0]);}catch(e){}
+  if(window.HFDB&&HFDB.update&&c.id){
+    var patch={title:c.title||'', story:c.story||'', goal:Number(c.goal)||0};
+    if(c.status) patch.status=c.status;
+    if(c.image&&String(c.image).indexOf('http')===0) patch.image_url=c.image;
+    HFDB.update(c.id, patch).catch(function(err){ console.warn('saveCamp supabase', err); });
+  }
 }
 function drawAv(){
   var b=document.getElementById('avBtn');
@@ -65,21 +80,21 @@ function render(){
     return;
   }
   if(tab==='home'){
-    html='<div class="pane"><h1>Dashboard</h1><p class="sub">Welcome'+(u.name?', '+esc(u.name):'')+'.</p><div class="stats"><div class="stat"><span>Raised</span><b>$'+m.received.toLocaleString()+'</b></div><div class="stat"><span>Available</span><b>$'+m.available.toLocaleString()+'</b></div><div class="stat"><span>On hold</span><b>$'+m.hold.toLocaleString()+'</b></div><div class="stat"><span>Campaigns</span><b>'+list.length+'</b></div></div><div class="camp-grid">';
-    if(!list.length) html+='<p class="note">No campaigns yet. Hard-refresh to load from server.</p>';
+    html='<div class="pane"><h1>Dashboard</h1><p class="sub">Welcome'+(u.name?', '+esc(u.name):'')+'. Campaigns sync from server.</p><div class="stats"><div class="stat"><span>Raised</span><b>$'+m.received.toLocaleString()+'</b></div><div class="stat"><span>Available</span><b>$'+m.available.toLocaleString()+'</b></div><div class="stat"><span>On hold</span><b>$'+m.hold.toLocaleString()+'</b></div><div class="stat"><span>Campaigns</span><b>'+list.length+'</b></div></div><div class="camp-grid">';
+    if(!list.length) html+='<p class="note">No campaigns yet. If you just published, wait a moment or hard-refresh.</p>';
     list.forEach(function(c){
       var r=Number(c.raised)||0,g=Math.max(1,Number(c.goal)||1),pct=Math.min(100,Math.round(r/g*100));
       html+='<article class="camp card"><button type="button" class="camp-top" data-open="'+esc(c.id)+'">'+(c.image?'<img src="'+esc(c.image)+'" alt="">':'')+'<div class="body"><strong>'+esc(c.title||'Untitled')+'</strong><div class="bar"><i style="width:'+pct+'%"></i></div><div class="note">$'+r.toLocaleString()+' of $'+g.toLocaleString()+' · '+esc(c.status||'')+(HF.isAdmin()&&(c.ownerEmail||c.organizer)?(' · '+esc(c.organizer||'')+' · '+esc(c.ownerEmail||'')):'')+'</div></div></button><div class="acts"><button type="button" class="go" data-view="'+esc(c.id)+'">View</button><button type="button" data-edit="'+esc(c.id)+'">Edit</button></div></article>';
     });
     html+='</div></div>';
   }else if(tab==='donations' && HF.isAdmin()){
-    var allG=HF.listGifts();
+    var allG=HF.listGifts?HF.listGifts():[];
     html='<div class="pane"><h1>Donations received</h1><p class="sub">Search campaign, add donor + amount. Syncs to owner.</p><div class="card" style="padding:14px"><label>Campaign</label><input id="gfind" placeholder="Search title or email"><input id="gcamp" type="hidden"><div id="gpick"></div><label>Donor name</label><input id="gname"><label>Amount (USD)</label><input id="gamt" inputmode="decimal"><button class="btn" id="gadd" type="button">Add donation</button><p class="note" id="gmsg"></p></div><div class="card" style="padding:8px 14px;margin-top:12px">';
     (allG||[]).forEach(function(g){html+='<div class="donor"><div style="flex:1"><strong>'+esc(g.donor)+'</strong><div class="note">'+esc(g.title)+'</div></div><strong>$'+Number(g.amount).toLocaleString()+'</strong></div>'});
     if(!(allG||[]).length) html+='<p class="note">None in this browser yet.</p>';
     html+='</div></div>';
   }else if(tab==='donations'){
-    var mine=HF.listGifts(u.email)||[];
+    var mine=HF.listGifts?HF.listGifts(u.email):[];
     var fromCamps=[];
     camps().forEach(function(c){
       (c.donors||[]).forEach(function(d){
@@ -102,48 +117,30 @@ function render(){
     else {
       var xu=d.user||{};
       html+='<h1 style="margin-top:12px">'+esc(xu.name||openUser)+'</h1><p class="sub">'+esc(xu.email||openUser)+'</p>';
-      html+='<div class="stats"><div class="stat"><span>Raised</span><b>$'+Number(d.raised||0).toLocaleString()+'</b></div><div class="stat"><span>Pending WD</span><b>$'+Number(d.pendingWithdraw||0).toLocaleString()+'</b></div><div class="stat"><span>Paid out</span><b>$'+Number(d.completedWithdraw||0).toLocaleString()+'</b></div><div class="stat"><span>Campaigns</span><b>'+(d.camps||[]).length+'</b></div></div>';
-      html+='<div class="card" style="padding:14px;margin-bottom:12px"><strong>Contact this user</strong>';
-      html+='<div style="margin-top:10px"><div class="note">Email</div><div style="font-weight:600;word-break:break-all;margin:4px 0 10px">'+esc(xu.email||openUser)+'</div>';
-      html+='<div class="note">WhatsApp</div><div style="font-weight:600;margin:4px 0 12px">'+(xu.whatsapp?('+'+esc(String(xu.whatsapp))):'— not set yet')+'</div>';
-      html+='<div style="display:flex;gap:10px">';
-      html+='<a href="mailto:'+esc(xu.email||openUser)+'" title="Email" style="width:48px;height:48px;border-radius:14px;background:#f3f0ff;border:1px solid #e9e5f5;display:grid;place-items:center;text-decoration:none;color:#7C3AED;font-size:1.25rem">✉</a>';
-      if(xu.whatsapp) html+='<a href="https://wa.me/'+esc(String(xu.whatsapp).replace(/[^0-9]/g,''))+'" target="_blank" rel="noopener" title="WhatsApp" style="width:48px;height:48px;border-radius:14px;background:#ecfdf5;border:1px solid #d1fae5;display:grid;place-items:center;text-decoration:none;color:#059669;font-size:1.25rem">💬</a>';
-      html+='</div></div></div>';
-      html+='<div class="card" style="padding:8px 14px;margin-bottom:12px"><strong>Campaigns</strong>';
-      (d.camps||[]).forEach(function(c){html+='<div class="donor"><div style="flex:1"><strong>'+esc(c.title||c.id)+'</strong><div class="note">$'+Number(c.raised||0).toLocaleString()+' · '+esc(c.status||'')+'</div></div></div>'});
-      if(!(d.camps||[]).length) html+='<p class="note">None</p>';
+      html+='<div class="card" style="padding:14px;margin-bottom:12px"><strong>Contact</strong><div class="note" style="margin-top:8px">'+esc(xu.email||openUser)+'</div></div>';
+      html+='<div class="card" style="padding:8px 14px"><strong>Campaigns</strong>';
+      (d.campaigns||d.camps||[]).forEach(function(c){html+='<div class="donor"><div style="flex:1"><strong>'+esc(c.title||c.id)+'</strong><div class="note">$'+Number(c.raised||0).toLocaleString()+' · '+esc(c.status||'')+'</div></div></div>'});
+      if(!(d.campaigns||d.camps||[]).length) html+='<p class="note">None</p>';
       html+='</div></div>';
     }
   }else if(tab==='users' && HF.isAdmin()){
     var ulist=(HF.adminUsers&&HF.adminUsers())||[];
     ulist=ulist.slice().sort(function(a,b){return (b.created||0)-(a.created||0);});
-    html='<div class="pane"><h1>Registered users</h1><p class="sub">'+ulist.length+' accounts · from server + this browser</p><div class="card" style="padding:8px 14px">';
+    html='<div class="pane"><h1>Registered users</h1><p class="sub">'+ulist.length+' accounts</p><div class="card" style="padding:8px 14px">';
     ulist.forEach(function(x){
-      html+='<button type="button" data-openuser="'+esc(x.email)+'" class="donor" style="width:100%;border:0;background:transparent;text-align:left;cursor:pointer;color:inherit;font:inherit"><div class="dot">'+esc((x.name||x.email||'?').charAt(0).toUpperCase())+'</div><div style="flex:1"><strong>'+esc(x.name||'—')+'</strong><div class="note">'+esc(x.email||'')+(x.isAdmin?' · Admin':'')+(x.whatsapp?' · WA +'+esc(x.whatsapp):'')+'</div></div></button>';
+      html+='<button type="button" data-openuser="'+esc(x.email)+'" class="donor" style="width:100%;border:0;background:transparent;text-align:left;cursor:pointer;color:inherit;font:inherit"><div class="dot">'+esc((x.name||x.email||'?').charAt(0).toUpperCase())+'</div><div style="flex:1"><strong>'+esc(x.name||'—')+'</strong><div class="note">'+esc(x.email||'')+(x.isAdmin?' · Admin':'')+'</div></div></button>';
     });
-    if(!ulist.length) html+='<p class="note">No users yet. New signups appear after they register (synced from server).</p>';
+    if(!ulist.length) html+='<p class="note">No users yet.</p>';
     html+='</div></div>';
-  }else if(tab==='transfers' && HF.isAdmin()){
-    html='<div class="pane"><h1>Withdrawal requests</h1><p class="sub">Pending payouts</p></div>';
   }else if(tab==='transfers'){
     html='<div class="pane"><h1>Transfers</h1><p class="sub">Available: $'+m.available.toLocaleString()+'</p></div>';
-  }else if(tab==='updates' && HF.isAdmin()){
-    html='<div class="pane"><h1>Site updates</h1></div>';
   }else if(tab==='updates'){
-    html='<div class="pane"><h1>Updates</h1><div class="card" style="padding:14px;margin-top:12px"><h2 style="font-size:1rem">Need help?</h2><p class="note">Tap an icon to contact support.</p><div style="display:flex;gap:14px;margin-top:12px"><a href="'+(HF.whatsappLink?HF.whatsappLink('Hi HopeForUs support'):'https://wa.me/447446315764')+'" target="_blank" rel="noopener" style="width:52px;height:52px;border-radius:16px;background:#ecfdf5;border:1px solid #d1fae5;display:grid;place-items:center;text-decoration:none;color:#059669;font-size:1.4rem">💬</a><a href="mailto:'+(HF.SUPPORT_EMAIL||'admin@hopeforus.com')+'?subject=HopeForUs%20support" style="width:52px;height:52px;border-radius:16px;background:#f3f0ff;border:1px solid #e9e5f5;display:grid;place-items:center;text-decoration:none;color:#7C3AED;font-size:1.4rem">✉</a></div></div></div>';
+    html='<div class="pane"><h1>Updates</h1><p class="note">Campaign data syncs from Supabase automatically.</p></div>';
   }else if(tab==='settings'){
-    var isAdm=!!(HF.isAdmin&&HF.isAdmin());
-    var curWa='';
-    try{ var fullU=(HF.users?HF.users():[]).find(function(x){return x&&x.email===u.email}); if(fullU&&fullU.whatsapp) curWa=String(fullU.whatsapp); }catch(e){}
-    html='<div class="pane"><h1>Account settings</h1><div class="card" style="padding:16px;margin-bottom:14px"><h2 style="font-size:1rem">Display name</h2><label>Name</label><input id="setName" value="'+esc(u.name||'')+'"><button class="btn" type="button" id="saveName">Save name</button><p class="note" id="nameMsg"></p></div>';
-    html+='<div class="card" style="padding:16px;margin-bottom:14px"><h2 style="font-size:1rem">WhatsApp number</h2><p class="note">Include country code.</p><label>WhatsApp</label><input id="setWa" type="tel" placeholder="+447..." value="'+(curWa?('+'+esc(curWa)):'')+'"><button class="btn" type="button" id="saveWa">Save WhatsApp</button><p class="note" id="waMsg"></p></div>';
-    html+='<div class="card" style="padding:16px"><h2 style="font-size:1rem">Email</h2><label>Current</label><input value="'+esc(u.email||'')+'" disabled>';
-    if(isAdm) html+='<p class="note">Admin fixed: admin@hopeforus.com / Admin@2026</p>';
-    html+='</div></div>';
+    html='<div class="pane"><h1>Account settings</h1><div class="card" style="padding:16px"><label>Name</label><input id="setName" value="'+esc(u.name||'')+'"><button class="btn" type="button" id="saveName">Save name</button><p class="note" id="nameMsg"></p><label>Email</label><input value="'+esc(u.email||'')+'" disabled></div></div>';
   }else if(tab==='admin' && HF.isAdmin()){
     var pending=allCamps().filter(function(c){return c&&c.status!=='approved'&&c.status!=='rejected'&&c.status!=='deleted'&&!c.deleted&&!(window.HF_SAMPLE_IDS&&HF_SAMPLE_IDS[c.id])&&(c.ownerEmail||c.ownerId||c.organizerEmail)});
-    html='<div class="pane"><h1>Approve campaigns</h1><p class="sub">'+pending.length+' waiting</p>';
+    html='<div class="pane"><h1>Approve campaigns</h1><p class="sub">'+pending.length+' waiting (from server)</p>';
     pending.forEach(function(c){
       html+='<div class="approve-card" style="margin-bottom:10px"><div class="approve-row"><div style="flex:1"><strong>'+esc(c.title)+'</strong><div class="note">'+esc(c.ownerEmail||c.organizer||'')+'</div></div><button type="button" class="mini-btn go" data-approve="'+esc(c.id)+'">Approve</button><button type="button" class="mini-btn bad" data-reject="'+esc(c.id)+'">Reject</button></div></div>';
     });
@@ -153,12 +150,29 @@ function render(){
   box.innerHTML=html;
   var backUsers=document.getElementById('backUsers'); if(backUsers) backUsers.onclick=function(){openUser='';render();};
   box.querySelectorAll('[data-openuser]').forEach(function(b){b.onclick=function(){openUser=b.getAttribute('data-openuser');tab='users';render();};});
-  var saveWa=document.getElementById('saveWa'); if(saveWa) saveWa.onclick=function(){var r=HF.setWhatsApp&&HF.setWhatsApp(document.getElementById('setWa').value);var m=document.getElementById('waMsg');if(r&&r.ok)m.textContent='WhatsApp saved.';else m.textContent=(r&&r.err)||'Failed';};
   var saveName=document.getElementById('saveName'); if(saveName) saveName.onclick=function(){var r=HF.updateProfile({name:document.getElementById('setName').value});var m=document.getElementById('nameMsg');if(r&&r.ok){u=HF.session()||u;m.textContent='Saved.';drawAv();}else m.textContent=(r&&r.err)||'Failed';};
-  box.querySelectorAll('[data-open],[data-view]').forEach(function(b){b.onclick=function(){location.href='/campaign/index.html?id='+encodeURIComponent(b.getAttribute('data-open')||b.getAttribute('data-view'));};});
+  box.querySelectorAll('[data-open],[data-view]').forEach(function(b){b.onclick=function(){location.href='/campaign.html?id='+encodeURIComponent(b.getAttribute('data-open')||b.getAttribute('data-view'));};});
   box.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){editId=b.getAttribute('data-edit');render();};});
-  box.querySelectorAll('[data-approve]').forEach(function(b){b.onclick=function(){if(HF.approveCampaign)HF.approveCampaign(b.getAttribute('data-approve'));render();};});
-  box.querySelectorAll('[data-reject]').forEach(function(b){b.onclick=function(){if(HF.rejectCampaign)HF.rejectCampaign(b.getAttribute('data-reject'));render();};});
+  box.querySelectorAll('[data-approve]').forEach(function(b){b.onclick=function(){
+    var id=b.getAttribute('data-approve');
+    b.disabled=true; b.textContent='…';
+    var p = (window.HFDB&&HFDB.update) ? HFDB.update(id,{status:'approved'}) : Promise.resolve();
+    p.then(function(){
+      if(HF.approveCampaign) HF.approveCampaign(id);
+      var L=readLocalCamps(); var x=L.find(function(c){return c&&c.id===id}); if(x){x.status='approved'; localStorage.setItem('hopeforus_campaigns',JSON.stringify(L));}
+      return pullServer();
+    }).then(function(){render();}).catch(function(){ if(HF.approveCampaign) HF.approveCampaign(id); render(); });
+  };});
+  box.querySelectorAll('[data-reject]').forEach(function(b){b.onclick=function(){
+    var id=b.getAttribute('data-reject');
+    b.disabled=true; b.textContent='…';
+    var p = (window.HFDB&&HFDB.update) ? HFDB.update(id,{status:'rejected'}) : Promise.resolve();
+    p.then(function(){
+      if(HF.rejectCampaign) HF.rejectCampaign(id);
+      var L=readLocalCamps(); var x=L.find(function(c){return c&&c.id===id}); if(x){x.status='rejected'; localStorage.setItem('hopeforus_campaigns',JSON.stringify(L));}
+      return pullServer();
+    }).then(function(){render();}).catch(function(){ if(HF.rejectCampaign) HF.rejectCampaign(id); render(); });
+  };});
   var gadd=document.getElementById('gadd');
   if(gadd){
     var gfind=document.getElementById('gfind'),gpick=document.getElementById('gpick'),gcamp=document.getElementById('gcamp');
@@ -173,16 +187,12 @@ document.getElementById('avBtn').onclick=function(){document.getElementById('men
 document.getElementById('lo').onclick=function(){if(HF.logout)HF.logout();location.href='/login';};
 if(HF.isAdmin&&HF.isAdmin()){document.getElementById('adminNav').classList.remove('hide');document.getElementById('adminMenu').classList.remove('hide');var un=document.getElementById('usersNav');if(un)un.classList.remove('hide');}
 document.getElementById('photoBtn')&&document.getElementById('photoBtn').addEventListener('click',function(){document.getElementById('photoFile').click();});
-document.getElementById('photoFile')&&document.getElementById('photoFile').addEventListener('change',function(e){
-  var f=e.target.files&&e.target.files[0]; if(!f) return;
-  var r=new FileReader(); r.onload=function(){ av=r.result; if(HF.setUserAvatar) HF.setUserAvatar(u.email, av); localStorage.setItem('hf_avatar_'+u.email, av); drawAv(); }; r.readAsDataURL(f);
-});
+
 function pullServer(){
   if(!(window.HFDB&&HFDB.list)) return Promise.resolve();
   return HFDB.list().then(function(rows){
     if(!Array.isArray(rows)) return;
-    var list=[]; try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
-    if(!Array.isArray(list)) list=[];
+    var list=readLocalCamps();
     var by={}; list.forEach(function(c){ if(c&&c.id) by[c.id]=c; });
     rows.forEach(function(c){
       if(!c||!c.id||c.status==='deleted') return;
@@ -191,9 +201,15 @@ function pullServer(){
         ownerEmail:c.ownerEmail||prev.ownerEmail||'',
         organizerEmail:c.organizerEmail||c.ownerEmail||prev.organizerEmail||'',
         organizer:c.organizer||prev.organizer||'',
+        status:c.status||prev.status||'pending',
         raised:Math.max(Number(c.raised)||0, Number(prev.raised)||0),
         donations:Math.max(Number(c.donations)||0, Number(prev.donations)||0),
-        donors:(Array.isArray(c.donors)&&c.donors.length)?c.donors:(prev.donors||[])
+        donors:(Array.isArray(c.donors)&&c.donors.length)?c.donors:(prev.donors||[]),
+        donationLink:c.donationLink||prev.donationLink||'',
+        code:c.code||prev.code||'',
+        image:c.image||prev.image||'',
+        story:c.story||prev.story||'',
+        title:c.title||prev.title||''
       });
     });
     var merged=Object.keys(by).map(function(k){return by[k];});
@@ -222,25 +238,25 @@ function pullServer(){
       try{
         var local=[]; try{local=JSON.parse(localStorage.getItem('hopeforus_users')||'[]')}catch(e){}
         if(!Array.isArray(local)) local=[];
-        var by={}; local.forEach(function(u){ if(u&&u.email) by[String(u.email).toLowerCase()]=u; });
+        var byU={}; local.forEach(function(usr){ if(usr&&usr.email) byU[String(usr.email).toLowerCase()]=usr; });
         rows.forEach(function(p){
           if(!p||!p.email) return;
           var em=String(p.email).toLowerCase();
-          var prev=by[em]||{};
-          by[em]={
-            id:prev.id||p.id||('p_'+em),
+          var prev=byU[em]||{};
+          byU[em]={
+            id:prev.id||('p_'+em),
             email:em,
             name:p.name||prev.name||em.split('@')[0],
             pass:prev.pass||'',
             whatsapp:(p.whatsapp!=null&&p.whatsapp!=='')?p.whatsapp:(prev.whatsapp||''),
             verified:true,
-            isAdmin:!!(prev.isAdmin||p.isAdmin),
-            created:p.created||prev.created||Date.now(),
+            isAdmin:!!(prev.isAdmin||p.is_admin||p.isAdmin),
+            created:p.created_at||prev.created||Date.now(),
             donors:prev.donors||[], chats:prev.chats||[], clicks:prev.clicks||0,
-            avatar:p.avatar||prev.avatar||''
+            avatar:p.avatar_url||p.avatar||prev.avatar||''
           };
         });
-        localStorage.setItem('hopeforus_users', JSON.stringify(Object.keys(by).map(function(k){return by[k];})));
+        localStorage.setItem('hopeforus_users', JSON.stringify(Object.keys(byU).map(function(k){return byU[k];})));
       }catch(e){}
     }).catch(function(){}):Promise.resolve();
     return Promise.all(donorJobs.concat([prof])).then(function(){});
@@ -248,8 +264,12 @@ function pullServer(){
 }
 function boot(){ drawAv(); render(); }
 function start(){
+  boot();
+  var box=document.getElementById('main');
+  if(box){ var note=document.createElement('p'); note.id='syncNote'; note.className='note'; note.style.padding='8px 22px'; note.textContent='Syncing campaigns from server…'; box.parentNode.insertBefore(note, box); }
+  function done(){ var n=document.getElementById('syncNote'); if(n) n.remove(); render(); drawAv(); }
   var p = (window.HFDB && HFDB.ready) ? HFDB.ready().then(function(){ return pullServer(); }) : pullServer();
-  p.then(function(){ boot(); }).catch(function(){ boot(); });
-  setTimeout(function(){ pullServer().then(function(){ render(); }); }, 1200);
+  p.then(done).catch(done);
+  setInterval(function(){ pullServer().then(function(){ render(); }).catch(function(){}); }, 30000);
 }
 start();
