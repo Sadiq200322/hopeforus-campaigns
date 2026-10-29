@@ -178,27 +178,77 @@ function next(){
   }
 }
 function finish(){
+  var cont=$("cont");
+  if(cont){ cont.disabled=true; cont.textContent="Uploading…"; }
+  showErr("");
   var id="c_"+Date.now().toString(36);
   var code=makeCode(6);
-  var images=[]; var video=""; var image="";
-  (draft.media||[]).forEach(function(m){
-    if(m.type==='video' && !video) video=m.dataUrl||m.url||"";
-    else if(m.type==='image'){ images.push(m.dataUrl||m.url); if(!image) image=m.dataUrl||m.url; }
+  var raw=(draft.media||[]).slice(0,8);
+  function upOne(m, i){
+    var src=m.dataUrl||m.url||"";
+    if(!src) return Promise.resolve(null);
+    if(String(src).indexOf("http")===0) return Promise.resolve({type:m.type||"image", url:src, name:m.name||""});
+    if(!(window.HFDB&&HFDB.upload)) return Promise.resolve({type:m.type||"image", url:src, name:m.name||""});
+    var ext=(m.type==="video")?"mp4":"jpg";
+    var path=id+"_"+i+"."+ext;
+    return HFDB.upload(src, path).then(function(url){
+      return {type:m.type||"image", url:url||src, name:m.name||""};
+    }).catch(function(){
+      return {type:m.type||"image", url:src, name:m.name||""};
+    });
+  }
+  Promise.all(raw.map(function(m,i){ return upOne(m,i); })).then(function(uploaded){
+    uploaded=(uploaded||[]).filter(Boolean);
+    var images=[]; var video=""; var image="";
+    var media=[];
+    uploaded.forEach(function(m){
+      if(!m||!m.url) return;
+      if(m.type==="video" && !video) video=m.url;
+      else if(m.type!=="video"){ images.push(m.url); if(!image) image=m.url; }
+      media.push({type:m.type, url:m.url, name:m.name||""});
+    });
+    var camp={
+      id:id, code:code, title:draft.title, story:draft.story, goal:goalNum(), raised:0, donations:0,
+      image:image, images:images, video:video, media:media,
+      category:draft.category, country:draft.country, location:draft.zip,
+      organizer:(user&&user.name)||"Organizer", ownerEmail:(user&&user.email)||"", organizerEmail:(user&&user.email)||"",
+      status:"pending", createdAt:new Date().toISOString(), donors:[], donationLink:""
+    };
+    var localCamp=Object.assign({}, camp);
+    try{
+      var list=[]; try{list=JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")}catch(e){}
+      if(!Array.isArray(list)) list=[];
+      list.unshift(localCamp);
+      localStorage.setItem("hopeforus_campaigns", JSON.stringify(list));
+    }catch(e){
+      try{
+        localCamp.image=(String(image).indexOf("http")===0)?image:"";
+        localCamp.images=images.filter(function(u){return String(u).indexOf("http")===0;});
+        localCamp.video=(String(video).indexOf("http")===0)?video:"";
+        localCamp.media=media.filter(function(m){return m&&String(m.url).indexOf("http")===0;});
+        var list2=[]; try{list2=JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")}catch(e2){}
+        if(!Array.isArray(list2)) list2=[];
+        list2.unshift(localCamp);
+        localStorage.setItem("hopeforus_campaigns", JSON.stringify(list2));
+      }catch(e3){}
+    }
+    if(window.HF&&HF.saveCampaign) try{HF.saveCampaign(localCamp)}catch(e){}
+    function go(){ location.href="/dashboard/"; }
+    if(window.HFDB&&HFDB.save){
+      if(cont) cont.textContent="Saving…";
+      var serverCamp=Object.assign({}, camp);
+      serverCamp.media=media.filter(function(m){return m&&String(m.url).indexOf("http")===0;});
+      serverCamp.image=(String(image).indexOf("http")===0)?image:(serverCamp.media[0]&&serverCamp.media[0].url)||"";
+      serverCamp.images=images.filter(function(u){return String(u).indexOf("http")===0;});
+      serverCamp.video=(String(video).indexOf("http")===0)?video:"";
+      HFDB.save(serverCamp).then(function(){ go(); }).catch(function(){ go(); });
+    } else {
+      go();
+    }
+  }).catch(function(){
+    if(cont){ cont.disabled=false; cont.textContent="Finish"; }
+    showErr("Could not upload media. Try fewer or smaller photos.");
   });
-  var camp={
-    id:id, code:code, title:draft.title, story:draft.story, goal:goalNum(), raised:0, donations:0,
-    image:image, images:images, video:video, media:(draft.media||[]).map(function(m){return {type:m.type,url:m.dataUrl||m.url,name:m.name}}),
-    category:draft.category, country:draft.country, location:draft.zip,
-    organizer:(user&&user.name)||"Organizer", ownerEmail:(user&&user.email)||"", organizerEmail:(user&&user.email)||"",
-    status:"pending", createdAt:new Date().toISOString(), donors:[], donationLink:""
-  };
-  var list=[]; try{list=JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")}catch(e){}
-  if(!Array.isArray(list)) list=[];
-  list.unshift(camp);
-  try{localStorage.setItem("hopeforus_campaigns",JSON.stringify(list))}catch(e){}
-  if(window.HF&&HF.saveCampaign) try{HF.saveCampaign(camp)}catch(e){}
-  if(window.HFDB&&HFDB.save){ try{ HFDB.save(Object.assign({},camp)).catch(function(){}); }catch(e){} }
-  location.href="/dashboard/";
 }
 function back(){ if(step>0){ step--; render(); } }
 var contBtn=document.getElementById("cont");
