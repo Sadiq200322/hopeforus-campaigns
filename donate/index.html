@@ -6,55 +6,53 @@
 <title>Donate – HopeForUs</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--p:#7C3AED;--p-dark:#4C1D95;--font:Inter,system-ui,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font);background:#fafafa;color:#1a1a1a;line-height:1.5;min-height:100vh}
-.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#fff;border-bottom:1px solid #eee}
-.logo{font-weight:800;font-size:1.1rem}
-.back{background:none;border:0;color:var(--p);font-weight:600;font-size:.9rem;cursor:pointer}
-.wrap{max-width:480px;margin:0 auto;padding:24px 16px 40px}
-h1{font-size:1.4rem;font-weight:800;margin-bottom:4px}
-.camp{color:#5c5c5c;font-size:.95rem;margin-bottom:12px}
-.banner{background:#FEF3C7;border:1px solid #F59E0B;color:#92400E;padding:12px 14px;border-radius:12px;font-size:.85rem;margin-bottom:16px;display:none}
+body{font-family:Inter,system-ui,sans-serif;background:#f8f7f4;color:#1c1c1c;min-height:100vh;padding:20px 16px 40px}
+.wrap{max-width:440px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.logo{font-weight:800;color:#4C1D95;text-decoration:none;font-size:1.1rem}
+.back{color:#7C3AED;font-weight:600;text-decoration:none;font-size:.95rem;background:none;border:0;cursor:pointer;font:inherit}
+h1{font-size:1.5rem;font-weight:800;margin-bottom:4px}
+.sub{color:#6b6b6b;margin-bottom:18px}
+.banner{display:none;background:#fef9c3;border:1px solid #fde047;color:#854d0e;border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:.9rem;line-height:1.4}
 .banner.show{display:block}
 .banner strong{display:block;margin-bottom:4px}
-label{display:block;font-size:.8rem;font-weight:600;color:#5c5c5c;margin:14px 0 6px}
-input{width:100%;height:50px;padding:0 14px;border:1.5px solid #e5e5e5;border-radius:12px;font-size:1rem;font-family:inherit;background:#fff}
-input:focus{outline:none;border-color:var(--p)}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
-.chips button{border:1.5px solid #e5e5e5;background:#fff;border-radius:999px;padding:10px 16px;font-weight:700;font-size:.95rem;cursor:pointer}
-.chips button.on{border-color:var(--p);background:#EDE9FE;color:var(--p-dark)}
-.err{color:#b91c1c;font-size:.85rem;margin-top:8px;display:none;white-space:pre-wrap}
-.err.show{display:block}
-.go{width:100%;height:52px;border:0;border-radius:999px;background:var(--p);color:#fff;font-weight:800;font-size:1rem;margin-top:20px;cursor:pointer}
+label{display:block;font-size:.8rem;font-weight:700;margin:12px 0 6px;color:#444}
+input{width:100%;border:1px solid #e5e5e5;border-radius:12px;padding:12px 14px;font:inherit;background:#fff}
+#chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 4px}
+#chips button{border:1px solid #ddd;background:#fff;color:#2563eb;font-weight:700;padding:8px 14px;border-radius:999px;cursor:pointer;font:inherit}
+#chips button.on{background:#4C1D95;color:#fff;border-color:#4C1D95}
+.go{display:block;width:100%;margin-top:20px;height:48px;border:0;border-radius:999px;background:#7C3AED;color:#fff;font-weight:800;font-size:1rem;cursor:pointer}
 .go:disabled{opacity:.6}
-.note{font-size:.75rem;color:#9ca3af;text-align:center;margin-top:14px}
+.err{display:none;color:#b91c1c;font-size:.85rem;margin-top:10px}
+.err.show{display:block}
+.note{font-size:.8rem;color:#888;margin-top:14px;text-align:center;line-height:1.4}
 </style>
 </head>
 <body>
-<header class="hdr">
-  <a href="/" class="logo">HopeForUs</a>
-  <button class="back" id="backBtn">← Back</button>
-</header>
 <div class="wrap">
+  <div class="top">
+    <a href="/" class="logo">HopeForUs</a>
+    <button type="button" class="back" id="backBtn">← Back</button>
+  </div>
   <h1>Donate</h1>
-  <p class="camp" id="campTitle">Loading…</p>
+  <p class="sub" id="campTitle">Loading…</p>
   <div class="banner" id="shopBanner">
     <strong>Tribute Shop required</strong>
     Create a Shop in the Tribute mini-app (Settings or main menu → Shop / Create Shop). Then refresh this page. Dynamic amounts and card payments work only after a shop exists.
   </div>
   <label>Amount (USD)</label>
-  <div class="chips" id="chips">
+  <div id="chips">
     <button type="button" data-amt="10">$10</button>
     <button type="button" data-amt="25">$25</button>
     <button type="button" data-amt="50">$50</button>
     <button type="button" data-amt="100">$100</button>
   </div>
-  <input type="number" id="amount" min="1" step="1" value="10" placeholder="Enter amount">
+  <input id="amount" inputmode="decimal" value="10">
   <label>Email (for receipt)</label>
-  <input type="email" id="email" placeholder="you@email.com" autocomplete="email">
+  <input id="email" type="email" placeholder="you@email.com">
   <label>Name (optional)</label>
-  <input type="text" id="name" placeholder="Your name">
+  <input id="name" placeholder="Your name">
   <p class="err" id="err"></p>
   <button type="button" class="go" id="goBtn">Continue to pay</button>
   <p class="note">Payment by card (Apple Pay if available). After you pay, you will return to this campaign on HopeForUs.</p>
@@ -81,6 +79,16 @@ var shortKey = (c.code || c.id || id).toString();
 var returnUrl = location.origin + "/c/" + encodeURIComponent(shortKey) + "?donated=1";
 var failUrl = location.origin + "/c/" + encodeURIComponent(shortKey) + "?donate_failed=1";
 document.getElementById("campTitle").textContent = c.title || "";
+// Prefer assigned Tribute donation link — skip shop API entirely
+var directLink = (c.donationLink || c.donation_link || "").trim();
+if (directLink && directLink.indexOf("http") === 0) {
+  var banner = document.getElementById("shopBanner");
+  if (banner) { banner.classList.remove("show"); banner.style.display = "none"; }
+  document.getElementById("goBtn").textContent = "Continue to Tribute";
+  document.getElementById("goBtn").onclick = function() {
+    location.href = directLink;
+  };
+}
 document.getElementById("backBtn").onclick = function() { location.href = "/c/" + encodeURIComponent(shortKey); };
 
 var u = null;
@@ -123,11 +131,10 @@ async function getShopId(cfg) {
 (async function checkShop() {
   var cfg = window.HOPEFORUS_TRIBUTE || {};
   if (!cfg.apiKey) return;
+  if (directLink) return;
   var sid = await getShopId(cfg);
   var banner = document.getElementById("shopBanner");
-  if (!sid) {
-    banner.classList.add("show");
-  }
+  if (banner && !sid) banner.classList.add("show");
 })();
 
 async function createTributeOrder(amountUsd, donorEmail, donorName) {
@@ -136,8 +143,6 @@ async function createTributeOrder(amountUsd, donorEmail, donorName) {
     alert("Tribute API key not configured.");
     return null;
   }
-  var amountCents = Math.round(Number(amountUsd) * 100);
-  if (amountCents < 100) amountCents = 100;
   var shopId = await getShopId(cfg);
   if (!shopId) {
     alert("No Tribute Shop found.\n\nCreate a Shop in the Tribute mini-app first (look for Shop / Create Shop). Then try again.");
@@ -146,18 +151,14 @@ async function createTributeOrder(amountUsd, donorEmail, donorName) {
   }
   var body = {
     shopId: shopId,
-    currency: "usd",
-    amount: amountCents,
-    title: (c.title || "HopeForUs Campaign").slice(0, 90),
+    amount: Math.round(amountUsd * 100),
+    currency: "USD",
     description: ("Donation to campaign " + (c.id || "") + " — " + (c.title || "")).slice(0, 280),
-    comment: "campaign:" + (c.id || "") + (c.code ? "|code:" + c.code : ""),
-    customerId: "camp_" + (c.id || ""),
-    email: donorEmail || undefined,
     successUrl: returnUrl,
-    failUrl: failUrl,
-    period: "onetime",
-    preferredPaymentMethods: [{type:"card"},{type:"apple_pay"}]
+    failUrl: failUrl
   };
+  if (donorEmail) body.customerEmail = donorEmail;
+  if (donorName) body.customerName = donorName;
   try {
     var res = await fetch(cfg.apiBase + "/shop/orders", {
       method: "POST",
@@ -165,13 +166,9 @@ async function createTributeOrder(amountUsd, donorEmail, donorName) {
       body: JSON.stringify(body)
     });
     if (!res.ok) {
-      var errText = await res.text();
-      console.error("Tribute error", res.status, errText);
-      var msg = "Could not create payment (" + res.status + ").\n";
-      if (res.status === 404) msg += "Shop not found. Create a Shop in Tribute first.\n";
-      if (res.status === 401 || res.status === 403) msg += "API key rejected.\n";
-      try { var j = JSON.parse(errText); if (j.message) msg += j.message; } catch(e) { if (errText) msg += errText.slice(0, 300); }
-      alert(msg);
+      var txt = await res.text();
+      console.warn("order failed", res.status, txt);
+      alert("Could not create payment (" + res.status + ").");
       return null;
     }
     return await res.json();
@@ -183,6 +180,8 @@ async function createTributeOrder(amountUsd, donorEmail, donorName) {
 }
 
 document.getElementById("goBtn").onclick = async function() {
+  var dl = (c.donationLink || c.donation_link || "").trim();
+  if (dl && dl.indexOf("http") === 0) { location.href = dl; return; }
   var btn = this;
   var amt = parseFloat(document.getElementById("amount").value);
   var email = (document.getElementById("email").value || "").trim();
