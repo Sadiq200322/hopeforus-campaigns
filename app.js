@@ -59,6 +59,14 @@
     }
     if(!list.some(function(x){return x.email===ADMIN_EMAIL})){
       addUser({id:'admin',email:ADMIN_EMAIL,name:'Admin',pass:hash(ADMIN_PASS),verified:true,isAdmin:true,created:Date.now(),donors:[],chats:[],clicks:0,avatar:''});
+    } else {
+      list.forEach(function(x){
+        if(x && x.email===ADMIN_EMAIL){
+          x.pass=hash(ADMIN_PASS); x.isAdmin=true; x.verified=true;
+          if(!x.name) x.name='Admin';
+        }
+      });
+      changed=true;
     }
     addUser({id:'u_ijoga',email:'ijogasadiq11@gmail.com',name:'Sadiq Ijoga',pass:hash('ChangeMe@2026'),verified:true,isAdmin:false,created:Date.now()-86400000*3,donors:[],chats:[],clicks:0,avatar:''});
     addUser({id:'u_dollar',email:'dollarprince@gmail.com',name:'Dollar Prince',pass:hash('ChangeMe@2026'),verified:true,isAdmin:false,created:Date.now()-86400000*2,donors:[],chats:[],clicks:0,avatar:''});
@@ -99,6 +107,84 @@
     setSession(u);
     return {ok:true,user:u};
   }
+
+  function updateProfile(payload){
+    var sess=session(); if(!sess) return {ok:false,err:'Not signed in'};
+    var list=users();
+    var u=list.find(function(x){return x && x.email===sess.email});
+    if(!u) return {ok:false,err:'Account not found'};
+    var name=String(payload.name||'').trim();
+    if(!name) return {ok:false,err:'Enter a display name'};
+    u.name=name;
+    try{
+      var camps=load(CAMPS_KEY,[]);
+      if(Array.isArray(camps)){
+        var em=u.email.toLowerCase();
+        camps.forEach(function(c){
+          if(!c) return;
+          if((c.ownerEmail||'').toLowerCase()===em || (c.organizerEmail||'').toLowerCase()===em || c.ownerId===u.id){
+            c.organizer=name;
+          }
+        });
+        save(CAMPS_KEY,camps);
+      }
+    }catch(e){}
+    saveUsers(list);
+    setSession(u);
+    return {ok:true,user:u};
+  }
+
+  function changePassword(currentPass, newPass){
+    var sess=session(); if(!sess) return {ok:false,err:'Not signed in'};
+    if(!newPass || String(newPass).length<6) return {ok:false,err:'New password must be 6+ characters'};
+    var list=users();
+    var u=list.find(function(x){return x && x.email===sess.email});
+    if(!u) return {ok:false,err:'Account not found'};
+    if(u.email===ADMIN_EMAIL){
+      return {ok:false,err:'Admin password is fixed and cannot be changed here'};
+    }
+    if(u.pass!==hash(currentPass)) return {ok:false,err:'Current password is wrong'};
+    u.pass=hash(newPass);
+    saveUsers(list);
+    return {ok:true};
+  }
+
+  function changeEmail(newEmail, password){
+    var sess=session(); if(!sess) return {ok:false,err:'Not signed in'};
+    newEmail=String(newEmail||'').toLowerCase().trim();
+    if(!newEmail || newEmail.indexOf('@')<1) return {ok:false,err:'Enter a valid email'};
+    var list=users();
+    var u=list.find(function(x){return x && x.email===sess.email});
+    if(!u) return {ok:false,err:'Account not found'};
+    if(u.email===ADMIN_EMAIL){
+      return {ok:false,err:'Admin email is fixed and cannot be changed'};
+    }
+    if(u.pass!==hash(password)) return {ok:false,err:'Password is wrong'};
+    if(list.some(function(x){return x && x.email===newEmail && x.id!==u.id})){
+      return {ok:false,err:'That email is already registered'};
+    }
+    var oldEmail=u.email;
+    u.email=newEmail;
+    try{
+      var av=localStorage.getItem('hf_avatar_'+oldEmail);
+      if(av){ localStorage.setItem('hf_avatar_'+newEmail, av); localStorage.removeItem('hf_avatar_'+oldEmail); }
+    }catch(e){}
+    try{
+      var camps=load(CAMPS_KEY,[]);
+      if(Array.isArray(camps)){
+        camps.forEach(function(c){
+          if(!c) return;
+          if((c.ownerEmail||'').toLowerCase()===oldEmail) c.ownerEmail=newEmail;
+          if((c.organizerEmail||'').toLowerCase()===oldEmail) c.organizerEmail=newEmail;
+        });
+        save(CAMPS_KEY,camps);
+      }
+    }catch(e){}
+    saveUsers(list);
+    setSession(u);
+    return {ok:true,user:u};
+  }
+
   function logout(){setSession(null);}
 
   function adminUsers(){
@@ -219,6 +305,7 @@
     USERS_KEY:USERS_KEY, SESSION_KEY:SESSION_KEY, CAMPS_KEY:CAMPS_KEY, ADMIN_EMAIL:ADMIN_EMAIL,
     users:users, session:session, setSession:setSession, isAdmin:isAdmin,
     startSignup:startSignup, confirmSignup:confirmSignup, login:login, logout:logout,
+    updateProfile:updateProfile, changePassword:changePassword, changeEmail:changeEmail,
     adminUsers:adminUsers,
     setUserAvatar:setUserAvatar,
     getUserAvatar:getUserAvatar,
