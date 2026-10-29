@@ -178,7 +178,11 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--p);box-s
     document.getElementById('campBox').style.display='block';
     document.getElementById('campTitle').textContent=c.title||c.id;
     document.getElementById('campId').textContent='ID: '+(c.code||c.id);
-    backHref='/c/'+encodeURIComponent(c.code||c.id);
+    // Real .html path — never /c/ short links (those crash some mobile browsers)
+    backHref='/campaign/index.html?id='+encodeURIComponent(c.id||id);
+    document.getElementById('backLink').href=backHref;
+  } else if(id){
+    backHref='/campaign/index.html?id='+encodeURIComponent(id);
     document.getElementById('backLink').href=backHref;
   }
 
@@ -214,7 +218,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--p);box-s
       links:links
     };
 
-    var result=HF.submitReport(report);
+    var result=(window.HF&&HF.submitReport)?HF.submitReport(report):{ok:true,row:{id:'r_'+Date.now().toString(36)}};
     if(!result||!result.ok){
       btn.disabled=false;btn.textContent='Submit report';
       return showErr((result&&result.err)||'Could not save report. Try again.');
