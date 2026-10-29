@@ -27,7 +27,7 @@ function money(list){
     if(now-at>=ten) ready+=amt; else hold+=amt;
   });
   var wd=(HF.listWithdrawals(u.email)||[]).filter(function(w){return w.status!=='rejected'&&w.status!=='cancelled'});
-  var withdrawn=wd.filter(function(w){return w.status==='approved'||w.status==='paid';}).reduce(function(n,w){return n+(Number(w.amount)||0)},0);
+  var withdrawn=wd.filter(function(w){return w.status==='approved'||w.status==='paid'||w.status==='completed';}).reduce(function(n,w){return n+(Number(w.amount)||0)},0);
   return {received:received,hold:hold,ready:ready,withdrawn:withdrawn,balance:Math.max(0,received-withdrawn),available:Math.max(0,ready-withdrawn)};
 }
 function moneyForEmail(email){
@@ -39,7 +39,7 @@ function moneyForEmail(email){
     var at=Date.parse(c.createdAt||c.created||'')||now;
     if(now-at>=ten) ready+=amt; else hold+=amt;
   });
-  var wd=(HF.listWithdrawals(email)||[]).filter(function(w){return w.status==='approved'||w.status==='paid';});
+  var wd=(HF.listWithdrawals(email)||[]).filter(function(w){return w.status==='approved'||w.status==='paid'||w.status==='completed';});
   var withdrawn=wd.reduce(function(n,w){return n+(Number(w.amount)||0)},0);
   return {received:received,hold:hold,available:Math.max(0,ready-withdrawn),campaigns:list.length};
 }
@@ -131,7 +131,7 @@ function render(){
   }else if(tab==='transfers'){
     if(HF.isAdmin&&HF.isAdmin()){
       var wds=(HF.listWithdrawals&&HF.listWithdrawals())||[];
-      if(searchQ) wds=wds.filter(function(w){ return matchSearch(searchQ,[w.email,w.method,w.address,w.status]); });
+      if(searchQ) wds=wds.filter(function(w){ return matchSearch(searchQ,[w.email,w.method,w.address,w.status,w.receiverName]); });
       if(openWd){
         var w=wds.find(function(x){return x&&x.id===openWd})||(HF.listWithdrawals()||[]).find(function(x){return x&&x.id===openWd});
         if(w){
@@ -140,7 +140,7 @@ function render(){
           html+='<div class="card" style="padding:16px;margin-top:10px"><div class="note">User</div><strong>'+esc(w.email)+'</strong>';
           html+='<div class="stats" style="margin-top:12px"><div class="stat"><span>Available</span><b>$'+mm.available.toLocaleString()+'</b></div><div class="stat"><span>On hold</span><b>$'+mm.hold.toLocaleString()+'</b></div><div class="stat"><span>Raised</span><b>$'+mm.received.toLocaleString()+'</b></div><div class="stat"><span>Campaigns</span><b>'+mm.campaigns+'</b></div></div>';
           html+='<div style="margin-top:12px"><strong>$'+Number(w.amount||0).toLocaleString()+'</strong> · '+esc(w.method||'')+' · '+esc(w.status||'pending')+'</div>';
-          html+='<div class="note">'+esc(w.address||'')+'</div>';
+          html+='<div class="note">'+esc(w.address||'')+(w.receiverName?(' · Name: '+esc(w.receiverName)):'')+'</div>';
           if((w.status||'pending')==='pending') html+='<div class="row" style="margin-top:16px"><button class="btn" type="button" id="wdPaid">Mark paid</button><button class="btn ghost bad" type="button" id="wdReject">Reject</button></div>';
           html+='</div></div>';
         } else openWd='';
@@ -148,16 +148,16 @@ function render(){
       if(!openWd){
         html='<div class="pane"><h1>Withdrawal requests</h1><p class="sub">Tap a request to review the user balance</p><div class="card" style="padding:8px 14px">';
         if(!wds.length) html+='<p class="note">No withdrawal requests yet.</p>';
-        wds.forEach(function(w){ html+='<button type="button" class="donor" style="width:100%;border:0;background:transparent;text-align:left;cursor:pointer;color:inherit;font:inherit" data-wd="'+esc(w.id)+'"><div style="flex:1"><strong>$'+Number(w.amount||0).toLocaleString()+'</strong><div class="note">'+esc(w.email||'')+' · '+esc(w.method||'')+' · '+esc(w.status||'pending')+'</div></div><span class="note">›</span></button>'; });
+        wds.forEach(function(w){ html+='<button type="button" class="donor" style="width:100%;border:0;background:transparent;text-align:left;cursor:pointer;color:inherit;font:inherit" data-wd="'+esc(w.id)+'"><div style="flex:1"><strong>$'+Number(w.amount||0).toLocaleString()+'</strong><div class="note">'+esc(w.email||'')+' · '+esc(w.method||'')+' · '+esc(w.status||'pending')+(w.receiverName?(' · '+esc(w.receiverName)):'')+'</div></div><span class="note">›</span></button>'; });
         html+='</div></div>';
       }
     } else {
       var myWd=HF.listWithdrawals?HF.listWithdrawals(u.email):[];
       html='<div class="pane"><h1>Transfers</h1><p class="sub">Available: $'+m.available.toLocaleString()+' · On hold: $'+m.hold.toLocaleString()+'</p>';
-      html+='<div class="card" style="padding:16px;margin-top:12px"><label>Amount (USD)</label><input id="wdAmt" inputmode="decimal"><label>Method</label><select id="wdMethod"><option value="usdt">USDT</option><option value="btc">BTC</option><option value="bank">Bank</option><option value="airtel">Airtel Money</option><option value="mtn">MTN Mobile Money</option></select><label>Address / phone / details</label><input id="wdAddr" placeholder="Wallet, IBAN, or phone number"><button class="btn" type="button" id="wdReq">Request withdrawal</button><p class="note" id="wdMsg"></p></div>';
+      html+='<div class="card" style="padding:16px;margin-top:12px"><label>Amount (USD)</label><input id="wdAmt" inputmode="decimal"><label>Method</label><select id="wdMethod"><option value="usdt">USDT</option><option value="btc">BTC</option><option value="bank">Bank</option><option value="airtel">Airtel Money</option><option value="mtn">MTN Mobile Money</option></select><div id="wdNameWrap" style="display:none"><label>Receiver full name</label><input id="wdName" placeholder="Name on the mobile money account"></div><label id="wdAddrLabel">Address / phone / details</label><input id="wdAddr" placeholder="Wallet, IBAN, or phone number"><button class="btn" type="button" id="wdReq">Request withdrawal</button><p class="note" id="wdMsg"></p></div>';
       html+='<div class="card" style="padding:8px 14px;margin-top:14px"><strong>Your requests</strong>';
       if(!myWd.length) html+='<p class="note">None yet.</p>';
-      myWd.forEach(function(w){ html+='<div class="donor"><div style="flex:1"><strong>$'+Number(w.amount||0).toLocaleString()+'</strong><div class="note">'+esc(w.method||'')+' · '+esc(w.status||'pending')+'</div></div></div>'; });
+      myWd.forEach(function(w){ html+='<div class="donor"><div style="flex:1"><strong>$'+Number(w.amount||0).toLocaleString()+'</strong><div class="note">'+esc(w.method||'')+' · '+esc(w.status||'pending')+(w.receiverName?(' · '+esc(w.receiverName)):'')+'</div></div></div>'; });
       html+='</div>'+supportCard()+'</div>';
     }
   }else if(tab==='updates'){
@@ -207,13 +207,12 @@ function render(){
   var wdReject=document.getElementById('wdReject');
   if(wdReject) wdReject.onclick=function(){ setBusy(wdReject,true,'Rejecting…'); if(HF.processWithdrawal) HF.processWithdrawal(openWd,'rejected'); pullServer().then(function(){ openWd=''; render(); }); };
   var saveName=document.getElementById('saveName');
-  if(saveName) saveName.onclick=function(){ setBusy(saveName,true,'Saving…'); var r=HF.updateProfile({name:document.getElementById('setName').value}); var msg=document.getElementById('nameMsg'); if(r&&r.ok){u=HF.session()||u;msg.textContent='Saved.';drawAv();}else msg.textContent=(r&&r.err)||'Failed'; setBusy(saveName,false,'Save name'); };
-  box.querySelectorAll('[data-open],[data-view]').forEach(function(b){b.onclick=function(){location.href='/campaign.html?id='+encodeURIComponent(b.getAttribute('data-open')||b.getAttribute('data-view'));};});
-  box.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){editId=b.getAttribute('data-edit');render();};});
-  box.querySelectorAll('[data-approve]').forEach(function(b){b.onclick=function(){ var id=b.getAttribute('data-approve'); setBusy(b,true,'…'); var p=(window.HFDB&&HFDB.update)?HFDB.update(id,{status:'approved'}):Promise.resolve(); p.then(function(){ if(HF.approveCampaign) HF.approveCampaign(id); return pullServer(); }).then(function(){render();}).catch(function(){render();}); };});
-  box.querySelectorAll('[data-reject]').forEach(function(b){b.onclick=function(){ var id=b.getAttribute('data-reject'); setBusy(b,true,'…'); var p=(window.HFDB&&HFDB.update)?HFDB.update(id,{status:'rejected'}):Promise.resolve(); p.then(function(){ if(HF.rejectCampaign) HF.rejectCampaign(id); return pullServer(); }).then(function(){render();}).catch(function(){render();}); };});
+  if(saveName) saveName.onclick=function(){ setBusy(saveName,true,'Saving…'); var r=HF.updateProfile({name:document.getElementById('setName').value}); var msg=document.getElementById('nameMsg'); if(r&&r.ok){ msg.textContent='Saved.'; u=HF.session()||u; setTimeout(function(){render();},300);} else { msg.textContent=(r&&r.err)||'Failed'; setBusy(saveName,false,'Save name'); } };
   var wdReq=document.getElementById('wdReq');
-  if(wdReq) wdReq.onclick=function(){ setBusy(wdReq,true,'Submitting…'); var r=HF.requestWithdrawal({amount:document.getElementById('wdAmt').value, method:document.getElementById('wdMethod').value, address:document.getElementById('wdAddr').value}); var msg=document.getElementById('wdMsg'); if(r&&r.ok){ msg.textContent='Request submitted.'; pullServer().then(function(){render();}); } else { msg.textContent=(r&&r.err)||'Failed'; setBusy(wdReq,false,'Request withdrawal'); } };
+  var wdMethodEl=document.getElementById('wdMethod');
+  function toggleWdName(){ var m=(wdMethodEl&&wdMethodEl.value)||''; var wrap=document.getElementById('wdNameWrap'); var lab=document.getElementById('wdAddrLabel'); if(wrap) wrap.style.display=(m==='airtel'||m==='mtn')?'block':'none'; if(lab) lab.textContent=(m==='airtel'||m==='mtn')?'Phone number':'Address / phone / details'; }
+  if(wdMethodEl){ wdMethodEl.onchange=toggleWdName; toggleWdName(); }
+  if(wdReq) wdReq.onclick=function(){ setBusy(wdReq,true,'Submitting…'); var method=document.getElementById('wdMethod').value; var payload={amount:document.getElementById('wdAmt').value, method:method, address:document.getElementById('wdAddr').value}; var nm=document.getElementById('wdName'); if(nm&&(method==='airtel'||method==='mtn')) payload.receiverName=nm.value.trim(); var r=HF.requestWithdrawal(payload); var msg=document.getElementById('wdMsg'); if(r&&r.ok){ msg.textContent='Request submitted.'; pullServer().then(function(){render();}); } else { msg.textContent=(r&&r.err)||'Failed'; setBusy(wdReq,false,'Request withdrawal'); } };
   var gadd=document.getElementById('gadd');
   if(gadd){
     var gfind=document.getElementById('gfind'),gpick=document.getElementById('gpick'),gcamp=document.getElementById('gcamp');
@@ -221,6 +220,26 @@ function render(){
     if(gfind) gfind.oninput=function(){pickList(gfind.value);};
     gadd.onclick=function(){ setBusy(gadd,true,'Saving…'); var r=HF.addGift({campaignId:gcamp.value,donor:document.getElementById('gname').value,amount:document.getElementById('gamt').value,title:(document.getElementById('gfind').value||'').split('·')[0].trim()}); var msg=document.getElementById('gmsg'); if(r&&r.ok){msg.textContent='Added and synced.';pullServer().then(function(){render();});} else {msg.textContent=(r&&r.err)||'Failed — pick a campaign'; setBusy(gadd,false,'Add donation');} };
   }
+  box.querySelectorAll('[data-view]').forEach(function(b){b.onclick=function(){ location.href='/campaign/index.html?id='+encodeURIComponent(b.getAttribute('data-view')); };});
+  box.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){editId=b.getAttribute('data-edit');render();};});
+  box.querySelectorAll('[data-approve]').forEach(function(b){b.onclick=function(){
+    var id=b.getAttribute('data-approve');
+    setBusy(b,true,'…');
+    var p = (window.HFDB&&HFDB.update) ? HFDB.update(id,{status:'approved'}) : Promise.resolve();
+    p.then(function(){
+      if(HF.approveCampaign) HF.approveCampaign(id);
+      var L=readLocalCamps(); var x=L.find(function(c){return c&&c.id===id}); if(x){x.status='approved'; localStorage.setItem('hopeforus_campaigns',JSON.stringify(L));}
+    }).then(function(){render();}).catch(function(){ if(HF.approveCampaign) HF.approveCampaign(id); render(); });
+  };});
+  box.querySelectorAll('[data-reject]').forEach(function(b){b.onclick=function(){
+    var id=b.getAttribute('data-reject');
+    setBusy(b,true,'…');
+    var p = (window.HFDB&&HFDB.update) ? HFDB.update(id,{status:'rejected'}) : Promise.resolve();
+    p.then(function(){
+      if(HF.rejectCampaign) HF.rejectCampaign(id);
+      var L=readLocalCamps(); var x=L.find(function(c){return c&&c.id===id}); if(x){x.status='rejected'; localStorage.setItem('hopeforus_campaigns',JSON.stringify(L));}
+    }).then(function(){render();}).catch(function(){ if(HF.rejectCampaign) HF.rejectCampaign(id); render(); });
+  };});
 }
 document.querySelectorAll('[data-tab]').forEach(function(el){el.addEventListener('click',function(){setTab(el.getAttribute('data-tab'));});});
 document.getElementById('homeBtn').onclick=function(){setTab('home');};
@@ -228,20 +247,18 @@ document.getElementById('avBtn').onclick=function(){document.getElementById('men
 document.getElementById('lo').onclick=function(){if(HF.logout)HF.logout();location.href='/login';};
 if(HF.isAdmin&&HF.isAdmin()){ document.getElementById('adminNav').classList.remove('hide'); document.getElementById('adminMenu').classList.remove('hide'); var un=document.getElementById('usersNav'); if(un) un.classList.remove('hide'); }
 var searchBtn=document.getElementById('searchBtn');
-if(searchBtn){ searchBtn.onclick=function(){ var q=prompt('Search campaigns or users by name or email', searchQ||''); if(q===null) return; searchQ=q.trim(); searchBtn.textContent=searchQ?('Search: '+searchQ.slice(0,16)):('Search'); render(); }; }
+if(searchBtn){ searchBtn.onclick=function(){ var q=prompt('Search campaigns or users by name or email', searchQ||''); if(q===null) return; searchQ=q.trim(); searchBtn.textContent=searchQ?('Search: '+searchQ.slice(0,12)):('Search'); render(); }; }
 function pullServer(){
-  if(!(window.HFDB&&HFDB.list)) return Promise.resolve();
-  return HFDB.list().then(function(rows){
-    if(!Array.isArray(rows)) return;
-    var list=readLocalCamps(); var by={}; list.forEach(function(c){ if(c&&c.id) by[c.id]=c; });
-    rows.forEach(function(c){ if(!c||!c.id||c.status==='deleted') return; var prev=by[c.id]||{}; by[c.id]=Object.assign({}, prev, c, { ownerEmail:c.ownerEmail||prev.ownerEmail||'', status:c.status||prev.status||'pending', raised:Math.max(Number(c.raised)||0, Number(prev.raised)||0), donations:Math.max(Number(c.donations)||0, Number(prev.donations)||0), donors:(Array.isArray(c.donors)&&c.donors.length)?c.donors:(prev.donors||[]), image:c.image||prev.image||'', title:c.title||prev.title||'', story:c.story||prev.story||'' }); });
-    localStorage.setItem('hopeforus_campaigns', JSON.stringify(Object.keys(by).map(function(k){return by[k];})));
-    var jobs=[];
-    if(window.HF&&HF.pullMoneyFromServer) jobs.push(HF.pullMoneyFromServer());
-    if(HFDB.listProfiles){ jobs.push(HFDB.listProfiles().then(function(rows){ if(!Array.isArray(rows)||!rows.length) return; var local=[]; try{local=JSON.parse(localStorage.getItem('hopeforus_users')||'[]')}catch(e){} if(!Array.isArray(local)) local=[]; var byU={}; local.forEach(function(usr){ if(usr&&usr.email) byU[String(usr.email).toLowerCase()]=usr; }); rows.forEach(function(p){ if(!p||!p.email) return; var em=String(p.email).toLowerCase(); var prev=byU[em]||{}; byU[em]={ id:prev.id||('p_'+em), email:em, name:p.name||prev.name||em.split('@')[0], pass:prev.pass||'', whatsapp:p.whatsapp||prev.whatsapp||'', verified:true, isAdmin:!!(prev.isAdmin||p.isAdmin), created:p.created||prev.created||Date.now(), avatar:p.avatar||p.avatar_url||prev.avatar||'' }; }); localStorage.setItem('hopeforus_users', JSON.stringify(Object.keys(byU).map(function(k){return byU[k];}))); }).catch(function(){})); }
-    return Promise.all(jobs);
-  }).catch(function(e){ console.warn('pullServer', e); });
+  if(!window.HFDB) return Promise.resolve();
+  var jobs=[];
+  if(HFDB.list){ jobs.push(HFDB.list().then(function(rows){ if(!Array.isArray(rows)||!rows.length) return; var local=readLocalCamps(); var by={}; local.forEach(function(c){ if(c&&c.id) by[c.id]=c; }); rows.forEach(function(c){ if(c&&c.id) by[c.id]=Object.assign({}, by[c.id]||{}, c); }); localStorage.setItem('hopeforus_campaigns', JSON.stringify(Object.keys(by).map(function(k){return by[k];}))); }).catch(function(){})); }
+  if(HF.pullMoneyFromServer) jobs.push(HF.pullMoneyFromServer());
+  if(window.HFDB){
+    if(HFDB.listProfiles){ jobs.push(HFDB.listProfiles().then(function(rows){ if(!Array.isArray(rows)||!rows.length) return; var local=[]; try{local=JSON.parse(localStorage.getItem('hopeforus_users')||'[]');}catch(e){} if(!Array.isArray(local)) local=[]; var by={}; local.forEach(function(u){ if(u&&u.email) by[u.email.toLowerCase()]=u; }); rows.forEach(function(p){ if(!p||!p.email) return; var e=String(p.email).toLowerCase(); by[e]=Object.assign({}, by[e]||{}, {email:e, name:p.name||(by[e]&&by[e].name)||e.split('@')[0], isAdmin:!!p.is_admin, whatsapp:p.whatsapp||'', avatar:p.avatar_url||''}); }); localStorage.setItem('hopeforus_users', JSON.stringify(Object.keys(by).map(function(k){return by[k];}))); }).catch(function(){})); }
+  }
+  return Promise.all(jobs);
 }
-function boot(){ drawAv(); render(); }
-function start(){ boot(); var box=document.getElementById('main'); if(box){ var note=document.createElement('p'); note.id='syncNote'; note.className='note'; note.style.padding='8px 22px'; note.textContent='Syncing from server…'; box.parentNode.insertBefore(note, box); } function done(){ var n=document.getElementById('syncNote'); if(n) n.remove(); render(); drawAv(); } pullServer().then(done).catch(done); setInterval(function(){ pullServer().then(function(){ render(); }).catch(function(){}); }, 30000); }
+drawAv();
+pullServer().then(function(){ render(); }).catch(function(){ render(); });
+function start(){ pullServer().then(function(){ render(); }).catch(function(){ render(); }); setInterval(function(){ pullServer().then(function(){ render(); }).catch(function(){}); }, 30000); }
 start();
