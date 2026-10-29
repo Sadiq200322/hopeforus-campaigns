@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Start a HopeForUs</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--p:#7C3AED;--pd:#4C1D95;--soft:#EDE9FE;--ok:#00a964;--line:#e5e7eb;--muted:#6b7280;--panel:#f8fafc;--font:Inter,system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font);color:#111;background:#fff;line-height:1.45}
+a{color:inherit;text-decoration:none}button,input,select,textarea{font-family:inherit}
+.shell{display:grid;min-height:100vh}
+@media(min-width:900px){.shell{grid-template-columns:320px 1fr}}
+.side{background:linear-gradient(160deg,#4C1D95,#7C3AED);color:#fff;padding:28px 24px;display:none}
+@media(min-width:900px){.side{display:block}}
+.logo{display:inline-flex;align-items:center;gap:8px;font-weight:800;margin-bottom:28px}
+.logo img{width:28px;height:28px}
+.stepn{font-size:.8rem;opacity:.85;margin-bottom:10px}
+.side h1{font-size:1.5rem;font-weight:800;line-height:1.2;margin-bottom:10px}
+.side p{opacity:.9;font-size:.95rem}
+.main{display:flex;flex-direction:column;min-height:100vh}
+.topr{display:flex;justify-content:flex-end;padding:16px 20px;font-size:.9rem;font-weight:600}
+.body{flex:1;padding:8px 20px 88px;max-width:560px}
+h2{font-size:1rem;font-weight:700;margin-bottom:6px}
+.hint{font-size:.88rem;color:var(--muted);margin-bottom:16px}
+.row2{display:grid;gap:12px}@media(min-width:520px){.row2{grid-template-columns:1fr 1fr}}
+label.f{display:block;font-size:.8rem;color:var(--muted);margin-bottom:4px;font-weight:600}
+input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:1rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font-size:.85rem;font-weight:600;cursor:pointer}
+.chip.on{border-color:var(--p);background:var(--soft);color:var(--pd)}
+.choice{display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;padding:16px;border:1.5px solid var(--line);border-radius:14px;background:#fff;margin-bottom:10px}
+.choice.on{border-color:var(--p);background:var(--soft)}
+/* Goal amount: USD label left, clear numbers — no overlap */
+.amt{display:flex;align-items:center;height:56px;border:1.5px solid var(--line);border-radius:12px;padding:0 6px 0 12px;gap:10px;background:#fff}
+.amt .cur{flex-shrink:0;background:#f3f4f6;border-radius:8px;padding:6px 10px;font-size:.8rem;font-weight:700;color:#374151;letter-spacing:.02em}
+.amt input{border:0 !important;outline:none;padding:0 10px 0 0 !important;margin:0;font-size:1.15rem;font-weight:700;flex:1;min-width:0;width:auto !important;background:transparent;border-radius:0;height:100%}
+.amt input:focus{outline:none;box-shadow:none}
+.auto{margin-top:16px;background:var(--panel);border-radius:14px;padding:16px}
+.auto .badge{display:inline-block;background:var(--soft);color:var(--p);font-size:.7rem;font-weight:700;padding:3px 8px;border-radius:6px}
+.sw{width:48px;height:28px;border-radius:999px;border:0;background:#d1d5db;position:relative;flex-shrink:0}
+.sw.on{background:var(--ok)}
+.sw i{position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15);transition:transform .2s}
+.sw.on i{transform:translateX(20px)}
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;gap:12px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#fff;box-shadow:0 -4px 16px rgba(0,0,0,.06)}
+@media(min-width:900px){.foot{left:320px}}
+.prog{display:none;flex:1;height:4px;background:var(--line);border-radius:99px;overflow:hidden}
+@media(min-width:560px){.prog{display:block}}
+.prog i{display:block;height:100%;background:var(--ok);width:0;transition:width .25s}
+.back{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.back:disabled{opacity:.3}
+.back svg{width:20px;height:20px}
+.cont{margin-left:auto;height:44px;padding:0 22px;border-radius:999px;border:0;background:var(--pd);color:#E9D5FF;font-weight:700}
+.err{color:#b91c1c;font-size:.88rem;font-weight:600;margin-top:12px;display:none}
+.err.show{display:block}
+.media-grid{display:flex;gap:8px;overflow-x:auto;margin-top:10px}
+.media-grid img,.media-grid video{width:120px;height:80px;object-fit:cover;border-radius:10px;flex-shrink:0}
+.acct{max-width:400px}
+.acct .note{font-size:.85rem;color:var(--muted);margin-top:10px}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="/emailjs-config.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <a class="logo" href="/"><img src="/logo-mark.svg" alt=""> HopeForUs</a>
+    <div class="stepn" id="stepn">1 of 6</div>
+    <h1 id="stitle">Let's begin your fundraising journey</h1>
+    <p id="ssub">We're here to guide you every step of the way.</p>
+  </aside>
+  <section class="main">
+    <div class="topr" id="topr"><a href="/login">Sign in</a></div>
+    <div class="body" id="body"></div>
+    <div class="foot">
+      <div class="prog"><i id="prog"></i></div>
+      <button type="button" class="back" id="back" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button type="button" class="cont" id="cont">Continue</button>
+    </div>
+  </section>
+</div>
+<script src="/supabase.js?v=12"></script>
+<script src="/shared-camps.js?v=12"></script>
+<script src="/start-flow.js?v=12"></script>
+</body>
+</html>
