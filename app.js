@@ -140,50 +140,111 @@
   function listGifts(email){
     var list=load(GIFTS_KEY,[]);
     if(!Array.isArray(list)) list=[];
-    if(!email) return list;
-    email=String(email).toLowerCase();
-    return list.filter(function(g){ return g&&(String(g.ownerEmail||'').toLowerCase()===email||String(g.email||'').toLowerCase()===email); });
+    if(email){
+      email=String(email).toLowerCase();
+      list=list.filter(function(g){ return g&&(String(g.ownerEmail||'').toLowerCase()===email||String(g.email||'').toLowerCase()===email); });
+    }
+    return list;
   }
   function addGift(payload){
+    payload=payload||{};
+    var camps=load(CAMPS_KEY,[]);
+    var c=camps.find(function(x){return x&&x.id===payload.campaignId});
+    var row={
+      id:'g_'+Date.now().toString(36),
+      campaignId:payload.campaignId||'',
+      title:payload.title||(c&&c.title)||'',
+      ownerEmail:(c&&(c.ownerEmail||c.organizerEmail))||payload.ownerEmail||'',
+      donor:payload.donor||payload.name||'Anonymous',
+      amount:Number(payload.amount)||0,
+      note:payload.note||'',
+      at:Date.now()
+    };
+    if(!row.campaignId||!row.amount) return {ok:false,err:'Campaign and amount required'};
     var list=load(GIFTS_KEY,[]);
     if(!Array.isArray(list)) list=[];
-    var row=Object.assign({id:'g_'+Date.now().toString(36),at:Date.now()},payload||{});
-    list.unshift(row); save(GIFTS_KEY,list);
-    try{
-      var camps=load(CAMPS_KEY,[]);
-      var c=camps.find(function(x){return x&&x.id===row.campaignId});
-      if(c){
-        c.raised=(Number(c.raised)||0)+(Number(row.amount)||0);
-        c.donations=(Number(c.donations)||0)+1;
-        if(!Array.isArray(c.donors)) c.donors=[];
-        c.donors.unshift({name:row.donor||'Anonymous',amount:Number(row.amount)||0,note:row.note||'',time:new Date().toISOString()});
-        save(CAMPS_KEY,camps);
-        if(window.HFDB&&HFDB.update){ try{ HFDB.update(c.id,{raised:c.raised,donations:c.donations}); }catch(e){} }
-        if(window.HFDB&&HFDB.publishDonors){ try{ HFDB.publishDonors(c.id,c.donors); }catch(e){} }
-      }
-    }catch(e){}
+    list.unshift(row);
+    save(GIFTS_KEY,list);
+    if(c){
+      c.raised=(Number(c.raised)||0)+row.amount;
+      c.donations=(Number(c.donations)||0)+1;
+      if(!Array.isArray(c.donors)) c.donors=[];
+      c.donors.unshift({name:row.donor,amount:row.amount,note:row.note,giftId:row.id,time:new Date().toISOString()});
+      save(CAMPS_KEY,camps);
+    }
+    if(window.HFDB&&HFDB.addGift){
+      HFDB.addGift(row).catch(function(e){ console.warn('gift sync', e); });
+    } else if(window.HFDB&&HFDB.update&&c){
+      try{ HFDB.update(c.id,{raised:c.raised,donations:c.donations}); }catch(e){}
+      if(HFDB.publishDonors) try{ HFDB.publishDonors(c.id,c.donors); }catch(e){}
+    }
     return {ok:true,gift:row};
   }
   function listWithdrawals(email){
     var list=load(WITHDRAW_KEY,[]);
     if(!Array.isArray(list)) list=[];
-    if(!email) return list;
-    email=String(email).toLowerCase();
-    return list.filter(function(w){ return w&&String(w.email||'').toLowerCase()===email; });
+    if(email){
+      email=String(email).toLowerCase();
+      list=list.filter(function(w){ return w&&String(w.email||'').toLowerCase()===email; });
+    }
+    return list;
   }
   function requestWithdrawal(payload){
     var s=session(); if(!s) return {ok:false,err:'Not signed in'};
+    var row={
+      id:'w_'+Date.now().toString(36),
+      email:s.email,
+      amount:Number(payload&&payload.amount)||0,
+      method:(payload&&payload.method)||'usdt',
+      address:(payload&&(payload.address||payload.details))||'',
+      status:'pending',
+      at:Date.now()
+    };
+    if(row.amount<=0) return {ok:false,err:'Enter an amount'};
     var list=load(WITHDRAW_KEY,[]);
-    var row=Object.assign({id:'w_'+Date.now().toString(36),email:s.email,status:'pending',at:Date.now()},payload||{});
-    list.unshift(row); save(WITHDRAW_KEY,list);
+    if(!Array.isArray(list)) list=[];
+    list.unshift(row);
+    save(WITHDRAW_KEY,list);
+    if(window.HFDB&&HFDB.requestWithdrawal){
+      HFDB.requestWithdrawal(row).catch(function(e){ console.warn('withdraw sync', e); });
+    }
     return {ok:true,request:row};
   }
   function processWithdrawal(id,status){
     var list=load(WITHDRAW_KEY,[]);
     var w=list.find(function(x){return x&&x.id===id});
     if(!w) return {ok:false,err:'Not found'};
-    w.status=status||'approved'; save(WITHDRAW_KEY,list);
+    w.status=status||'approved';
+    save(WITHDRAW_KEY,list);
+    if(window.HFDB&&HFDB.processWithdrawal){
+      HFDB.processWithdrawal(id, w.status).catch(function(e){ console.warn('withdraw process', e); });
+    }
     return {ok:true,request:w};
+  }
+  function pullMoneyFromServer(){
+    if(!window.HFDB) return Promise.resolve();
+    var jobs=[];
+    if(HFDB.listGifts){
+      jobs.push(HFDB.listGifts().then(function(rows){
+        if(!Array.isArray(rows)) return;
+        var local=load(GIFTS_KEY,[]);
+        if(!Array.isArray(local)) local=[];
+        var by={}; local.forEach(function(g){ if(g&&g.id) by[g.id]=g; });
+        rows.forEach(function(g){ if(g&&g.id) by[g.id]=Object.assign({}, by[g.id]||{}, g); });
+        save(GIFTS_KEY, Object.keys(by).map(function(k){return by[k];}));
+      }).catch(function(){}));
+    }
+    if(HFDB.listWithdrawals){
+      jobs.push(HFDB.listWithdrawals().then(function(rows){
+        if(!Array.isArray(rows)) return;
+        var local=load(WITHDRAW_KEY,[]);
+        if(!Array.isArray(local)) local=[];
+        var by={}; local.forEach(function(w){ if(w&&w.id) by[w.id]=w; });
+        rows.forEach(function(w){ if(w&&w.id) by[w.id]=Object.assign({}, by[w.id]||{}, w); });
+        save(WITHDRAW_KEY, Object.keys(by).map(function(k){return by[k];}));
+      }).catch(function(){}));
+    }
+    return Promise.all(jobs);
   }
 
   function adminUsers(){
@@ -280,7 +341,7 @@
     getAllCampaigns:getAllCampaigns, adminCampaigns:adminCampaigns, myCampaigns:myCampaigns,
     ensureInStorage:ensureInStorage, saveCampaign:saveCampaign,
     approveCampaign:approveCampaign, rejectCampaign:rejectCampaign,
-    listGifts:listGifts, addGift:addGift,
+    listGifts:listGifts, addGift:addGift, pullMoneyFromServer:pullMoneyFromServer,
     listWithdrawals:listWithdrawals, requestWithdrawal:requestWithdrawal, processWithdrawal:processWithdrawal,
     shortLink:shortLink, realShareUrl:shortLink, hash:hash,
     whatsappLink:whatsappLink, beginCode:beginCode, loginWithCode:loginWithCode, resetPassword:resetPassword
