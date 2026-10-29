@@ -42,7 +42,6 @@ body{font-family:Inter,system-ui,sans-serif;background:#fff;color:#1c1c1c;line-h
 .si{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:0;font-weight:800;font-size:1.1rem;text-decoration:none;color:#fff;cursor:pointer}
 .si.wa{background:#25D366}.si.fb{background:#1877F2}.si.tw{background:#111}.si.cp{background:#4C1D95;color:#fff}
 .share-link{margin-top:8px;font-size:.75rem;color:#666;word-break:break-all;text-align:center}
-
 .empty{padding:48px 16px;color:#666;text-align:center;max-width:420px;margin:40px auto}
 .empty a{color:var(--p);font-weight:700}
 .spin{display:inline-block;width:28px;height:28px;border:3px solid #e5e5e5;border-top-color:var(--p);border-radius:50%;animation:sp .7s linear infinite;margin-bottom:12px}
@@ -56,9 +55,9 @@ body{font-family:Inter,system-ui,sans-serif;background:#fff;color:#1c1c1c;line-h
 </header>
 <div class="wrap" id="app"><div class="empty"><div class="spin"></div><div>Loading campaign…</div></div></div>
 <div class="toast" id="toast" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1c1c1c;color:#fff;padding:10px 18px;border-radius:999px;font-size:.85rem;z-index:100">Link copied</div>
-<script src="/campaigns-data.js?v=28"></script>
-<script src="/supabase.js?v=28"></script>
-<script src="/app.js?v=28"></script>
+<script src="/campaigns-data.js?v=29"></script>
+<script src="/supabase.js?v=29"></script>
+<script src="/app.js?v=29"></script>
 <script>
 (function(){
   var ORIGIN=(location.protocol==='https:'||location.protocol==='http:')?(location.origin||'https://munowatchplus.watch'):'https://munowatchplus.watch';
@@ -121,7 +120,6 @@ body{font-family:Inter,system-ui,sans-serif;background:#fff;color:#1c1c1c;line-h
     html+='<div class="stats"><span><b>'+money(raised,currency)+'</b> raised</span><span><b>'+pct+'%</b> of '+moneyShort(goal,currency)+'</span><span><b>'+(Number(c.donations)||donors.length||0)+'</b> gifts</span></div>';
     html+='<div class="ticker" id="ticker"><span class="t">'+recent+'</span></div>';
 
-    // sticky support card near top
     html+='<div class="side"><div class="card">';
     html+='<div class="btn-row"><a class="btn-d" href="'+esc(donateHref)+'"'+(c.donationLink?' target="_blank" rel="noopener"':'')+'>Donate</a>';
     html+='<button type="button" class="btn-s" id="shareBtn">Share</button></div>';
@@ -142,7 +140,6 @@ body{font-family:Inter,system-ui,sans-serif;background:#fff;color:#1c1c1c;line-h
 
     app.innerHTML=html;
 
-    // share wiring
     function copy(){ try{navigator.clipboard.writeText(url); var t=document.getElementById('toast'); if(t){t.style.display='block'; setTimeout(function(){t.style.display='none';},1800);} }catch(e){} }
     var sb=document.getElementById('shareBtn');if(sb)sb.onclick=function(){var card=document.getElementById('shareCard');if(card)card.classList.toggle('open');copy();};
     var sl=document.getElementById('shareLinkText'); if(sl) sl.textContent=url;
@@ -154,7 +151,6 @@ body{font-family:Inter,system-ui,sans-serif;background:#fff;color:#1c1c1c;line-h
     var more=document.getElementById('moreBtn');
     if(more) more.onclick=function(){ var s=document.getElementById('story'); if(s){ s.classList.remove('clamp'); more.remove(); } };
 
-    // donor ticker
     if(donors.length>1){
       var el=document.getElementById('ticker'), i=0;
       function show(){var d=donors[i%donors.length];var t=(d.name||'Someone')+(d.amount?(' donated '+money(d.amount,currency)):'');el.innerHTML='<span class="t">'+esc(t)+'</span>';i++;}
@@ -178,7 +174,6 @@ body{font-family:Inter,system-ui,sans-serif;background:#fff;color:#1c1c1c;line-h
   tryRemote().then(function(remote){
     clearTimeout(timeoutId);
     if(!remote){ if(!painted) showError('Campaign not found'); return; }
-    // merge + repaint
     var base=local||remote;
     paint(Object.assign({}, base, remote, {
       raised: Math.max(Number(base.raised)||0, Number(remote.raised)||0),
