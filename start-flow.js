@@ -38,147 +38,175 @@ function compressImage(file,maxW,quality){
       img.onload=function(){
         var w=img.width,h=img.height,scale=Math.min(1,maxW/w);
         var c=document.createElement('canvas');c.width=Math.round(w*scale);c.height=Math.round(h*scale);
-        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-        resolve({src:c.toDataURL('image/jpeg',quality||0.72),type:'image'});
+        var ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);
+        resolve(c.toDataURL('image/jpeg',quality||0.72));
       };
-      img.onerror=function(){resolve(null)};
+      img.onerror=function(){resolve(r.result)};
       img.src=r.result;
     };
-    r.onerror=function(){resolve(null)};
+    r.onerror=function(){resolve('')};
     r.readAsDataURL(file);
   });
 }
-function paintMedia(){
-  var box=$("mediaBox"); if(!box) return;
-  box.innerHTML=draft.media.map(function(m,i){
-    return '<div class="ph"><img src="'+m.src+'" alt=""><button type="button" data-rm="'+i+'">×</button></div>';
-  }).join('')||'<p class="note">No photos yet</p>';
-  box.querySelectorAll('[data-rm]').forEach(function(b){b.onclick=function(){draft.media.splice(+b.getAttribute('data-rm'),1);paintMedia();};});
-}
 function render(){
-  $("stepn").textContent=(step+1)+" of "+STEPS;
-  $("prog").style.width=((step+1)/STEPS*100)+"%";
-  var el=$("body"); el.innerHTML="";
-  var err=document.createElement("p"); err.id="err"; err.className="note"; err.style.color="#b91c1c";
+  var body=$("body"),stitle=$("stitle"),ssub=$("ssub"),stepn=$("stepn"),prog=$("prog"),back=$("back"),cont=$("cont"),topr=$("topr");
+  if(!body) return;
+  showErr("");
+  var total=isLoggedIn()?6:7;
+  var vis=Math.min(step+1,total);
+  if(stepn) stepn.textContent=vis+" of "+total;
+  if(prog) prog.style.width=Math.round((vis/total)*100)+"%";
+  if(back) back.style.visibility=step===0?"hidden":"visible";
+  if(cont){ cont.textContent=step===6|| (isLoggedIn()&&step===5)?"Finish":"Continue"; cont.disabled=false; }
+  if(topr) topr.innerHTML=isLoggedIn()?('<span class="note">Signed in as '+esc(user.name||user.email)+'</span>'):'<a href="/login">Sign in</a>';
+
   if(step===0){
-    el.innerHTML='<h2>Where are you fundraising?</h2><label class="f">Country</label><input id="country" value="'+esc(draft.country)+'"><label class="f" style="margin-top:12px">Postal code</label><input id="zip" value="'+esc(draft.zip)+'">';
+    stitle.textContent="Where will the funds go?";
+    ssub.textContent="Tell us the country and city or zip for this fundraiser.";
+    body.innerHTML='<label class="f">Country</label><input id="country" value="'+esc(draft.country)+'"><label class="f">City / ZIP</label><input id="zip" value="'+esc(draft.zip)+'" placeholder="e.g. Kampala or 10001"><p class="err" id="err"></p>';
   } else if(step===1){
-    el.innerHTML='<h2>Who are you fundraising for?</h2><div class="chips">'+['Yourself','Someone else','Charity'].map(function(b){return '<button type="button" class="chip'+(draft.beneficiary===b?' on':'')+'" data-b="'+b+'">'+b+'</button>';}).join('')+'</div>';
-    el.querySelectorAll('[data-b]').forEach(function(b){b.onclick=function(){draft.beneficiary=b.getAttribute('data-b');render();};});
+    stitle.textContent="What best describes your fundraiser?";
+    ssub.textContent="Pick a category so people can find you.";
+    body.innerHTML='<div class="cats" id="cats">'+CATS.map(function(c){return '<button type="button" class="cat'+(draft.category===c?' on':'')+'" data-c="'+esc(c)+'">'+esc(c)+'</button>'}).join('')+'</div><p class="err" id="err"></p>';
+    body.querySelectorAll('[data-c]').forEach(function(b){b.onclick=function(){draft.category=b.getAttribute('data-c');render();};});
   } else if(step===2){
-    el.innerHTML='<h2>Choose a category</h2><div class="chips">'+CATS.map(function(c){return '<button type="button" class="chip'+(draft.category===c?' on':'')+'" data-c="'+esc(c)+'">'+esc(c)+'</button>';}).join('')+'</div>';
-    el.querySelectorAll('[data-c]').forEach(function(b){b.onclick=function(){draft.category=b.getAttribute('data-c');render();};});
+    stitle.textContent="Who are you raising money for?";
+    ssub.textContent="Yourself, someone else, or a charity / group.";
+    var opts=['Myself','Someone else','Charity or group'];
+    body.innerHTML='<div class="cats">'+opts.map(function(o){return '<button type="button" class="cat'+(draft.beneficiary===o?' on':'')+'" data-b="'+esc(o)+'">'+esc(o)+'</button>'}).join('')+'</div><p class="err" id="err"></p>';
+    body.querySelectorAll('[data-b]').forEach(function(b){b.onclick=function(){draft.beneficiary=b.getAttribute('data-b');render();};});
   } else if(step===3){
-    if(isLoggedIn()){ step=4; render(); return; }
-    el.innerHTML='<div class="acct"><h2>Create your account</h2>'+
-      '<label class="f">Email</label><input id="email" type="email" placeholder="you@email.com" value="'+esc(pendingAuth.email)+'">'+ 
-      '<label class="f" style="margin-top:12px">Password</label><input id="pass" type="password" placeholder="At least 6 characters">'+
-      '<label class="f" style="margin-top:12px">Your name</label><input id="name" placeholder="First name" value="'+esc(pendingAuth.name)+'">'+ 
-      '<label class="f" style="margin-top:12px">WhatsApp number</label><input id="whatsapp" type="tel" placeholder="+447... or +256..." value="'+esc(pendingAuth.whatsapp||'')+'">'+ 
-      '<p class="note" style="margin-top:6px">Include country code. No verification — so we can reach you if needed.</p>'+
-      '<p class="note">We will email a 6-digit code. You must enter it to continue.</p></div>';
-  } else if(step===4 && !isLoggedIn()){
-    el.innerHTML='<div class="acct"><h2>Check your email</h2><p class="note">Enter the 6-digit code we sent to '+esc(pendingAuth.email)+'</p><label class="f">Code</label><input id="code" inputmode="numeric" maxlength="6" placeholder="000000"><p class="note">Code expires in 30 minutes.</p></div>';
-  } else if(step===4 || step===5){
-    var real=step===4 && isLoggedIn() ? 4 : step;
-    if(!isLoggedIn() && step===5){ step=3; render(); return; }
-    if(step===4 && isLoggedIn()){
-      el.innerHTML='<h2>Campaign title</h2><label class="f">Title</label><input id="title" value="'+esc(draft.title)+'" placeholder="Help…"><label class="f" style="margin-top:12px">Goal (USD)</label><input id="goal" value="'+esc(draft.goal)+'" inputmode="decimal"><label class="f" style="margin-top:12px">Your story</label><textarea id="story" rows="6">'+esc(draft.story)+'</textarea>';
-    } else if(step===5){
-      el.innerHTML='<h2>Add photos</h2><div id="mediaBox" class="gals"></div><label class="btn" style="display:inline-flex;margin-top:12px">Add photos<input id="files" type="file" accept="image/*" multiple class="hide"></label>';
-      paintMedia();
-      var inp=$("files");
-      if(inp) inp.onchange=function(){
-        var files=Array.prototype.slice.call(inp.files||[]);
-        var remaining=8-draft.media.length;
-        if(remaining<=0){showErr("Max 8 photos");return;}
-        files=files.slice(0,remaining);
-        var chain=Promise.resolve();
-        files.forEach(function(file){
-          chain=chain.then(function(){
-            return compressImage(file,1200,0.72).then(function(item){
-              if(item){draft.media.push(item);paintMedia();}
-              else showErr("Could not process that image.");
-            });
-          });
-        });
-      };
-    }
-  } else if(step===6){
-    el.innerHTML='<h2>Review & publish</h2><p class="note">Title: <strong>'+esc(draft.title)+'</strong></p><p class="note">Goal: $'+startGoal().toLocaleString()+'</p><p class="note">Photos: '+draft.media.length+'</p>';
+    stitle.textContent="Set your goal";
+    ssub.textContent="You can change this later. Amounts are in USD.";
+    body.innerHTML='<label class="f">Goal amount (USD)</label><input id="goal" inputmode="decimal" value="'+esc(draft.goal)+'" placeholder="e.g. 5000"><p class="err" id="err"></p>';
+  } else if(step===4){
+    stitle.textContent="Tell your story";
+    ssub.textContent="A clear title and story help people care and donate.";
+    body.innerHTML='<label class="f">Title</label><input id="title" value="'+esc(draft.title)+'" maxlength="80" placeholder="e.g. Help Molly get surgery"><label class="f">Story</label><textarea id="story" rows="6" placeholder="Share why you are raising money...">'+esc(draft.story)+'</textarea><p class="err" id="err"></p>';
+  } else if(step===5){
+    stitle.textContent="Add photos or a video";
+    ssub.textContent="At least one photo works best. Video is optional.";
+    body.innerHTML='<label class="f">Upload</label><input id="files" type="file" accept="image/*,video/*" multiple><div class="media-grid" id="mgrid"></div><p class="err" id="err"></p>';
+    var grid=$("mgrid");
+    (draft.media||[]).forEach(function(m){
+      if(m.type==='video'){ var v=document.createElement('video'); v.src=m.dataUrl||m.url; v.muted=true; grid.appendChild(v); }
+      else { var i=document.createElement('img'); i.src=m.dataUrl||m.url; grid.appendChild(i); }
+    });
+    $("files").onchange=function(e){
+      var files=Array.prototype.slice.call(e.target.files||[]).slice(0,6);
+      var jobs=files.map(function(f){
+        if(String(f.type).indexOf('video')===0){
+          return new Promise(function(res){ var r=new FileReader(); r.onload=function(){res({type:'video',dataUrl:r.result,name:f.name})}; r.readAsDataURL(f); });
+        }
+        return compressImage(f,1400,0.75).then(function(d){return {type:'image',dataUrl:d,name:f.name}});
+      });
+      Promise.all(jobs).then(function(rows){ draft.media=(draft.media||[]).concat(rows).slice(0,8); render(); });
+    };
+  } else if(step===6 && !isLoggedIn()){
+    stitle.textContent="Create your account";
+    ssub.textContent="So you can manage donations and updates.";
+    body.innerHTML='<div class="acct"><label class="f">Full name</label><input id="name" value="'+esc(pendingAuth.name||'')+'"><label class="f">Email</label><input id="email" type="email" value="'+esc(pendingAuth.email||'')+'"><label class="f">Password</label><input id="pass" type="password" placeholder="6+ characters"><label class="f" style="margin-top:12px">WhatsApp number</label><input id="whatsapp" type="tel" placeholder="+447... or +256..." value="'+esc(pendingAuth.whatsapp||'')+'"><p class="note">Include country code. No verification needed — admin can reach you if needed.</p><p class="err" id="err"></p></div>';
+  } else if(step===7 || (isLoggedIn() && step===6)){
+    stitle.textContent="Check your email";
+    ssub.textContent="Enter the 6-digit code we sent.";
+    body.innerHTML='<div class="acct"><label class="f">Verification code</label><input id="otp" inputmode="numeric" maxlength="6" placeholder="000000"><p class="note">Code sent to '+esc(pendingAuth.email||user&&user.email||'')+(lastEmailSent?'':' — if email failed, use the code shown in a moment')+'</p><p class="err" id="err"></p></div>';
+  } else {
+    stitle.textContent="Almost done";
+    ssub.textContent="Review and publish.";
+    body.innerHTML='<p class="note">Your campaign will be reviewed before it goes live.</p><p class="err" id="err"></p>';
   }
-  el.appendChild(err);
 }
-function publish(){
-  if(!isLoggedIn()){step=3;render();return}
-  if(!draft.title.trim())return showErr("Add a title.");
-  if(!draft.media.length)return showErr("Add at least one photo.");
-  var goal=Math.max(1,goalNum());
-  var id="c_"+Date.now().toString(36);
-  var camp={id:id,code:makeCode(6),title:draft.title.trim(),story:draft.story||'',goal:goal,raised:0,donations:0,status:'pending',image:draft.media[0]&&draft.media[0].src||'',images:draft.media.map(function(m){return m.src}),organizer:user.name||user.email,ownerEmail:user.email,organizerEmail:user.email,ownerId:user.id,category:draft.category,beneficiary:draft.beneficiary,country:draft.country,createdAt:new Date().toISOString(),donors:[]};
-  var list=[];try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
-  if(!Array.isArray(list))list=[];
-  list.unshift(camp);
-  try{localStorage.setItem('hopeforus_campaigns',JSON.stringify(list))}catch(e){return showErr('Could not save campaign (storage full).');}
-  if(window.HF&&HF.saveCampaign) try{HF.saveCampaign(camp)}catch(e){}
-  location.href='/dashboard/';
-}
-$("cont").onclick=function(){
+function next(){
   showErr("");
   if(step===0){
-    draft.country=($("country")&&$("country").value||"").trim()||draft.country;
+    draft.country=($("country")&&$("country").value||"").trim()||"Uganda";
     draft.zip=($("zip")&&$("zip").value||"").trim();
-    step=1;render();return;
+    if(!draft.zip){ showErr("Enter a city or ZIP"); return; }
+    step=1; render(); return;
   }
-  if(step===1){ if(!draft.beneficiary) return showErr("Pick who you are fundraising for."); step=2;render();return; }
-  if(step===2){ if(!draft.category) return showErr("Pick a category."); step=3;render();return; }
+  if(step===1){
+    if(!draft.category){ showErr("Pick a category"); return; }
+    step=2; render(); return;
+  }
+  if(step===2){
+    if(!draft.beneficiary){ showErr("Choose who this is for"); return; }
+    step=3; render(); return;
+  }
   if(step===3){
-    if(isLoggedIn()){step=4;render();return;}
-    var email=($("email")&&$("email").value||"").trim().toLowerCase();
-    var pass=($("pass")&&$("pass").value||"");
-    var name=($("name")&&$("name").value||"").trim();
-    var whatsapp=($("whatsapp")&&$("whatsapp").value||"").trim();
-    if(!email||email.indexOf("@")<0)return showErr("Enter a valid email.");
-    if(pass.length<6)return showErr("Password must be at least 6 characters.");
-    var waDigits=whatsapp.replace(/[\s()+-]/g,"");
-    if(waDigits.charAt(0)==="+") waDigits=waDigits.slice(1);
-    if(!/^\d{8,15}$/.test(waDigits)) return showErr("Enter a valid WhatsApp number with country code.");
-    if(!emailjsReady()){
-      return showErr("Email service is not ready. Refresh the page and try again.");
-    }
-    pendingAuth={email:email,pass:pass,name:name,whatsapp:waDigits,code:makeOtp(),sentAt:Date.now()};
-    $("cont").disabled=true;$("cont").textContent="Sending code…";
-    sendEmailCode(email,pendingAuth.code,name).then(function(sent){
-      $("cont").disabled=false;$("cont").textContent="Continue";
-      if(!sent) return showErr("Could not send email. Try again.");
-      step=4;render();
-    });
-    return;
-  }
-  if(step===4 && !isLoggedIn()){
-    var code=($("code")&&$("code").value||"").trim();
-    if(code!==pendingAuth.code) return showErr("Wrong code.");
-    if(Date.now()-pendingAuth.sentAt>30*60*1000) return showErr("Code expired. Go back and resend.");
-    saveUser(pendingAuth.email, pendingAuth.pass, pendingAuth.name, pendingAuth.whatsapp);
+    draft.goal=($("goal")&&$("goal").value||"").trim();
+    if(!(goalNum()>0)){ showErr("Enter a goal amount"); return; }
     step=4; render(); return;
   }
-  if(step===4 && isLoggedIn()){
+  if(step===4){
     draft.title=($("title")&&$("title").value||"").trim();
-    draft.goal=($("goal")&&$("goal").value||"");
-    draft.story=($("story")&&$("story").value||"");
-    if(!draft.title) return showErr("Add a title.");
-    step=5;render();return;
+    draft.story=($("story")&&$("story").value||"").trim();
+    if(draft.title.length<4){ showErr("Add a short title"); return; }
+    if(draft.story.length<20){ showErr("Write a bit more in the story"); return; }
+    step=5; render(); return;
   }
   if(step===5){
-    if(!draft.media.length) return showErr("Add at least one photo.");
-    step=6;render();return;
+    if(!(draft.media&&draft.media.length)){ showErr("Add at least one photo"); return; }
+    if(isLoggedIn()){ finish(); return; }
+    step=6; render(); return;
   }
-  if(step===6){ publish(); return; }
-};
-$("back").onclick=function(){
-  if(step<=0){ location.href='/'; return; }
-  if(step===4 && isLoggedIn()){ step=3; }
-  else step=Math.max(0,step-1);
-  render();
-};
+  if(step===6 && !isLoggedIn()){
+    var name=($("name")&&$("name").value||"").trim();
+    var email=($("email")&&$("email").value||"").trim().toLowerCase();
+    var pass=($("pass")&&$("pass").value||"");
+    var whatsapp=($("whatsapp")&&$("whatsapp").value||"").trim();
+    if(!name||!email||email.indexOf("@")<1){ showErr("Enter name and a valid email"); return; }
+    if(!pass||pass.length<6){ showErr("Password must be 6+ characters"); return; }
+    var waDigits=whatsapp.replace(/[\s()+-]/g,"");
+    if(waDigits.charAt(0)==='+') waDigits=waDigits.slice(1);
+    if(!/^\d{8,15}$/.test(waDigits)){ showErr("Enter a valid WhatsApp number with country code"); return; }
+    pendingAuth={email:email,pass:pass,name:name,whatsapp:waDigits,code:makeOtp(),sentAt:Date.now()};
+    lastEmailSent=false;
+    if(emailjsReady()){
+      sendEmailCode(email,pendingAuth.code,name).then(function(ok){ lastEmailSent=!!ok; if(!ok) showErr("Email send failed — code is "+pendingAuth.code+" (dev)"); });
+    } else {
+      showErr("Email not configured — use code "+pendingAuth.code);
+    }
+    step=7; render(); return;
+  }
+  if(step===7 || (isLoggedIn()&&step===6)){
+    var otp=($("otp")&&$("otp").value||"").trim();
+    if(!isLoggedIn()){
+      if(otp!==String(pendingAuth.code)){ showErr("Wrong code"); return; }
+      saveUser(pendingAuth.email, pendingAuth.pass, pendingAuth.name, pendingAuth.whatsapp);
+    }
+    finish(); return;
+  }
+}
+function finish(){
+  var id="c_"+Date.now().toString(36);
+  var code=makeCode(6);
+  var images=[]; var video=""; var image="";
+  (draft.media||[]).forEach(function(m){
+    if(m.type==='video' && !video) video=m.dataUrl||m.url||"";
+    else if(m.type==='image'){ images.push(m.dataUrl||m.url); if(!image) image=m.dataUrl||m.url; }
+  });
+  var camp={
+    id:id, code:code, title:draft.title, story:draft.story, goal:goalNum(), raised:0, donations:0,
+    image:image, images:images, video:video, media:(draft.media||[]).map(function(m){return {type:m.type,url:m.dataUrl||m.url,name:m.name}}),
+    category:draft.category, country:draft.country, location:draft.zip,
+    organizer:(user&&user.name)||"Organizer", ownerEmail:(user&&user.email)||"", organizerEmail:(user&&user.email)||"",
+    status:"pending", createdAt:new Date().toISOString(), donors:[], donationLink:""
+  };
+  var list=[]; try{list=JSON.parse(localStorage.getItem("hopeforus_campaigns")||"[]")}catch(e){}
+  if(!Array.isArray(list)) list=[];
+  list.unshift(camp);
+  try{localStorage.setItem("hopeforus_campaigns",JSON.stringify(list))}catch(e){}
+  if(window.HF&&HF.saveCampaign) try{HF.saveCampaign(camp)}catch(e){}
+  if(window.HFDB&&HFDB.save){
+    try{
+      var copy=Object.assign({},camp);
+      // strip huge data URLs before server if needed — upload handled later in dashboard
+      HFDB.save(copy).catch(function(){});
+    }catch(e){}
+  }
+  location.href="/dashboard/";
+}
+function back(){ if(step>0){ step--; render(); } }
+document.getElementById("cont").onclick=next;
+document.getElementById("back").onclick=back;
 render();
