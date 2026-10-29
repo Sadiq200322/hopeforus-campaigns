@@ -10,7 +10,9 @@
   var UPDATES_KEY='hopeforus_site_updates';
   var MSGS_KEY='hopeforus_messages';
   var ACTIVITY_KEY='hopeforus_activity';
-  var WHATSAPP='256745901115';
+  var WHATSAPP='447446315764';
+  var WHATSAPP_USER='hopeforus1';
+  var SUPPORT_EMAIL='admin@hopeforus.com';
   var ADMIN_EMAIL='admin@hopeforus.com';
   var ADMIN_PASS='Admin@2026';
 
@@ -94,13 +96,21 @@
 
   function isAdmin(){var u=session();return !!(u&&u.isAdmin);}
 
-  function startSignup(name,email,password){
+  function normalizeWhatsApp(raw){
+    var s=String(raw||'').trim().replace(/[\s()-]/g,'');
+    if(s.charAt(0)==='+') s=s.slice(1);
+    if(!/^\d{8,15}$/.test(s)) return null;
+    return s;
+  }
+  function startSignup(name,email,password,whatsapp){
     email=(email||'').toLowerCase().trim();
     if(!name||!email||!password||password.length<6) return {ok:false,err:'Name, email and password (6+ chars) required'};
+    var wa=normalizeWhatsApp(whatsapp);
+    if(!wa) return {ok:false,err:'Enter a valid WhatsApp number (with country code, digits only)'};
     var list=users();
     if(list.some(function(x){return x.email===email})) return {ok:false,err:'Email already registered'};
     var code=String(Math.floor(100000+Math.random()*900000));
-    var pending={name:name.trim(),email:email,pass:hash(password),code:code,ts:Date.now()};
+    var pending={name:name.trim(),email:email,pass:hash(password),whatsapp:wa,code:code,ts:Date.now()};
     sessionStorage.setItem('hopeforus_pending',JSON.stringify(pending));
     return {ok:true,code:code,email:email};
   }
@@ -110,7 +120,7 @@
     if(Date.now()-pending.ts>30*60*1000) return {ok:false,err:'Code expired'};
     var list=users();
     if(list.some(function(x){return x.email===pending.email})) return {ok:false,err:'Email already registered'};
-    var u={id:'u_'+Date.now().toString(36),email:pending.email,name:pending.name,pass:pending.pass,verified:true,isAdmin:false,created:Date.now(),donors:[],chats:[],clicks:0,avatar:''};
+    var u={id:'u_'+Date.now().toString(36),email:pending.email,name:pending.name,pass:pending.pass,whatsapp:pending.whatsapp||'',verified:true,isAdmin:false,created:Date.now(),donors:[],chats:[],clicks:0,avatar:''};
     list.push(u); saveUsers(list); sessionStorage.removeItem('hopeforus_pending');
     setSession(u);
     return {ok:true,user:u};
@@ -199,13 +209,26 @@
     return {ok:true,user:u};
   }
 
+  function setWhatsApp(number){
+    var sess=session(); if(!sess) return {ok:false,err:'Not signed in'};
+    var wa=normalizeWhatsApp(number);
+    if(!wa) return {ok:false,err:'Enter a valid WhatsApp number (country code + digits)'};
+    var list=users();
+    var u=list.find(function(x){return x && x.email===sess.email});
+    if(!u) return {ok:false,err:'Account not found'};
+    u.whatsapp=wa;
+    saveUsers(list);
+    logActivity(u.email,'whatsapp_change','WhatsApp set to +'+wa);
+    return {ok:true,whatsapp:wa};
+  }
+
   function logout(){setSession(null);}
 
   function adminUsers(){
     var byEmail={};
     users().forEach(function(u){
       if(!u||!u.email) return;
-      byEmail[u.email]={id:u.id,email:u.email,name:u.name||'',verified:!!u.verified,isAdmin:!!u.isAdmin,created:u.created||0,donors:(u.donors||[]).length,chats:(u.chats||[]).length,avatar:u.avatar||''};
+      byEmail[u.email]={id:u.id,email:u.email,name:u.name||'',whatsapp:u.whatsapp||'',verified:!!u.verified,isAdmin:!!u.isAdmin,created:u.created||0,donors:(u.donors||[]).length,chats:(u.chats||[]).length,avatar:u.avatar||''};
     });
     try{
       var camps=load(CAMPS_KEY,[]);
@@ -214,7 +237,7 @@
         var em=(c.ownerEmail||c.organizerEmail||'').toLowerCase().trim();
         if(!em) return;
         if(!byEmail[em]){
-          byEmail[em]={id:c.ownerId||('camp_'+c.id),email:em,name:c.organizer||em.split('@')[0],verified:true,isAdmin:false,created:Date.parse(c.createdAt||c.created||'')||Date.now(),donors:0,chats:0,avatar:c.organizerAvatar||c.ownerAvatar||''};
+          byEmail[em]={id:c.ownerId||('camp_'+c.id),email:em,name:c.organizer||em.split('@')[0],whatsapp:'',verified:true,isAdmin:false,created:Date.parse(c.createdAt||c.created||'')||Date.now(),donors:0,chats:0,avatar:c.organizerAvatar||c.ownerAvatar||''};
         } else {
           if(!byEmail[em].avatar && (c.organizerAvatar||c.ownerAvatar)) byEmail[em].avatar=c.organizerAvatar||c.ownerAvatar;
           if(!byEmail[em].name && c.organizer) byEmail[em].name=c.organizer;
@@ -414,10 +437,11 @@
   }
 
   w.HF={
-    USERS_KEY:USERS_KEY, SESSION_KEY:SESSION_KEY, CAMPS_KEY:CAMPS_KEY, ADMIN_EMAIL:ADMIN_EMAIL, WHATSAPP:WHATSAPP,
+    USERS_KEY:USERS_KEY, SESSION_KEY:SESSION_KEY, CAMPS_KEY:CAMPS_KEY, ADMIN_EMAIL:ADMIN_EMAIL,
+    WHATSAPP:WHATSAPP, WHATSAPP_USER:WHATSAPP_USER, SUPPORT_EMAIL:SUPPORT_EMAIL,
     users:users, session:session, setSession:setSession, isAdmin:isAdmin,
     startSignup:startSignup, confirmSignup:confirmSignup, login:login, logout:logout,
-    updateProfile:updateProfile, changePassword:changePassword, changeEmail:changeEmail,
+    updateProfile:updateProfile, changePassword:changePassword, changeEmail:changeEmail, setWhatsApp:setWhatsApp, normalizeWhatsApp:normalizeWhatsApp,
     adminUsers:adminUsers, adminUserDetail:adminUserDetail,
     setUserAvatar:setUserAvatar, getUserAvatar:getUserAvatar,
     getAllCampaigns:getAllCampaigns, adminCampaigns:adminCampaigns, myCampaigns:myCampaigns,
