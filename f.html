@@ -8,8 +8,8 @@
 </head>
 <body>
 <div class="box" id="msg">Opening fundraiser…</div>
-<script src="/campaigns-data.js?v=18"></script>
-<script src="/supabase.js?v=18"></script>
+<script src="/campaigns-data.js?v=28"></script>
+<script src="/supabase.js?v=28"></script>
 <script>
 (function(){
   var code=(new URLSearchParams(location.search).get('c')||'').toUpperCase().trim();
@@ -18,7 +18,8 @@
   if(!Array.isArray(list))list=[];
 
   var KNOWN = {
-    'EEPBA7': 'c_mvs4qsny',
+    'EEPBA7': 'c_mvsfhl1e',
+    'EQWGSF': 'c_mvsfhl1e',
     'VY84Q4': 'c_mvs9eg5p'
   };
 
@@ -28,9 +29,9 @@
     var id=(x.id||'').toString().toUpperCase();
     return c===code || id===code || (KNOWN[code] && x.id===KNOWN[code]);
   }
-  function go(c){
-    var rid = (c && c.id) ? c.id : (KNOWN[code] || code);
-    location.replace('/campaign.html?id='+encodeURIComponent(rid)+'&code='+encodeURIComponent(code)+'&from=share');
+  function go(rid){
+    rid = rid || KNOWN[code] || code;
+    location.replace('/campaign/index.html?id='+encodeURIComponent(rid)+'&code='+encodeURIComponent(code)+'&from=share');
   }
   function alive(c){
     return c && c.status!=='rejected' && c.status!=='deleted' && !c.deleted;
@@ -38,10 +39,11 @@
 
   var c=list.find(function(x){ return match(x) && alive(x); });
   if(!c && typeof SAMPLES!=='undefined') c=SAMPLES.find(function(x){ return match(x) && alive(x); });
-  if(c){ go(c); return; }
+  if(c){ go(c.id); return; }
 
+  // Prefer known approved mapping even if local copy missing
   if(KNOWN[code]){
-    location.replace('/campaign.html?id='+encodeURIComponent(KNOWN[code])+'&code='+encodeURIComponent(code)+'&from=share');
+    go(KNOWN[code]);
     return;
   }
 
@@ -54,7 +56,7 @@
         if(idx>=0) list[idx]=Object.assign({}, list[idx], hit);
         else list.push(hit);
         try{localStorage.setItem('hopeforus_campaigns', JSON.stringify(list));}catch(e){}
-        go(hit);
+        go(hit.id);
         return;
       }
       document.getElementById('msg').innerHTML='Fundraiser not found. <a href="/">Browse campaigns</a>';
