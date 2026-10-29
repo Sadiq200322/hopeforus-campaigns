@@ -5,16 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Campaign – HopeForUs</title>
 <script>
-// Explicit .html path — most reliable on GitHub Pages for every device
 (function () {
   var q = location.search || '';
   var h = location.hash || '';
+  // Real .html file path — no clean-URL tricks
   location.replace('/campaign/index.html' + q + h);
 })();
 </script>
-<meta http-equiv="refresh" content="0;url=/campaign/index.html">
 </head>
 <body>
-<p style="font-family:system-ui;text-align:center;margin-top:40px">Opening campaign… <a href="/campaign/index.html">Continue</a></p>
+<p style="font-family:system-ui;text-align:center;margin-top:48px;color:#666">
+  Opening… <a href="/campaign/index.html" style="color:#7C3AED">tap here if it does not open</a>
+</p>
 </body>
 </html>
