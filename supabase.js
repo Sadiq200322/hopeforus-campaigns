@@ -203,13 +203,9 @@
         if(!r.ok) throw new Error((data&&data.message)||'list profiles failed');
         return (data||[]).map(function(x){
           return {
-            email:x.email,
-            name:x.name||'',
-            whatsapp:x.whatsapp||'',
-            avatar:x.avatar_url||'',
-            avatar_url:x.avatar_url||'',
-            isAdmin:!!x.is_admin,
-            verified:true,
+            email:x.email, name:x.name||'', whatsapp:x.whatsapp||'',
+            avatar:x.avatar_url||'', avatar_url:x.avatar_url||'',
+            isAdmin:!!x.is_admin, verified:true,
             created:x.created_at?Date.parse(x.created_at):0,
             id:'p_'+String(x.email||'').replace(/[^a-z0-9]/gi,'_')
           };
@@ -233,5 +229,86 @@
       });
     }).catch(function(){ return null; });
   }
-  w.HFDB={url:URL, save:save, update:update, remove:remove, list:list, one:one, upload:upload, campFrom:campFrom, rowFrom:rowFrom, findOwner:findOwner, publishDonors:publishDonors, loadDonors:loadDonors, upsertProfile:upsertProfile, listProfiles:listProfiles, getProfile:getProfile};
+  function putJson(path, data){
+    return fetch(URL+'/storage/v1/object/campaign-media/'+path,{
+      method:'POST',
+      headers:headers({'Content-Type':'application/json','x-upsert':'true'}),
+      body:JSON.stringify(data)
+    }).then(function(r){
+      return r.text().then(function(txt){
+        if(!r.ok) throw new Error(txt||'storage write failed');
+        return data;
+      });
+    });
+  }
+  function getJson(path){
+    return fetch(URL+'/storage/v1/object/public/campaign-media/'+path+'?t='+Date.now(),{cache:'no-store'}).then(function(r){
+      if(!r.ok) return null;
+      return r.json().catch(function(){ return null; });
+    }).catch(function(){ return null; });
+  }
+  function listGifts(){
+    return getJson('gifts/all.json').then(function(data){ return Array.isArray(data)?data:[]; });
+  }
+  function addGift(payload){
+    var row={
+      id:payload.id||('g_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),
+      campaignId:payload.campaignId||payload.campaign_id||'',
+      title:payload.title||'',
+      ownerEmail:String(payload.ownerEmail||payload.owner_email||'').toLowerCase(),
+      donor:payload.donor||payload.name||'Anonymous',
+      amount:Number(payload.amount)||0,
+      note:payload.note||'',
+      at:payload.at||Date.now()
+    };
+    return listGifts().then(function(list){
+      list.unshift(row);
+      if(list.length>500) list=list.slice(0,500);
+      return putJson('gifts/all.json', list).then(function(){ return row; });
+    }).then(function(saved){
+      if(!saved.campaignId) return saved;
+      return one(saved.campaignId).then(function(c){
+        if(!c) return saved;
+        var raised=(Number(c.raised)||0)+saved.amount;
+        var donations=(Number(c.donations)||0)+1;
+        var donors=Array.isArray(c.donors)?c.donors.slice():[];
+        donors.unshift({name:saved.donor, amount:saved.amount, note:saved.note||'', giftId:saved.id, time:new Date(saved.at).toISOString()});
+        return update(saved.campaignId,{raised:raised,donations:donations}).then(function(){
+          return publishDonors(saved.campaignId, donors).then(function(){ return saved; });
+        });
+      }).catch(function(){ return saved; });
+    });
+  }
+  function listWithdrawals(){
+    return getJson('withdrawals/all.json').then(function(data){ return Array.isArray(data)?data:[]; });
+  }
+  function saveWithdrawals(list){
+    return putJson('withdrawals/all.json', Array.isArray(list)?list:[]);
+  }
+  function requestWithdrawal(payload){
+    var row={
+      id:payload.id||('w_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),
+      email:String(payload.email||'').toLowerCase().trim(),
+      amount:Number(payload.amount)||0,
+      method:payload.method||'usdt',
+      address:payload.address||payload.details||'',
+      status:payload.status||'pending',
+      at:payload.at||Date.now()
+    };
+    return listWithdrawals().then(function(list){
+      list.unshift(row);
+      if(list.length>300) list=list.slice(0,300);
+      return saveWithdrawals(list).then(function(){ return row; });
+    });
+  }
+  function processWithdrawal(id, status){
+    return listWithdrawals().then(function(list){
+      var w=list.find(function(x){return x&&x.id===id});
+      if(!w) throw new Error('not found');
+      w.status=status||'approved';
+      w.processedAt=Date.now();
+      return saveWithdrawals(list).then(function(){ return w; });
+    });
+  }
+  w.HFDB={url:URL, save:save, update:update, remove:remove, list:list, one:one, upload:upload, campFrom:campFrom, rowFrom:rowFrom, findOwner:findOwner, publishDonors:publishDonors, loadDonors:loadDonors, upsertProfile:upsertProfile, listProfiles:listProfiles, getProfile:getProfile, listGifts:listGifts, addGift:addGift, listWithdrawals:listWithdrawals, requestWithdrawal:requestWithdrawal, processWithdrawal:processWithdrawal, saveWithdrawals:saveWithdrawals};
 })(window);
