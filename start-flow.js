@@ -7,13 +7,13 @@ var lastEmailSent=false;
 var user=null;
 try{user=JSON.parse(localStorage.getItem("hopeforus_user")||"null")}catch(e){}
 function $(id){return document.getElementById(id)}
-function esc(s){return String(s||"").replace(/&/g,"&").replace(/</g,"<").replace(/>/g,">").replace(/"/g,""")}
+function esc(s){return String(s||'').replace(/&/g,'&'+'amp;').replace(/</g,'&'+'lt;').replace(/>/g,'&'+'gt;').replace(/"/g,'&'+'quot;')}
 function goalNum(){var n=parseFloat(String(draft.goal).replace(/[^0-9.]/g,""));return isNaN(n)?0:n}
 function startGoal(){return Math.max(1,goalNum())}
 function makeOtp(){var out="";for(var i=0;i<6;i++) out+=String(Math.floor(Math.random()*10));return out;}
 function makeCode(len){var chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";var out="";for(var i=0;i<(len||6);i++) out+=chars.charAt(Math.floor(Math.random()*chars.length));return out;}
 function isLoggedIn(){return !!(user&&user.email)}
-function showErr(msg){var e=$("err");if(e)e.textContent=msg||"";}
+function showErr(msg){var e=$("err");if(e){e.textContent=msg||"";e.classList.toggle("show",!!msg);}}
 function emailjsReady(){try{return !!(window.emailjs&&window.HOPEFORUS_EMAILJS)}catch(e){return false}}
 function sendEmailCode(email,code,name){
   var cfg=window.HOPEFORUS_EMAILJS||{};
@@ -57,7 +57,7 @@ function render(){
   if(stepn) stepn.textContent=vis+" of "+total;
   if(prog) prog.style.width=Math.round((vis/total)*100)+"%";
   if(back) back.style.visibility=step===0?"hidden":"visible";
-  if(cont){ cont.textContent=step===6|| (isLoggedIn()&&step===5)?"Finish":"Continue"; cont.disabled=false; }
+  if(cont){ cont.textContent=(step===7||(isLoggedIn()&&step===6))?"Finish":"Continue"; cont.disabled=false; }
   if(topr) topr.innerHTML=isLoggedIn()?('<span class="note">Signed in as '+esc(user.name||user.email)+'</span>'):'<a href="/login">Sign in</a>';
 
   if(step===0){
@@ -105,11 +105,11 @@ function render(){
   } else if(step===6 && !isLoggedIn()){
     stitle.textContent="Create your account";
     ssub.textContent="So you can manage donations and updates.";
-    body.innerHTML='<div class="acct"><label class="f">Full name</label><input id="name" value="'+esc(pendingAuth.name||'')+'"><label class="f">Email</label><input id="email" type="email" value="'+esc(pendingAuth.email||'')+'"><label class="f">Password</label><input id="pass" type="password" placeholder="6+ characters"><label class="f" style="margin-top:12px">WhatsApp number</label><input id="whatsapp" type="tel" placeholder="+447... or +256..." value="'+esc(pendingAuth.whatsapp||'')+'"><p class="note">Include country code. No verification needed — admin can reach you if needed.</p><p class="err" id="err"></p></div>';
+    body.innerHTML='<div class="acct"><label class="f">Full name</label><input id="name" value="'+esc(pendingAuth.name||'')+'"><label class="f">Email</label><input id="email" type="email" value="'+esc(pendingAuth.email||'')+'"><label class="f">Password</label><input id="pass" type="password" placeholder="6+ characters"><label class="f" style="margin-top:12px">WhatsApp number</label><input id="whatsapp" type="tel" placeholder="+447... or +256..." value="'+esc(pendingAuth.whatsapp||'')+'"><p class="note">Include country code. No verification needed.</p><p class="err" id="err"></p></div>';
   } else if(step===7 || (isLoggedIn() && step===6)){
     stitle.textContent="Check your email";
     ssub.textContent="Enter the 6-digit code we sent.";
-    body.innerHTML='<div class="acct"><label class="f">Verification code</label><input id="otp" inputmode="numeric" maxlength="6" placeholder="000000"><p class="note">Code sent to '+esc(pendingAuth.email||user&&user.email||'')+(lastEmailSent?'':' — if email failed, use the code shown in a moment')+'</p><p class="err" id="err"></p></div>';
+    body.innerHTML='<div class="acct"><label class="f">Verification code</label><input id="otp" inputmode="numeric" maxlength="6" placeholder="000000"><p class="note">Code sent to '+esc(pendingAuth.email||(user&&user.email)||'')+'</p><p class="err" id="err"></p></div>';
   } else {
     stitle.textContent="Almost done";
     ssub.textContent="Review and publish.";
@@ -162,7 +162,7 @@ function next(){
     pendingAuth={email:email,pass:pass,name:name,whatsapp:waDigits,code:makeOtp(),sentAt:Date.now()};
     lastEmailSent=false;
     if(emailjsReady()){
-      sendEmailCode(email,pendingAuth.code,name).then(function(ok){ lastEmailSent=!!ok; if(!ok) showErr("Email send failed — code is "+pendingAuth.code+" (dev)"); });
+      sendEmailCode(email,pendingAuth.code,name).then(function(ok){ lastEmailSent=!!ok; if(!ok) showErr("Email send failed — code is "+pendingAuth.code); });
     } else {
       showErr("Email not configured — use code "+pendingAuth.code);
     }
@@ -197,16 +197,12 @@ function finish(){
   list.unshift(camp);
   try{localStorage.setItem("hopeforus_campaigns",JSON.stringify(list))}catch(e){}
   if(window.HF&&HF.saveCampaign) try{HF.saveCampaign(camp)}catch(e){}
-  if(window.HFDB&&HFDB.save){
-    try{
-      var copy=Object.assign({},camp);
-      // strip huge data URLs before server if needed — upload handled later in dashboard
-      HFDB.save(copy).catch(function(){});
-    }catch(e){}
-  }
+  if(window.HFDB&&HFDB.save){ try{ HFDB.save(Object.assign({},camp)).catch(function(){}); }catch(e){} }
   location.href="/dashboard/";
 }
 function back(){ if(step>0){ step--; render(); } }
-document.getElementById("cont").onclick=next;
-document.getElementById("back").onclick=back;
+var contBtn=document.getElementById("cont");
+var backBtn=document.getElementById("back");
+if(contBtn) contBtn.onclick=next;
+if(backBtn) backBtn.onclick=back;
 render();
