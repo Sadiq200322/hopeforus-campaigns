@@ -205,9 +205,20 @@ function render(){
   var wdPaid=document.getElementById('wdPaid');
   if(wdPaid) wdPaid.onclick=function(){ setBusy(wdPaid,true,'Processing…'); if(HF.processWithdrawal) HF.processWithdrawal(openWd,'paid'); pullServer().then(function(){ openWd=''; render(); }); };
   var wdReject=document.getElementById('wdReject');
-  if(wdReject) wdReject.onclick=function(){ setBusy(wdReject,true,'Rejecting…'); if(HF.processWithdrawal) HF.processWithdrawal(openWd,'rejected'); pullServer().then(function(){ openWd=''; render(); }); };
+  if(wdReject) wdReject.onclick=function(){
+    var reason=prompt('Reason for rejection (shown to the user):','')||'';
+    reason=String(reason).trim();
+    if(!reason){ alert('Please enter a reason so the user knows why the payout was rejected.'); return; }
+    setBusy(wdReject,true,'Rejecting…');
+    if(HF.processWithdrawal) HF.processWithdrawal(openWd,'rejected',reason);
+    pullServer().then(function(){ openWd=''; render(); }).catch(function(){ openWd=''; render(); });
+  };
   var saveName=document.getElementById('saveName');
   if(saveName) saveName.onclick=function(){ setBusy(saveName,true,'Saving…'); var r=HF.updateProfile({name:document.getElementById('setName').value}); var msg=document.getElementById('nameMsg'); if(r&&r.ok){ msg.textContent='Saved.'; u=HF.session()||u; setTimeout(function(){render();},300);} else { msg.textContent=(r&&r.err)||'Failed'; setBusy(saveName,false,'Save name'); } };
+  box.querySelectorAll('[data-open],[data-view]').forEach(function(b){b.onclick=function(){location.href='/campaign/?id='+encodeURIComponent(b.getAttribute('data-open')||b.getAttribute('data-view'));};});
+  box.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){editId=b.getAttribute('data-edit');render();};});
+  box.querySelectorAll('[data-approve]').forEach(function(b){b.onclick=function(){ var id=b.getAttribute('data-approve'); setBusy(b,true,'…'); var p=(window.HFDB&&HFDB.update)?HFDB.update(id,{status:'approved'}):Promise.resolve(); p.then(function(){ if(HF.approveCampaign) HF.approveCampaign(id); return pullServer(); }).then(function(){render();}).catch(function(){render();}); };});
+  box.querySelectorAll('[data-reject]').forEach(function(b){b.onclick=function(){ var id=b.getAttribute('data-reject'); setBusy(b,true,'…'); var p=(window.HFDB&&HFDB.update)?HFDB.update(id,{status:'rejected'}):Promise.resolve(); p.then(function(){ if(HF.rejectCampaign) HF.rejectCampaign(id); return pullServer(); }).then(function(){render();}).catch(function(){render();}); };});
   var wdReq=document.getElementById('wdReq');
   var wdMethodEl=document.getElementById('wdMethod');
   function toggleWdName(){ var m=(wdMethodEl&&wdMethodEl.value)||''; var wrap=document.getElementById('wdNameWrap'); var lab=document.getElementById('wdAddrLabel'); if(wrap) wrap.style.display=(m==='airtel'||m==='mtn')?'block':'none'; if(lab) lab.textContent=(m==='airtel'||m==='mtn')?'Phone number':'Address / phone / details'; }
@@ -218,47 +229,23 @@ function render(){
     var gfind=document.getElementById('gfind'),gpick=document.getElementById('gpick'),gcamp=document.getElementById('gcamp');
     function pickList(q){ q=(q||'').toLowerCase(); var hits=allCamps().filter(function(c){return c&&c.status!=='deleted'&&(!q||String(c.title||'').toLowerCase().indexOf(q)>=0||String(c.ownerEmail||'').toLowerCase().indexOf(q)>=0);}).slice(0,12); gpick.innerHTML=hits.map(function(c){return '<button type="button" class="mini-btn" data-cid="'+esc(c.id)+'">'+esc(c.title||c.id)+' · '+esc(c.ownerEmail||'')+'</button>';}).join(''); gpick.querySelectorAll('[data-cid]').forEach(function(b){b.onclick=function(){gcamp.value=b.getAttribute('data-cid');gfind.value=b.textContent;gpick.innerHTML='';};}); }
     if(gfind) gfind.oninput=function(){pickList(gfind.value);};
-    gadd.onclick=function(){ setBusy(gadd,true,'Saving…'); var r=HF.addGift({campaignId:gcamp.value,donor:document.getElementById('gname').value,amount:document.getElementById('gamt').value,title:(document.getElementById('gfind').value||'').split('·')[0].trim()}); var msg=document.getElementById('gmsg'); if(r&&r.ok){msg.textContent='Added and synced.';pullServer().then(function(){render();});} else {msg.textContent=(r&&r.err)||'Failed — pick a campaign'; setBusy(gadd,false,'Add donation');} };
+    gadd.onclick=function(){ setBusy(gadd,true,'Adding…'); var cid=gcamp.value; if(!cid){ document.getElementById('gmsg').textContent='Pick a campaign'; setBusy(gadd,false,'Add donation'); return; } var r=HF.addGift({campaignId:cid, donor:document.getElementById('gname').value, amount:document.getElementById('gamt').value}); var msg=document.getElementById('gmsg'); if(r&&r.ok){ msg.textContent='Added.'; pullServer().then(function(){render();}); } else { msg.textContent=(r&&r.err)||'Failed'; setBusy(gadd,false,'Add donation'); } };
   }
-  box.querySelectorAll('[data-view]').forEach(function(b){b.onclick=function(){ location.href='/campaign/index.html?id='+encodeURIComponent(b.getAttribute('data-view')); };});
-  box.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){editId=b.getAttribute('data-edit');render();};});
-  box.querySelectorAll('[data-approve]').forEach(function(b){b.onclick=function(){
-    var id=b.getAttribute('data-approve');
-    setBusy(b,true,'…');
-    var p = (window.HFDB&&HFDB.update) ? HFDB.update(id,{status:'approved'}) : Promise.resolve();
-    p.then(function(){
-      if(HF.approveCampaign) HF.approveCampaign(id);
-      var L=readLocalCamps(); var x=L.find(function(c){return c&&c.id===id}); if(x){x.status='approved'; localStorage.setItem('hopeforus_campaigns',JSON.stringify(L));}
-    }).then(function(){render();}).catch(function(){ if(HF.approveCampaign) HF.approveCampaign(id); render(); });
-  };});
-  box.querySelectorAll('[data-reject]').forEach(function(b){b.onclick=function(){
-    var id=b.getAttribute('data-reject');
-    setBusy(b,true,'…');
-    var p = (window.HFDB&&HFDB.update) ? HFDB.update(id,{status:'rejected'}) : Promise.resolve();
-    p.then(function(){
-      if(HF.rejectCampaign) HF.rejectCampaign(id);
-      var L=readLocalCamps(); var x=L.find(function(c){return c&&c.id===id}); if(x){x.status='rejected'; localStorage.setItem('hopeforus_campaigns',JSON.stringify(L));}
-    }).then(function(){render();}).catch(function(){ if(HF.rejectCampaign) HF.rejectCampaign(id); render(); });
-  };});
 }
-document.querySelectorAll('[data-tab]').forEach(function(el){el.addEventListener('click',function(){setTab(el.getAttribute('data-tab'));});});
-document.getElementById('homeBtn').onclick=function(){setTab('home');};
-document.getElementById('avBtn').onclick=function(){document.getElementById('menu').classList.toggle('hide');};
-document.getElementById('lo').onclick=function(){if(HF.logout)HF.logout();location.href='/login';};
-if(HF.isAdmin&&HF.isAdmin()){ document.getElementById('adminNav').classList.remove('hide'); document.getElementById('adminMenu').classList.remove('hide'); var un=document.getElementById('usersNav'); if(un) un.classList.remove('hide'); }
-var searchBtn=document.getElementById('searchBtn');
-if(searchBtn){ searchBtn.onclick=function(){ var q=prompt('Search campaigns or users by name or email', searchQ||''); if(q===null) return; searchQ=q.trim(); searchBtn.textContent=searchQ?('Search: '+searchQ.slice(0,12)):('Search'); render(); }; }
 function pullServer(){
-  if(!window.HFDB) return Promise.resolve();
   var jobs=[];
-  if(HFDB.list){ jobs.push(HFDB.list().then(function(rows){ if(!Array.isArray(rows)||!rows.length) return; var local=readLocalCamps(); var by={}; local.forEach(function(c){ if(c&&c.id) by[c.id]=c; }); rows.forEach(function(c){ if(c&&c.id) by[c.id]=Object.assign({}, by[c.id]||{}, c); }); localStorage.setItem('hopeforus_campaigns', JSON.stringify(Object.keys(by).map(function(k){return by[k];}))); }).catch(function(){})); }
-  if(HF.pullMoneyFromServer) jobs.push(HF.pullMoneyFromServer());
-  if(window.HFDB){
-    if(HFDB.listProfiles){ jobs.push(HFDB.listProfiles().then(function(rows){ if(!Array.isArray(rows)||!rows.length) return; var local=[]; try{local=JSON.parse(localStorage.getItem('hopeforus_users')||'[]');}catch(e){} if(!Array.isArray(local)) local=[]; var by={}; local.forEach(function(u){ if(u&&u.email) by[u.email.toLowerCase()]=u; }); rows.forEach(function(p){ if(!p||!p.email) return; var e=String(p.email).toLowerCase(); by[e]=Object.assign({}, by[e]||{}, {email:e, name:p.name||(by[e]&&by[e].name)||e.split('@')[0], isAdmin:!!p.is_admin, whatsapp:p.whatsapp||'', avatar:p.avatar_url||''}); }); localStorage.setItem('hopeforus_users', JSON.stringify(Object.keys(by).map(function(k){return by[k];}))); }).catch(function(){})); }
-  }
-  return Promise.all(jobs);
+  if(window.HFDB&&HFDB.list){ jobs.push(HFDB.list().then(function(rows){ if(!Array.isArray(rows)) return; var local=readLocalCamps(); var by={}; local.forEach(function(c){ if(c&&c.id) by[c.id]=c; }); rows.forEach(function(c){ if(c&&c.id) by[c.id]=Object.assign({}, by[c.id]||{}, c); }); localStorage.setItem('hopeforus_campaigns', JSON.stringify(Object.keys(by).map(function(k){return by[k];}))); }).catch(function(){})); }
+  if(window.HFDB&&HFDB.listProfiles){ jobs.push(HFDB.listProfiles().then(function(rows){ if(!Array.isArray(rows)) return; /* keep local admin */ }).catch(function(){})); }
+  if(window.HF&&HF.pullMoneyFromServer) jobs.push(HF.pullMoneyFromServer());
+  return Promise.all(jobs).catch(function(e){ console.warn('pullServer', e); });
 }
-drawAv();
-pullServer().then(function(){ render(); }).catch(function(){ render(); });
-function start(){ pullServer().then(function(){ render(); }).catch(function(){ render(); }); setInterval(function(){ pullServer().then(function(){ render(); }).catch(function(){}); }, 30000); }
-start();
+function boot(){
+  if(HF.isAdmin&&HF.isAdmin()){ var an=document.getElementById('adminNav'); if(an) an.classList.remove('hide'); var un=document.getElementById('usersNav'); if(un) un.classList.remove('hide'); var am=document.getElementById('adminMenu'); if(am) am.classList.remove('hide'); }
+  document.getElementById('homeBtn').onclick=function(){setTab('home');};
+  document.getElementById('searchBtn').onclick=function(){ var q=prompt('Search campaigns or users'); searchQ=q||''; render(); };
+  document.getElementById('avBtn').onclick=function(){ document.getElementById('menu').classList.toggle('hide'); };
+  document.getElementById('lo').onclick=function(){ HF.logout(); location.href='/login/'; };
+  document.querySelectorAll('[data-tab]').forEach(function(el){el.addEventListener('click',function(){setTab(el.getAttribute('data-tab'));});});
+}
+function start(){ boot(); var box=document.getElementById('main'); if(box){ var note=document.createElement('p'); note.id='syncNote'; note.className='note'; note.style.padding='8px 22px'; note.textContent='Syncing from server…'; box.parentNode.insertBefore(note, box); } function done(){ var n=document.getElementById('syncNote'); if(n) n.remove(); render(); drawAv(); } pullServer().then(done).catch(done); setInterval(function(){ pullServer().then(function(){ render(); }).catch(function(){}); }, 30000); }
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', start); else start();
