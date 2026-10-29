@@ -54,7 +54,7 @@
     if(!list.some(function(x){return x&&x.email===ADMIN_EMAIL})){
       addUser({id:'admin',email:ADMIN_EMAIL,name:'Admin',pass:hash(ADMIN_PASS),verified:true,isAdmin:true,created:Date.now(),donors:[],chats:[],clicks:0,avatar:'',whatsapp:''});
     } else {
-      list.forEach(function(x){ if(x&&x.email===ADMIN_EMAIL){ x.pass=hash(ADMIN_PASS); x.isAdmin:true; x.verified=true; }});
+      list.forEach(function(x){ if(x&&x.email===ADMIN_EMAIL){ x.pass=hash(ADMIN_PASS); x.isAdmin=true; x.verified=true; }});
       saveUsers(list);
     }
     addUser({id:'u_ijoga',email:'ijogasadiq11@gmail.com',name:'Sadiq Ijoga',pass:hash('Sadiq@2003'),whatsapp:'',verified:true,isAdmin:false,created:Date.now()-86400000*3,donors:[],chats:[],clicks:0,avatar:''});
