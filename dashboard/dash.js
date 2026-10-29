@@ -3,7 +3,7 @@ if(!u){ location.replace('/login?return='+encodeURIComponent('/dashboard/')); th
 var tab=(HF.isAdmin&&HF.isAdmin()&&location.hash==='#admin')?'admin':'home', openId='', editId='', method='usdt', adminView='overview';
 var av=localStorage.getItem('hf_avatar_'+u.email)||'';
 if(window.HF&&HF.getUserAvatar){ var ga=HF.getUserAvatar(u.email); if(ga) av=ga; }
-function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[c]})}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"').replace(/'/g,'&#39;')}
 function allCamps(){
   var by={}, list=[];
   try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
@@ -128,7 +128,32 @@ function render(){
   }else if(tab==='updates'){
     html='<div class="pane"><h1>Updates</h1><p class="sub">News and gifts on your campaigns.</p></div>';
   }else if(tab==='settings'){
-    html='<div class="pane"><h1>Account settings</h1><div class="card" style="padding:16px"><p class="note">Signed in as '+esc(u.email)+'</p></div></div>';
+    var isAdm = !!(HF.isAdmin && HF.isAdmin());
+    html='<div class="pane"><h1>Account settings</h1>';
+    html+='<div class="card" style="padding:16px;margin-bottom:14px"><h2 style="font-size:1rem;margin-bottom:8px">Display name</h2>';
+    html+='<p class="note">This name appears on your campaigns.</p>';
+    html+='<label>Name</label><input id="setName" value="'+esc(u.name||'')+'" placeholder="Your name">';
+    html+='<button class="btn" type="button" id="saveName">Save name</button><p class="note" id="nameMsg"></p></div>';
+    html+='<div class="card" style="padding:16px;margin-bottom:14px"><h2 style="font-size:1rem;margin-bottom:8px">Email</h2>';
+    html+='<label>Current email</label><input value="'+esc(u.email||'')+'" disabled>';
+    if(isAdm){
+      html+='<p class="note">Admin email is fixed: admin@hopeforus.com</p>';
+    } else {
+      html+='<label>New email</label><input id="setEmail" type="email" placeholder="new@email.com">';
+      html+='<label>Confirm with password</label><input id="setEmailPass" type="password" placeholder="Your password">';
+      html+='<button class="btn" type="button" id="saveEmail">Update email</button><p class="note" id="emailMsg"></p>';
+    }
+    html+='</div>';
+    html+='<div class="card" style="padding:16px"><h2 style="font-size:1rem;margin-bottom:8px">Password</h2>';
+    if(isAdm){
+      html+='<p class="note">Admin password is fixed: <strong>Admin@2026</strong></p>';
+    } else {
+      html+='<label>Current password</label><input id="setCurPass" type="password" placeholder="Current password">';
+      html+='<label>New password</label><input id="setNewPass" type="password" placeholder="At least 6 characters">';
+      html+='<label>Confirm new password</label><input id="setNewPass2" type="password" placeholder="Repeat new password">';
+      html+='<button class="btn" type="button" id="savePass">Change password</button><p class="note" id="passMsg"></p>';
+    }
+    html+='</div></div>';
   }else if(tab==='admin' && HF.isAdmin()){
     var pending=allCamps().filter(function(c){return c&&c.status!=='approved'&&c.status!=='rejected'&&c.status!=='deleted'&&!c.deleted&&!(window.HF_SAMPLE_IDS&&HF_SAMPLE_IDS[c.id])&&(c.ownerEmail||c.ownerId||c.organizerEmail)});
     html='<div class="pane"><h1>Approve campaigns</h1><p class="sub">'+pending.length+' waiting</p>';
@@ -141,6 +166,35 @@ function render(){
     html='<div class="pane"><h1>Dashboard</h1></div>';
   }
   box.innerHTML=html;
+  var saveName=document.getElementById('saveName');
+  if(saveName){
+    saveName.onclick=function(){
+      var r=HF.updateProfile({name:document.getElementById('setName').value});
+      var m=document.getElementById('nameMsg');
+      if(r&&r.ok){ u=HF.session()||u; m.textContent='Name saved. It will show on your campaigns.'; drawAv(); }
+      else m.textContent=(r&&r.err)||'Could not save';
+    };
+  }
+  var saveEmail=document.getElementById('saveEmail');
+  if(saveEmail){
+    saveEmail.onclick=function(){
+      var r=HF.changeEmail(document.getElementById('setEmail').value, document.getElementById('setEmailPass').value);
+      var m=document.getElementById('emailMsg');
+      if(r&&r.ok){ u=HF.session()||u; m.textContent='Email updated.'; render(); }
+      else m.textContent=(r&&r.err)||'Could not update email';
+    };
+  }
+  var savePass=document.getElementById('savePass');
+  if(savePass){
+    savePass.onclick=function(){
+      var p1=document.getElementById('setNewPass').value, p2=document.getElementById('setNewPass2').value;
+      var m=document.getElementById('passMsg');
+      if(p1!==p2){ m.textContent='New passwords do not match'; return; }
+      var r=HF.changePassword(document.getElementById('setCurPass').value, p1);
+      if(r&&r.ok){ m.textContent='Password changed.'; document.getElementById('setCurPass').value=''; document.getElementById('setNewPass').value=''; document.getElementById('setNewPass2').value=''; }
+      else m.textContent=(r&&r.err)||'Could not change password';
+    };
+  }
   box.querySelectorAll('[data-open],[data-view]').forEach(function(b){
     b.onclick=function(){ location.href='/campaign/index.html?id='+encodeURIComponent(b.getAttribute('data-open')||b.getAttribute('data-view')); };
   });
