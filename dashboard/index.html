@@ -49,7 +49,10 @@ h1{font-size:1.25rem;font-weight:800}
 label{display:block;font-size:.75rem;font-weight:700;margin:10px 0 4px}
 input,textarea,select{width:100%;border:1px solid #e5e5e5;border-radius:12px;padding:10px 12px;font:inherit}
 .btn{margin-top:12px;height:42px;padding:0 16px;border:0;border-radius:999px;background:#4C1D95;color:#fff;font-weight:800;cursor:pointer}
-.row{display:flex;gap:8px}
+.btn:disabled{opacity:.7;cursor:default}
+.btn.ghost{background:transparent;color:#333;border:1px solid #e5e5e5}
+.btn.bad{background:#b91c1c}
+.row{display:flex;gap:8px;flex-wrap:wrap}
 .donor{display:flex;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #eee}
 .dot{width:40px;height:40px;border-radius:50%;background:#ede9fe;color:#4C1D95;display:grid;place-items:center;font-weight:800}
 .mob{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid #eee;padding-bottom:env(safe-area-inset-bottom);z-index:40}
@@ -62,6 +65,12 @@ input,textarea,select{width:100%;border:1px solid #e5e5e5;border-radius:12px;pad
 .mini-btn{height:32px;padding:0 12px;border-radius:999px;border:1px solid #e5e5e5;background:#fff;font-size:13px;font-weight:700;cursor:pointer}
 .mini-btn.go{background:#4C1D95;color:#fff;border-color:#4C1D95}
 .mini-btn.bad{background:#fff;color:#b91c1c;border-color:#fecaca}
+.icon-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:72px;height:72px;border-radius:16px;text-decoration:none;font-weight:700;font-size:.75rem}
+.icon-btn span{font-size:1.5rem;line-height:1}
+.icon-btn.wa{background:#ecfdf5;color:#059669;border:1px solid #d1fae5}
+.icon-btn.mail{background:#f3f0ff;color:#7C3AED;border:1px solid #e9e5f5}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -72,6 +81,7 @@ input,textarea,select{width:100%;border:1px solid #e5e5e5;border-radius:12px;pad
     <button class="av" id="avBtn" type="button">J</button>
     <div class="menu hide" id="menu">
       <button type="button" data-tab="donations">Donations Received</button>
+      <button type="button" data-tab="updates">Updates</button>
       <button type="button" data-tab="settings">Account settings</button>
       <button type="button" data-tab="admin" id="adminMenu" class="hide">Approve</button>
       <a href="/start">Start a new fundraiser</a>
@@ -96,10 +106,10 @@ input,textarea,select{width:100%;border:1px solid #e5e5e5;border-radius:12px;pad
   <button type="button" data-tab="transfers">Transfers</button>
   <button type="button" data-tab="updates">Updates</button>
 </nav>
-<script src="/supabase.js?v=26"></script>
-<script src="/shared-camps.js?v=26"></script>
-<script src="/campaigns-data.js?v=26"></script>
-<script src="/app.js?v=26"></script>
-<script src="/dashboard/dash.js?v=26"></script>
+<script src="/supabase.js?v=27"></script>
+<script src="/shared-camps.js?v=27"></script>
+<script src="/campaigns-data.js?v=27"></script>
+<script src="/app.js?v=27"></script>
+<script src="/dashboard/dash.js?v=27"></script>
 </body>
 </html>
