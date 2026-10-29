@@ -1,1 +1,1 @@
-CONTENT_FROM_FILE:/home/workdir/artifacts/start-flow.js
+FILE_PLACEHOLDER
