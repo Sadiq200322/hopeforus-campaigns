@@ -6,42 +6,59 @@
 <title>Campaign – HopeForUs</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+:root{--p:#7C3AED;--pd:#4C1D95;--pl:#EDE9FE;--ink:#1a1a1a;--muted:#5c5c5c;--line:#e5e5e5;--font:Inter,system-ui,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--p:#4C1D95;--g:#02a95c;--bg:#f7f6f4}
-body{font-family:Inter,system-ui,sans-serif;background:#fff;color:#1c1c1c;line-height:1.5}
+body{font-family:var(--font);color:var(--ink);background:#f7f7f5;line-height:1.5;overscroll-behavior-y:contain}
+a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}img{max-width:100%;display:block}
 .hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #eee;position:sticky;top:0;background:#fff;z-index:50}
-.logo{display:flex;align-items:center;gap:8px;font-weight:800;color:var(--p);text-decoration:none;font-size:1.1rem}
-.logo img{width:26px;height:26px}
-.back{font-weight:650;color:#555;text-decoration:none;font-size:.9rem}
-.wrap{max-width:720px;margin:0 auto;padding:0 16px 120px}
-.hero{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:0 0 18px 18px;background:#eee}
-.meta{padding:16px 0 8px}
-.meta h1{font-size:1.45rem;font-weight:800;line-height:1.25;margin-bottom:6px}
-.org{display:flex;align-items:center;gap:10px;margin:10px 0}
-.org img,.org .dot{width:40px;height:40px;border-radius:50%;object-fit:cover;background:#ede9fe;display:grid;place-items:center;font-weight:800;color:var(--p)}
-.bar{height:8px;background:#ececec;border-radius:99px;overflow:hidden;margin:12px 0 6px}
-.bar i{display:block;height:100%;background:var(--g);border-radius:99px}
-.stats{display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem;color:#555;margin-bottom:8px}
-.stats b{color:#1c1c1c}
-.ticker{background:#f8f5ff;border:1px solid #ede9fe;border-radius:12px;padding:10px 12px;margin:12px 0;font-size:.85rem;min-height:40px;display:flex;align-items:center}
-.ticker .t{animation:fade .4s ease}
-@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-.story{margin:18px 0;font-size:.95rem;color:#333;white-space:pre-wrap}
+.logo{font-weight:800;font-size:1.05rem;display:flex;align-items:center;gap:8px}
+.logo img{width:26px;height:26px}.back{font-size:.9rem;font-weight:600;color:var(--p)}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 160px;display:grid;gap:28px}
+@media(min-width:900px){.wrap{grid-template-columns:1fr 340px;align-items:start;padding-bottom:40px}}
+.main h1{font-size:clamp(1.45rem,3vw,1.9rem);font-weight:800;line-height:1.2;margin:0 0 14px}
+.hero{width:100%;border-radius:16px;overflow:hidden;margin-bottom:16px;background:#111;position:relative;aspect-ratio:16/10;max-height:min(62vh,480px)}
+.hero img,.hero video{width:100%;height:100%;object-fit:cover;object-position:center center;display:block}
+.slide{position:absolute;inset:0;opacity:0;transition:opacity .35s;pointer-events:none;background:#111}
+.slide.on{opacity:1;pointer-events:auto}
+.navb{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.92);font-size:1.25rem;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.navb.prev{left:10px}.navb.next{right:10px}
+.dots{position:absolute;left:0;right:0;bottom:10px;z-index:5;display:flex;gap:6px;justify-content:center}
+.dots button{width:8px;height:8px;border-radius:50%;border:0;background:rgba(255,255,255,.55);padding:0}
+.dots button.on{background:#fff;width:18px;border-radius:99px}
+.count{position:absolute;top:10px;right:10px;z-index:5;background:rgba(0,0,0,.55);color:#fff;font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:999px}
+.section{margin:22px 0}.section h3{font-size:1.05rem;font-weight:800;margin-bottom:8px}
+.story{font-size:.98rem;color:#333;line-height:1.65;white-space:pre-wrap}
 .story.clamp{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
-.more{background:none;border:0;color:var(--p);font-weight:700;cursor:pointer;padding:4px 0;font:inherit}
+.read-more{background:none;border:none;color:var(--p);font-weight:700;font-size:.9rem;margin-top:8px;padding:0}
+.org{display:flex;align-items:center;gap:12px;margin:8px 0 16px}
+.av{width:44px;height:44px;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center;font-weight:800;overflow:hidden}
 .side{position:sticky;top:72px;z-index:30}
-.card{background:#fff;border:1px solid #e7e5e1;border-radius:18px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.04)}
-.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.btn-d,.btn-s{height:48px;border-radius:999px;border:0;font-weight:800;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none}
-.btn-d{background:var(--p);color:#fff}
-.btn-s{background:#f3f0ff;color:var(--p);border:1px solid #e9e5f5}
-.share-card{display:none;margin-top:12px;padding-top:12px;border-top:1px solid #eee}
-.share-card.open{display:block}
-.share-title{font-size:.8rem;font-weight:700;color:#666;margin-bottom:8px}
-.share-icons{display:flex;gap:10px;justify-content:center}
-.si{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:0;font-weight:800;font-size:1.1rem;text-decoration:none;color:#fff;cursor:pointer}
-.si.wa{background:#25D366}.si.fb{background:#1877F2}.si.tw{background:#111}.si.cp{background:#4C1D95;color:#fff}
-.share-link{margin-top:8px;font-size:.75rem;color:#666;word-break:break-all;text-align:center}
+.card{border:1px solid var(--line);border-radius:20px;padding:18px;background:#fff;box-shadow:0 8px 28px rgba(0,0,0,.08)}
+.raise-row{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.ring{width:64px;height:64px;flex-shrink:0;position:relative}
+.ring svg{width:64px;height:64px;transform:rotate(-90deg)}
+.ring-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:800}
+.raised{font-size:1.25rem;font-weight:800}.raised span{font-weight:600;color:#6b7280;font-size:1rem}
+.ticker{margin:6px 0 8px;min-height:20px;font-size:.85rem;color:#5c5c5c;overflow:hidden}
+.ticker .t{display:block;animation:tin .4s ease}
+@keyframes tin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-d,.btn-s{display:block;width:100%;border:none;font-weight:800;padding:14px 12px;border-radius:999px;font-size:1rem;text-align:center}
+.btn-d{background:var(--p);color:#fff}.btn-s{background:var(--pd);color:#E9D5FF}
+@media(max-width:899px){
+  .side{position:fixed;left:14px;right:14px;bottom:calc(12px + env(safe-area-inset-bottom));top:auto;z-index:60}
+  .card{border-radius:20px;box-shadow:0 12px 40px rgba(0,0,0,.18);padding:12px 14px}
+  .ring{width:48px;height:48px}.ring svg{width:48px;height:48px}.ring-pct{font-size:.72rem}
+  .raised{font-size:1rem}.raised span{font-size:.85rem}
+}
+.donor{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid #eee;font-size:.9rem}
+.donor:last-child{border:0}
+.d-av{width:36px;height:36px;border-radius:50%;background:var(--pl);color:var(--pd);display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;overflow:hidden}
+.dlist.collapsed .donor:nth-child(n+6){display:none}
+.dmore{background:none;border:0;color:var(--p);font-weight:700;font-size:.88rem;padding:8px 0;cursor:pointer}
+.report{margin:8px 0 16px;font-size:.85rem}.report a{color:#6b7280;text-decoration:underline}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:150px;background:#1a1a1a;color:#fff;padding:10px 16px;border-radius:999px;font-size:.85rem;font-weight:600;z-index:80;display:none}
+.toast.on{display:block}
 .empty{padding:48px 16px;color:#666;text-align:center;max-width:420px;margin:40px auto}
 .empty a{color:var(--p);font-weight:700}
 .spin{display:inline-block;width:28px;height:28px;border:3px solid #e5e5e5;border-top-color:var(--p);border-radius:50%;animation:sp .7s linear infinite;margin-bottom:12px}
@@ -54,7 +71,7 @@ body{font-family:Inter,system-ui,sans-serif;background:#fff;color:#1c1c1c;line-h
   <a href="/" class="back">Discover</a>
 </header>
 <div class="wrap" id="app"><div class="empty"><div class="spin"></div><div>Loading campaign…</div></div></div>
-<div class="toast" id="toast" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1c1c1c;color:#fff;padding:10px 18px;border-radius:999px;font-size:.85rem;z-index:100">Link copied</div>
+<div class="toast" id="toast">Link copied</div>
 <script src="/campaigns-data.js?v=29"></script>
 <script src="/supabase.js?v=29"></script>
 <script src="/app.js?v=29"></script>
@@ -75,114 +92,167 @@ body{font-family:Inter,system-ui,sans-serif;background:#fff;color:#1c1c1c;line-h
   function shareUrl(campId, code){ if(code) return ORIGIN+'/c/'+encodeURIComponent(String(code).toUpperCase()); return ORIGIN+'/campaign/index.html?id='+encodeURIComponent(campId||id); }
 
   function findLocal(){
-    var list=[]; try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
-    if(!Array.isArray(list)) list=[];
+    var list=[];try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]');}catch(e){}
+    if(!Array.isArray(list))list=[];
     var hit=list.find(function(x){return x&&(x.id===id||String(x.code||'').toUpperCase()===id.toUpperCase()||(shareCode&&String(x.code||'').toUpperCase()===shareCode));});
-    if(hit) return hit;
-    if(typeof SAMPLES!=='undefined'&&Array.isArray(SAMPLES)){
-      hit=SAMPLES.find(function(x){return x&&(x.id===id||String(x.code||'').toUpperCase()===id.toUpperCase());});
+    if(hit)return hit;
+    if(typeof SAMPLES!=='undefined'){var s=(SAMPLES||[]).find(function(x){return x&&x.id===id;});if(s)return Object.assign({},s);}
+    return null;
+  }
+  function giftDonors(){
+    var gifts=[];try{gifts=JSON.parse(localStorage.getItem('hopeforus_gifts')||'[]');}catch(e){}
+    if(!Array.isArray(gifts))return [];
+    return gifts.filter(function(g){return g&&(g.campaignId===id||(shareCode&&String(g.code||'').toUpperCase()===shareCode));})
+      .map(function(g){return{name:g.donor||'Anonymous',amount:Number(g.amount)||0,time:'Just now',giftId:g.id||''};});
+  }
+  function mergePeople(lists){
+    var seen={},out=[];
+    lists.forEach(function(list){(list||[]).forEach(function(d){
+      if(!d)return;var name=d.name||d.donor||'Anonymous';var amt=Number(d.amount)||0;
+      var key=(d.giftId||d.id||'')+'|'+name+'|'+amt;if(seen[key])return;seen[key]=1;
+      out.push({name:name,amount:amt,time:d.time||'',giftId:d.giftId||d.id||''});
+    });});
+    return out;
+  }
+  function showError(msg){app.innerHTML='<div class="empty"><strong>'+esc(msg||'Campaign not found')+'</strong><br><br><a href="/">← Browse fundraisers</a></div>';}
+
+  function collectMedia(c){
+    var photos=[];
+    (c.images||[]).forEach(function(src){if(src&&photos.indexOf(src)<0)photos.push(src);});
+    (c.media||[]).forEach(function(m){if(!m)return;var src=m.url||m.src||m.image||'';var k=(m.type||m.kind||'').toLowerCase();
+      if(src&&(k==='image'||k==='photo'||(!k&&!/\.(mp4|webm|mov)/i.test(src)))&&photos.indexOf(src)<0)photos.push(src);});
+    var cover=c.image||c.image_url||'';if(cover&&photos.indexOf(cover)<0)photos.unshift(cover);
+    var video=c.video||'';
+    if(!video)(c.media||[]).some(function(m){var ms=m&&(m.url||m.src)||'';var mk=(m&&(m.type||m.kind)||'').toLowerCase();if(mk==='video'||/\.(mp4|webm|mov)/i.test(ms)){video=ms;return true;}});
+    return{photos:photos,video:video,cover:cover};
+  }
+
+  function buildHero(photos,videoSrc){
+    var slides=[];if(videoSrc)slides.push({t:'v',s:videoSrc});photos.forEach(function(p){slides.push({t:'i',s:p});});
+    if(!slides.length)return'';
+    var h='<div class="hero" id="hero" data-n="'+slides.length+'">';
+    slides.forEach(function(sl,i){
+      h+='<div class="slide'+(i===0?' on':'')+'" data-i="'+i+'">';
+      if(sl.t==='v')h+='<video src="'+esc(sl.s)+'"'+(i===0?' autoplay':'')+' muted playsinline loop controls preload="metadata"></video>';
+      else h+='<img src="'+esc(sl.s)+'" alt="" loading="'+(i?'lazy':'eager')+'">';
+      h+='</div>';
+    });
+    if(slides.length>1){
+      h+='<button type="button" class="navb prev" id="hp" aria-label="Previous">‹</button><button type="button" class="navb next" id="hn" aria-label="Next">›</button>';
+      h+='<div class="dots" id="hdots">';slides.forEach(function(_,i){h+='<button type="button" data-d="'+i+'"'+(i===0?' class="on"':'')+'></button>';});h+='</div>';
+      h+='<div class="count"><span id="hpos">1</span>/'+slides.length+'</div>';
     }
-    return hit||null;
+    return h+'</div>';
   }
 
-  function donorsOf(c){
-    var d=(c&&c.donors)||[];
-    if(Array.isArray(d)&&d.length) return d;
-    var gifts=[]; try{gifts=JSON.parse(localStorage.getItem('hopeforus_gifts')||'[]')}catch(e){}
-    if(!Array.isArray(gifts))gifts=[];
-    return gifts.filter(function(g){return g&&(g.campaignId===id||(shareCode&&String(g.code||'').toUpperCase()===shareCode));}).map(function(g){return {name:g.donor||g.name||'Someone',amount:g.amount};});
+  function wireHero(){
+    var root=document.getElementById('hero');if(!root)return;
+    var slides=root.querySelectorAll('.slide');
+    function fit(){}
+    if(slides.length<2){var v=root.querySelector('video');if(v)try{v.muted=true;v.play().catch(function(){});}catch(e){}fit();return;}
+    var idx=0,paused=false,timer=null;
+    function show(n){
+      if(n<0)n=slides.length-1;if(n>=slides.length)n=0;
+      slides.forEach(function(sl,i){sl.classList.toggle('on',i===n);var vid=sl.querySelector('video');if(vid){if(i===n)try{vid.muted=true;vid.play().catch(function(){});}catch(e){}else try{vid.pause();}catch(e){}}});
+      idx=n;root.querySelectorAll('#hdots button').forEach(function(d,i){d.classList.toggle('on',i===idx);});
+      var pos=document.getElementById('hpos');if(pos)pos.textContent=String(idx+1);fit();
+    }
+    var hn=document.getElementById('hn'),hp=document.getElementById('hp');
+    if(hn)hn.onclick=function(){paused=true;clearInterval(timer);show(idx+1);};
+    if(hp)hp.onclick=function(){paused=true;clearInterval(timer);show(idx-1);};
+    root.querySelectorAll('#hdots button').forEach(function(d){d.onclick=function(){paused=true;clearInterval(timer);show(+d.getAttribute('data-d'));};});
+    var tx=0;root.addEventListener('touchstart',function(e){tx=e.changedTouches[0].screenX;},{passive:true});
+    root.addEventListener('touchend',function(e){var dx=e.changedTouches[0].screenX-tx;if(Math.abs(dx)<40)return;paused=true;clearInterval(timer);if(dx<0)show(idx+1);else show(idx-1);},{passive:true});
+    timer=setInterval(function(){if(paused)return;var cur=slides[idx],vid=cur&&cur.querySelector('video');if(vid&&!vid.paused&&!vid.ended)return;show(idx+1);},5000);
+    show(0);
   }
 
-  function showError(msg){
-    app.innerHTML='<div class="empty"><strong>'+esc(msg||'Campaign not found')+'</strong><br><br><a href="/">← Browse campaigns</a></div>';
+  var tickerTimer=null;
+  function wireTicker(donors,currency){
+    var el=document.getElementById('ticker');if(!el||!donors||!donors.length)return;
+    if(tickerTimer)clearInterval(tickerTimer);
+    var i=0;
+    function show(){var d=donors[i%donors.length];var t=(d.name||'Someone')+(d.amount?(' donated '+money(d.amount,currency)):'');el.innerHTML='<span class="t">'+esc(t)+'</span>';i++;}
+    show();if(donors.length>1)tickerTimer=setInterval(show,3200);
   }
 
   function paint(c){
-    if(!c||!c.id){showError();return;}
+    if(!c||!c.id){showError('Campaign not found');return;}
+    var keepY = painted ? (window.scrollY || window.pageYOffset || 0) : 0;
     painted=true;
-    var raised=Number(c.raised)||0, goal=Math.max(1,Number(c.goal)||1), pct=Math.min(100,Math.round(raised/goal*100));
-    var currency=(c.currency||'USD').toUpperCase();
-    var donors=donorsOf(c);
+    var raised=Number(c.raised)||0,goal=Math.max(1,Number(c.goal)||1),p=Math.min(100,Math.round(raised/goal*100));
+    var media=collectMedia(c),photos=media.photos,videoSrc=media.video,img=photos[0]||media.cover||'';
+    var org=c.organizer||'Organizer';if(String(org).indexOf('@')>=0)org=String(org).split('@')[0];
+    var donors=Array.isArray(c.donors)?c.donors:[];
+    var url=shareUrl(c.id, c.code||shareCode),donateHref=(c.donationLink||'').trim()||('/donate/index.html?id='+encodeURIComponent(c.id));
+    var ring=2*Math.PI*26,off=ring*(1-Math.min(1,p/100));
     var top=donors[0];
-    var orgName=c.organizer||c.ownerName||(c.ownerEmail||'').split('@')[0]||'Organizer';
-    var av=c.organizerAvatar||c.ownerAvatar||'';
-    var story=c.story||c.description||'';
-    var img=c.image||c.cover||'';
-    var url=shareUrl(c.id, c.code||shareCode);
-    var donateHref=(c.donationLink||'').trim()||('/donate/index.html?id='+encodeURIComponent(c.id));
-    var recent=top?(esc(top.name)+' donated '+money(top.amount,currency)):((Number(c.donations)||donors.length||0)+' donations');
+    var recent=top?(esc(top.name)+' donated '+money(top.amount,c.currency)):((Number(c.donations)||donors.length||0)+' donations');
+    var donorHtml=donors.slice(0,80).map(function(d){
+      var n=(d.name||'A').charAt(0).toUpperCase();
+      return '<div class="donor"><div class="d-av">'+esc(n)+'</div><div><strong>'+esc(d.name||'Anonymous')+'</strong><div style="color:#666">'+money(d.amount,c.currency)+(d.time?' · '+esc(d.time):'')+'</div></div></div>';
+    }).join('');
 
-    var html='';
-    if(img) html+='<img class="hero" src="'+esc(img)+'" alt="">';
-    html+='<div class="meta"><h1>'+esc(c.title||'Untitled')+'</h1>';
-    html+='<div class="org">'+(av?'<img src="'+esc(av)+'" alt="">':'<div class="dot">'+esc(orgName.charAt(0).toUpperCase())+'</div>')+'<div><strong>'+esc(orgName)+'</strong><div style="font-size:.8rem;color:#666">Organizer</div></div></div>';
-    html+='<div class="bar"><i style="width:'+pct+'%"></i></div>';
-    html+='<div class="stats"><span><b>'+money(raised,currency)+'</b> raised</span><span><b>'+pct+'%</b> of '+moneyShort(goal,currency)+'</span><span><b>'+(Number(c.donations)||donors.length||0)+'</b> gifts</span></div>';
-    html+='<div class="ticker" id="ticker"><span class="t">'+recent+'</span></div>';
+    var avSrc=c.organizerAvatar||c.ownerAvatar||'';
+    try{if(!avSrc&&window.HF&&HF.getUserAvatar){var oem=(c.ownerEmail||c.organizerEmail||'');if(oem)avSrc=HF.getUserAvatar(oem)||'';}}catch(e){}
+    var avHtml=avSrc?('<img src="'+esc(avSrc)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">'):esc(String(org).charAt(0).toUpperCase());
+    var orgBlock='<div class="org"><div class="av" style="overflow:hidden">'+avHtml+'</div><div><strong>'+esc(org)+'</strong><div style="color:#6b7280;font-size:.85rem">'+esc(c.category||'Fundraiser')+'</div></div></div>';
+    document.title=(c.title||'Campaign')+' – HopeForUs';
+    app.innerHTML=
+      '<div class="main">'+buildHero(photos,videoSrc)+
+      '<h1>'+esc(c.title||'Untitled')+'</h1>'+
+      orgBlock+
+      '<div class="section"><div class="story" id="story">'+esc(c.story||'No story yet.')+'</div>'+
+      ((c.story||'').length>400?'<button type="button" class="read-more" id="rm">Read more</button>':'')+'</div>'+
+      '<p class="report"><a href="/report/index.html?id='+encodeURIComponent(c.id)+'">Report this campaign</a></p>'+
+      (donorHtml?'<div class="section"><h3>'+(Number(c.donations)||donors.length)+' donations</h3><div class="dlist'+(donors.length>5?' collapsed':'')+'" id="dlist">'+donorHtml+'</div>'+(donors.length>5?'<button type="button" class="dmore" id="dmore">Show all '+donors.length+' donations</button>':'')+'</div>':'')+
+      '</div><aside class="side"><div class="card">'+
+      '<div class="raise-row"><div class="ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="#e8e8e8" stroke-width="6"/><circle cx="32" cy="32" r="26" fill="none" stroke="#7C3AED" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+ring.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/></svg><div class="ring-pct">'+p+'%</div></div>'+
+      '<div><div class="raised">'+money(raised,c.currency)+' raised <span>of '+moneyShort(goal,c.currency)+'</span></div></div></div>'+
+      '<div class="ticker" id="ticker"><span class="t">'+recent+'</span></div>'+
+      '<div class="btn-row"><a class="btn-d" href="'+esc(donateHref)+'"'+(c.donationLink?' target="_blank" rel="noopener"':'')+'>Donate</a>'+
+      '<button type="button" class="btn-s" id="shareBtn">Share</button></div></div></aside>';
 
-    html+='<div class="side"><div class="card">';
-    html+='<div class="btn-row"><a class="btn-d" href="'+esc(donateHref)+'"'+(c.donationLink?' target="_blank" rel="noopener"':'')+'>Donate</a>';
-    html+='<button type="button" class="btn-s" id="shareBtn">Share</button></div>';
-    html+='<div class="share-card" id="shareCard">';
-    html+='<div class="share-title">Share this fundraiser</div>';
-    html+='<div class="share-icons">';
-    html+='<a class="si wa" id="shWa" href="#" target="_blank" rel="noopener" title="WhatsApp">WA</a>';
-    html+='<a class="si fb" id="shFb" href="#" target="_blank" rel="noopener" title="Facebook">f</a>';
-    html+='<a class="si tw" id="shTw" href="#" target="_blank" rel="noopener" title="X">𝕏</a>';
-    html+='<button type="button" class="si cp" id="shCp" title="Copy link">⧉</button>';
-    html+='</div>';
-    html+='<div class="share-link" id="shareLinkText"></div>';
-    html+='</div></div></div>';
-
-    html+='<div class="story clamp" id="story">'+esc(story)+'</div>';
-    if(story.length>280) html+='<button type="button" class="more" id="moreBtn">Read more</button>';
-    html+='</div>';
-
-    app.innerHTML=html;
-
-    function copy(){ try{navigator.clipboard.writeText(url); var t=document.getElementById('toast'); if(t){t.style.display='block'; setTimeout(function(){t.style.display='none';},1800);} }catch(e){} }
-    var sb=document.getElementById('shareBtn');if(sb)sb.onclick=function(){var card=document.getElementById('shareCard');if(card)card.classList.toggle('open');copy();};
-    var sl=document.getElementById('shareLinkText'); if(sl) sl.textContent=url;
-    var wa=document.getElementById('shWa'); if(wa) wa.href='https://wa.me/?text='+encodeURIComponent((c.title||'Help')+' '+url);
-    var fb=document.getElementById('shFb'); if(fb) fb.href='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(url);
-    var tw=document.getElementById('shTw'); if(tw) tw.href='https://twitter.com/intent/tweet?url='+encodeURIComponent(url)+'&text='+encodeURIComponent(c.title||'');
-    var cp=document.getElementById('shCp'); if(cp) cp.onclick=copy;
-
-    var more=document.getElementById('moreBtn');
-    if(more) more.onclick=function(){ var s=document.getElementById('story'); if(s){ s.classList.remove('clamp'); more.remove(); } };
-
-    if(donors.length>1){
-      var el=document.getElementById('ticker'), i=0;
-      function show(){var d=donors[i%donors.length];var t=(d.name||'Someone')+(d.amount?(' donated '+money(d.amount,currency)):'');el.innerHTML='<span class="t">'+esc(t)+'</span>';i++;}
-      setInterval(show, 3200);
+    var rm=document.getElementById('rm');
+    if(rm){var st=document.getElementById('story');st.classList.add('clamp');rm.onclick=function(){st.classList.toggle('clamp');rm.textContent=st.classList.contains('clamp')?'Read more':'Show less';};}
+    function copy(){
+      var t=document.getElementById('toast');function ok(){if(!t)return;t.classList.add('on');setTimeout(function(){t.classList.remove('on');},1600);}
+      if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(ok).catch(ok);else ok();
     }
+    var sb=document.getElementById('shareBtn');if(sb)sb.onclick=copy;
+    try{wireHero();}catch(e){}
+    try{wireTicker(donors,c.currency);}catch(e){}
+    var more=document.getElementById('dmore');
+    if(more)more.onclick=function(){var list=document.getElementById('dlist');if(!list)return;list.classList.toggle('collapsed');more.textContent=list.classList.contains('collapsed')?('Show all '+donors.length+' donations'):'Show less';};
+    if(keepY>0){requestAnimationFrame(function(){window.scrollTo(0,keepY);});}
   }
 
-  var local=findLocal();
-  if(local) paint(local);
-
-  var timeoutId=setTimeout(function(){ if(!painted) showError('Campaign not found'); }, 8000);
-
-  function tryRemote(){
-    if(!window.HFDB||!HFDB.list) return Promise.resolve(null);
-    return HFDB.list().then(function(rows){
-      var hit=(rows||[]).find(function(x){ return x&&(x.id===id||String(x.code||'').toUpperCase()===id.toUpperCase()||(shareCode&&String(x.code||'').toUpperCase()===shareCode)); });
-      return hit||null;
-    }).catch(function(){return null;});
-  }
-
-  tryRemote().then(function(remote){
+  var local=null;try{local=findLocal();}catch(e){}
+  if(local)paint(local);
+  var timeoutId=setTimeout(function(){if(!painted)showError('This campaign could not be loaded.');},8000);
+  var remoteJob=(window.HFDB&&HFDB.one)?HFDB.one(id).catch(function(){return null;}):Promise.resolve(null);
+  var donorJob=(window.HFDB&&HFDB.loadDonors)?HFDB.loadDonors(id).catch(function(){return[];}):Promise.resolve([]);
+  Promise.all([remoteJob,donorJob]).then(function(parts){
     clearTimeout(timeoutId);
-    if(!remote){ if(!painted) showError('Campaign not found'); return; }
-    var base=local||remote;
-    paint(Object.assign({}, base, remote, {
-      raised: Math.max(Number(base.raised)||0, Number(remote.raised)||0),
-      donations: Math.max(Number(base.donations)||0, Number(remote.donations)||0),
-      donors: (remote.donors&&remote.donors.length)?remote.donors:((base.donors)||[]),
-      story: remote.story||base.story||'',
-      image: remote.image||base.image||'',
-      title: remote.title||base.title||'',
-      goal: Number(remote.goal)||Number(base.goal)||0,
+    var remote=parts[0],fileDonors=parts[1]||[],base=local||remote;
+    if(!base){if(!painted)showError('Campaign not found');return;}
+    var raised=Math.max(Number(local&&local.raised)||0,Number(remote&&remote.raised)||0);
+    var donations=Math.max(Number(local&&local.donations)||0,Number(remote&&remote.donations)||0);
+    var people=mergePeople([local&&local.donors,remote&&remote.donors,fileDonors,giftDonors()]);
+    if(donations<people.length)donations=people.length;
+    var images=[];var seen={};function add(src){if(src&&!seen[src]){seen[src]=1;images.push(src);}}
+    ((local&&local.images)||[]).forEach(add);((remote&&remote.images)||[]).forEach(add);add(local&&local.image);add(remote&&remote.image);
+    paint(Object.assign({},base||{},remote||{},{
+      raised:raised,donations:donations,donors:people,
+      image:(remote&&remote.image)||(local&&local.image)||'',
+      images:images,video:(remote&&remote.video)||(local&&local.video)||'',
+      story:(local&&local.story)||(remote&&remote.story)||'',
+      title:(local&&local.title)||(remote&&remote.title)||'',
+      organizer:(local&&local.organizer)||(remote&&remote.organizer)||'',
+      category:(local&&local.category)||(remote&&remote.category)||'',
+      donationLink:(remote&&remote.donationLink)||(local&&local.donationLink)||'',
+      goal:Math.max(Number(local&&local.goal)||0,Number(remote&&remote.goal)||0),
+      media:(remote&&remote.media)||(local&&local.media)||[],
       code:(local&&local.code)||(remote&&remote.code)||shareCode||'',
       organizerAvatar:(local&&local.organizerAvatar)||(remote&&remote.organizerAvatar)||'',
       ownerAvatar:(local&&local.ownerAvatar)||(remote&&remote.ownerAvatar)||'',
