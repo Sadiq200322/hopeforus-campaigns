@@ -7,6 +7,10 @@
   var WITHDRAW_KEY='hopeforus_withdrawals';
   var REPORTS_KEY='hopeforus_reports';
   var GIFTS_KEY='hopeforus_gifts';
+  var UPDATES_KEY='hopeforus_site_updates';
+  var MSGS_KEY='hopeforus_messages';
+  var ACTIVITY_KEY='hopeforus_activity';
+  var WHATSAPP='256745901115';
   var ADMIN_EMAIL='admin@hopeforus.com';
   var ADMIN_PASS='Admin@2026';
 
@@ -16,6 +20,19 @@
 
   function users(){return load(USERS_KEY,[])}
   function saveUsers(u){save(USERS_KEY,u)}
+
+  function logActivity(email, action, detail){
+    var list=load(ACTIVITY_KEY,[]); if(!Array.isArray(list)) list=[];
+    list.unshift({id:'a_'+Date.now().toString(36), email:(email||'').toLowerCase(), action:action||'', detail:detail||'', at:Date.now()});
+    if(list.length>500) list=list.slice(0,500);
+    save(ACTIVITY_KEY,list);
+  }
+  function listActivity(email){
+    var list=load(ACTIVITY_KEY,[]); if(!Array.isArray(list)) list=[];
+    if(!email) return list;
+    email=email.toLowerCase();
+    return list.filter(function(x){return x&&(x.email||'')===email;});
+  }
 
   function setUserAvatar(email, dataUrl){
     email=(email||'').toLowerCase().trim();
@@ -131,6 +148,7 @@
     }catch(e){}
     saveUsers(list);
     setSession(u);
+    logActivity(u.email,'name_change','Display name set to '+name);
     return {ok:true,user:u};
   }
 
@@ -140,12 +158,11 @@
     var list=users();
     var u=list.find(function(x){return x && x.email===sess.email});
     if(!u) return {ok:false,err:'Account not found'};
-    if(u.email===ADMIN_EMAIL){
-      return {ok:false,err:'Admin password is fixed and cannot be changed here'};
-    }
+    if(u.email===ADMIN_EMAIL) return {ok:false,err:'Admin password is fixed and cannot be changed here'};
     if(u.pass!==hash(currentPass)) return {ok:false,err:'Current password is wrong'};
     u.pass=hash(newPass);
     saveUsers(list);
+    logActivity(u.email,'password_change','Password updated');
     return {ok:true};
   }
 
@@ -156,13 +173,9 @@
     var list=users();
     var u=list.find(function(x){return x && x.email===sess.email});
     if(!u) return {ok:false,err:'Account not found'};
-    if(u.email===ADMIN_EMAIL){
-      return {ok:false,err:'Admin email is fixed and cannot be changed'};
-    }
+    if(u.email===ADMIN_EMAIL) return {ok:false,err:'Admin email is fixed and cannot be changed'};
     if(u.pass!==hash(password)) return {ok:false,err:'Password is wrong'};
-    if(list.some(function(x){return x && x.email===newEmail && x.id!==u.id})){
-      return {ok:false,err:'That email is already registered'};
-    }
+    if(list.some(function(x){return x && x.email===newEmail && x.id!==u.id})) return {ok:false,err:'That email is already registered'};
     var oldEmail=u.email;
     u.email=newEmail;
     try{
@@ -182,6 +195,7 @@
     }catch(e){}
     saveUsers(list);
     setSession(u);
+    logActivity(newEmail,'email_change','Email changed from '+oldEmail);
     return {ok:true,user:u};
   }
 
@@ -276,7 +290,7 @@
     var owner=String(c.ownerEmail||c.organizerEmail||'').toLowerCase();
     var row={id:'g_'+Date.now().toString(36), campaignId:c.id, code:c.code||c.id, title:c.title, ownerEmail:owner, donor:donor, amount:amount, note:String(payload.note||'').trim(), at:Date.now()};
     var gifts=load(GIFTS_KEY,[]); gifts.unshift(row); save(GIFTS_KEY,gifts);
-    var saved=ensureInStorage(c.id);
+    ensureInStorage(c.id);
     var list=load(CAMPS_KEY,[]);
     var idx=list.findIndex(function(x){return x&&x.id===c.id});
     if(idx>=0){
@@ -295,6 +309,104 @@
     email=email.toLowerCase();
     return w.filter(function(x){return x&&(x.email||'').toLowerCase()===email;});
   }
+  function requestWithdrawal(payload){
+    var sess=session(); if(!sess) return {ok:false,err:'Sign in first'};
+    var amount=parseFloat(payload.amount);
+    if(!(amount>0)) return {ok:false,err:'Enter an amount'};
+    var method=String(payload.method||'usdt').trim();
+    var address=String(payload.address||payload.details||'').trim();
+    if(!address) return {ok:false,err:'Enter payout details'};
+    var row={id:'w_'+Date.now().toString(36), email:sess.email.toLowerCase(), name:sess.name||sess.email, amount:amount, method:method, address:address, status:'pending', reason:'', at:Date.now(), processedAt:null};
+    var list=load(WITHDRAW_KEY,[]); if(!Array.isArray(list)) list=[];
+    list.unshift(row); save(WITHDRAW_KEY,list);
+    logActivity(sess.email,'withdraw_request','Requested $'+amount+' via '+method);
+    return {ok:true,withdrawal:row};
+  }
+  function processWithdrawal(id, status, reason){
+    var sess=session(); if(!sess||!sess.isAdmin) return {ok:false,err:'Admin only'};
+    status=String(status||'').toLowerCase();
+    if(status!=='completed'&&status!=='rejected') return {ok:false,err:'Use completed or rejected'};
+    var list=load(WITHDRAW_KEY,[]); if(!Array.isArray(list)) list=[];
+    var w=list.find(function(x){return x&&x.id===id});
+    if(!w) return {ok:false,err:'Request not found'};
+    w.status=status; w.reason=String(reason||'').trim(); w.processedAt=Date.now(); w.processedBy=sess.email;
+    save(WITHDRAW_KEY,list);
+    logActivity(w.email,'withdraw_'+status,(status==='completed'?'Paid':'Rejected')+' $'+w.amount+(w.reason?' — '+w.reason:''));
+    try{
+      var ups=load(UPDATES_KEY,[]); if(!Array.isArray(ups)) ups=[];
+      ups.unshift({id:'u_'+Date.now().toString(36), title:status==='completed'?'Withdrawal completed':'Withdrawal update', body:status==='completed'?('Your withdrawal of $'+Number(w.amount).toLocaleString()+' was completed.'+(w.reason?' Note: '+w.reason:'')):('Your withdrawal of $'+Number(w.amount).toLocaleString()+' was rejected.'+(w.reason?' Reason: '+w.reason:'')), audience:w.email, at:Date.now()});
+      save(UPDATES_KEY,ups);
+    }catch(e){}
+    return {ok:true,withdrawal:w};
+  }
+
+  function postUpdate(title, body, audience){
+    var sess=session(); if(!sess||!sess.isAdmin) return {ok:false,err:'Admin only'};
+    title=String(title||'').trim(); body=String(body||'').trim();
+    if(!title||!body) return {ok:false,err:'Title and message required'};
+    var list=load(UPDATES_KEY,[]); if(!Array.isArray(list)) list=[];
+    var row={id:'u_'+Date.now().toString(36), title:title, body:body, audience:audience||'all', at:Date.now(), by:sess.email};
+    list.unshift(row); save(UPDATES_KEY,list);
+    return {ok:true,update:row};
+  }
+  function listUpdates(forEmail){
+    var list=load(UPDATES_KEY,[]); if(!Array.isArray(list)) list=[];
+    if(!forEmail) return list;
+    forEmail=forEmail.toLowerCase();
+    return list.filter(function(x){ if(!x) return false; var a=(x.audience||'all'); return a==='all'||a===forEmail; });
+  }
+
+  function sendMessage(text){
+    var sess=session(); if(!sess) return {ok:false,err:'Sign in first'};
+    text=String(text||'').trim();
+    if(!text) return {ok:false,err:'Write a message'};
+    var list=load(MSGS_KEY,[]); if(!Array.isArray(list)) list=[];
+    var row={id:'m_'+Date.now().toString(36), from:sess.email, name:sess.name||sess.email, text:text, at:Date.now(), read:false};
+    list.unshift(row); save(MSGS_KEY,list);
+    logActivity(sess.email,'message','Sent support message');
+    return {ok:true,message:row};
+  }
+  function listMessages(){
+    var sess=session(); if(!sess) return [];
+    var list=load(MSGS_KEY,[]); if(!Array.isArray(list)) list=[];
+    if(sess.isAdmin) return list;
+    return list.filter(function(x){return x&&x.from===sess.email;});
+  }
+  function markMessageRead(id){
+    var sess=session(); if(!sess||!sess.isAdmin) return;
+    var list=load(MSGS_KEY,[]); if(!Array.isArray(list)) list=[];
+    list.forEach(function(m){ if(m&&m.id===id) m.read=true; });
+    save(MSGS_KEY,list);
+  }
+  function userHasApprovedCampaign(email){
+    email=(email||'').toLowerCase();
+    return getAllCampaigns().some(function(c){
+      if(!c||c.status!=='approved') return false;
+      return (c.ownerEmail||'').toLowerCase()===email || (c.organizerEmail||'').toLowerCase()===email;
+    });
+  }
+  function whatsappLink(prefill){
+    var text=encodeURIComponent(prefill||'Hi HopeForUs support, I need help with my campaign.');
+    return 'https://wa.me/'+WHATSAPP+'?text='+text;
+  }
+  function adminUserDetail(email){
+    email=(email||'').toLowerCase().trim();
+    if(!email) return null;
+    var u=(users().find(function(x){return x&&x.email===email;}))||{email:email,name:email.split('@')[0]};
+    var camps=getAllCampaigns().filter(function(c){
+      return c&&((c.ownerEmail||'').toLowerCase()===email||(c.organizerEmail||'').toLowerCase()===email);
+    });
+    var raised=camps.reduce(function(n,c){return n+(Number(c.raised)||0);},0);
+    var wds=listWithdrawals(email);
+    var pending=wds.filter(function(w){return w.status==='pending';});
+    var completed=wds.filter(function(w){return w.status==='completed';});
+    return {
+      user:u, camps:camps, raised:raised, withdrawals:wds,
+      pendingWithdraw:pending.reduce(function(n,w){return n+(Number(w.amount)||0);},0),
+      completedWithdraw:completed.reduce(function(n,w){return n+(Number(w.amount)||0);},0),
+      gifts:listGifts(email), activity:listActivity(email), hasApproved:userHasApprovedCampaign(email)
+    };
+  }
 
   function shortLink(id){
     id=String(id||'').trim();
@@ -302,17 +414,21 @@
   }
 
   w.HF={
-    USERS_KEY:USERS_KEY, SESSION_KEY:SESSION_KEY, CAMPS_KEY:CAMPS_KEY, ADMIN_EMAIL:ADMIN_EMAIL,
+    USERS_KEY:USERS_KEY, SESSION_KEY:SESSION_KEY, CAMPS_KEY:CAMPS_KEY, ADMIN_EMAIL:ADMIN_EMAIL, WHATSAPP:WHATSAPP,
     users:users, session:session, setSession:setSession, isAdmin:isAdmin,
     startSignup:startSignup, confirmSignup:confirmSignup, login:login, logout:logout,
     updateProfile:updateProfile, changePassword:changePassword, changeEmail:changeEmail,
-    adminUsers:adminUsers,
-    setUserAvatar:setUserAvatar,
-    getUserAvatar:getUserAvatar,
+    adminUsers:adminUsers, adminUserDetail:adminUserDetail,
+    setUserAvatar:setUserAvatar, getUserAvatar:getUserAvatar,
     getAllCampaigns:getAllCampaigns, adminCampaigns:adminCampaigns, myCampaigns:myCampaigns,
     ensureInStorage:ensureInStorage, saveCampaign:saveCampaign,
     approveCampaign:approveCampaign, rejectCampaign:rejectCampaign, deleteCampaign:deleteCampaign,
-    listGifts:listGifts, addGift:addGift, listWithdrawals:listWithdrawals,
+    listGifts:listGifts, addGift:addGift,
+    listWithdrawals:listWithdrawals, requestWithdrawal:requestWithdrawal, processWithdrawal:processWithdrawal,
+    postUpdate:postUpdate, listUpdates:listUpdates,
+    sendMessage:sendMessage, listMessages:listMessages, markMessageRead:markMessageRead,
+    userHasApprovedCampaign:userHasApprovedCampaign, whatsappLink:whatsappLink,
+    listActivity:listActivity, logActivity:logActivity,
     shortLink:shortLink, hash:hash
   };
 })(window);
