@@ -229,7 +229,7 @@
     var u=users().find(function(x){return x&&x.email===email});
     if(!u) return null;
     var camps=getAllCampaigns().filter(function(c){ return isOwner(c,u); });
-    return {user:u,campaigns:camps,gifts:listGifts(email),pendingWithdraw:listWithdrawals(email).filter(function(w){return w.status==='pending'});};
+    return {user:u,campaigns:camps,gifts:listGifts(email),pendingWithdraw:listWithdrawals(email).filter(function(w){return w.status==='pending'})};
   }
   function updateProfile(patch){
     var s=session(); if(!s) return {ok:false,err:'Not signed in'};
