@@ -16,10 +16,10 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 .wrap{max-width:1100px;margin:0 auto;padding:20px 16px 160px;display:grid;gap:28px}
 @media(min-width:900px){.wrap{grid-template-columns:1fr 340px;align-items:start;padding-bottom:40px}}
 .main h1{font-size:clamp(1.45rem,3vw,1.9rem);font-weight:800;line-height:1.2;margin:0 0 14px}
-.hero{width:100%;border-radius:16px;overflow:hidden;margin-bottom:16px;background:#0f0f0f;position:relative;aspect-ratio:4/3;max-height:min(70vh,520px)}
-.hero img,.hero video{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
-.slide{position:absolute;inset:0;opacity:0;transition:opacity .35s;pointer-events:none;background:#0f0f0f}
-.slide.on{opacity:1;pointer-events:auto;position:relative}
+.hero{width:100%;border-radius:16px;overflow:hidden;margin-bottom:16px;background:#111;position:relative;aspect-ratio:16/10;max-height:min(62vh,480px)}
+.hero img,.hero video{width:100%;height:100%;object-fit:cover;object-position:center center;display:block}
+.slide{position:absolute;inset:0;opacity:0;transition:opacity .35s;pointer-events:none;background:#111}
+.slide.on{opacity:1;pointer-events:auto}
 .navb{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.92);font-size:1.25rem;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.15)}
 .navb.prev{left:10px}.navb.next{right:10px}
 .dots{position:absolute;left:0;right:0;bottom:10px;z-index:5;display:flex;gap:6px;justify-content:center}
@@ -31,7 +31,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 .story.clamp{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
 .read-more{background:none;border:none;color:var(--p);font-weight:700;font-size:.9rem;margin-top:8px;padding:0}
 .org{display:flex;align-items:center;gap:12px;margin:8px 0 16px}
-.av{width:44px;height:44px;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center;font-weight:800}
+.av{width:44px;height:44px;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center;font-weight:800;overflow:hidden}
 .side{position:sticky;top:72px;z-index:30}
 .card{border:1px solid var(--line);border-radius:20px;padding:18px;background:#fff;box-shadow:0 8px 28px rgba(0,0,0,.08)}
 .raise-row{display:flex;align-items:center;gap:14px;margin-bottom:10px}
@@ -53,7 +53,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 }
 .donor{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid #eee;font-size:.9rem}
 .donor:last-child{border:0}
-.d-av{width:36px;height:36px;border-radius:50%;background:var(--pl);color:var(--pd);display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+.d-av{width:36px;height:36px;border-radius:50%;background:var(--pl);color:var(--pd);display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;overflow:hidden}
 .dlist.collapsed .donor:nth-child(n+6){display:none}
 .dmore{background:none;border:0;color:var(--p);font-weight:700;font-size:.88rem;padding:8px 0;cursor:pointer}
 .report{margin:8px 0 16px;font-size:.85rem}.report a{color:#6b7280;text-decoration:underline}
@@ -72,9 +72,9 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 </header>
 <div class="wrap" id="app"><div class="empty"><div class="spin"></div><div>Loading campaign…</div></div></div>
 <div class="toast" id="toast">Link copied</div>
-<script src="/campaigns-data.js?v=23"></script>
-<script src="/supabase.js?v=23"></script>
-<script src="/app.js?v=23"></script>
+<script src="/campaigns-data.js?v=25"></script>
+<script src="/supabase.js?v=25"></script>
+<script src="/app.js?v=25"></script>
 <script>
 (function(){
   var ORIGIN=(location.protocol==='https:'||location.protocol==='http:')?(location.origin||'https://munowatchplus.watch'):'https://munowatchplus.watch';
@@ -148,13 +148,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
   function wireHero(){
     var root=document.getElementById('hero');if(!root)return;
     var slides=root.querySelectorAll('.slide');
-    function fit(){
-      var on=root.querySelector('.slide.on img, .slide.on video');if(!on)return;
-      function apply(w,h){if(w>0&&h>0){var r=w/h;if(r>0.25&&r<4)root.style.aspectRatio=r.toFixed(4);}}
-      if(on.tagName==='IMG'){if(on.complete&&on.naturalWidth)apply(on.naturalWidth,on.naturalHeight);else on.onload=function(){apply(on.naturalWidth,on.naturalHeight);};}
-      else if(on.videoWidth)apply(on.videoWidth,on.videoHeight);
-      else on.addEventListener('loadedmetadata',function(){apply(on.videoWidth,on.videoHeight);});
-    }
+    function fit(){}
     if(slides.length<2){var v=root.querySelector('video');if(v)try{v.muted=true;v.play().catch(function(){});}catch(e){}fit();return;}
     var idx=0,paused=false,timer=null;
     function show(n){
@@ -199,11 +193,15 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
       return '<div class="donor"><div class="d-av">'+esc(n)+'</div><div><strong>'+esc(d.name||'Anonymous')+'</strong><div style="color:#666">'+money(d.amount,c.currency)+(d.time?' · '+esc(d.time):'')+'</div></div></div>';
     }).join('');
 
+    var avSrc=c.organizerAvatar||c.ownerAvatar||'';
+    try{if(!avSrc&&window.HF&&HF.getUserAvatar){var oem=(c.ownerEmail||c.organizerEmail||'');if(oem)avSrc=HF.getUserAvatar(oem)||'';}}catch(e){}
+    var avHtml=avSrc?('<img src="'+esc(avSrc)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">'):esc(String(org).charAt(0).toUpperCase());
+    var orgBlock='<div class="org"><div class="av" style="overflow:hidden">'+avHtml+'</div><div><strong>'+esc(org)+'</strong><div style="color:#6b7280;font-size:.85rem">'+esc(c.category||'Fundraiser')+'</div></div></div>';
     document.title=(c.title||'Campaign')+' – HopeForUs';
     app.innerHTML=
       '<div class="main">'+buildHero(photos,videoSrc)+
       '<h1>'+esc(c.title||'Untitled')+'</h1>'+
-      '<div class="org"><div class="av">'+esc(String(org).charAt(0).toUpperCase())+'</div><div><strong>'+esc(org)+'</strong><div style="color:#6b7280;font-size:.85rem">'+esc(c.category||'Fundraiser')+'</div></div></div>'+
+      orgBlock+
       '<div class="section"><div class="story" id="story">'+esc(c.story||'No story yet.')+'</div>'+
       ((c.story||'').length>400?'<button type="button" class="read-more" id="rm">Read more</button>':'')+'</div>'+
       '<p class="report"><a href="/report/index.html?id='+encodeURIComponent(c.id)+'">Report this campaign</a></p>'+
@@ -256,6 +254,9 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
       goal:Math.max(Number(local&&local.goal)||0,Number(remote&&remote.goal)||0),
       media:(remote&&remote.media)||(local&&local.media)||[],
       code:(local&&local.code)||(remote&&remote.code)||shareCode||'',
+      organizerAvatar:(local&&local.organizerAvatar)||(remote&&remote.organizerAvatar)||'',
+      ownerAvatar:(local&&local.ownerAvatar)||(remote&&remote.ownerAvatar)||'',
+      ownerEmail:(local&&local.ownerEmail)||(remote&&remote.ownerEmail)||'',
       id:(base&&base.id)||id
     }));
   }).catch(function(){clearTimeout(timeoutId);if(!painted)showError('Campaign not found');});
