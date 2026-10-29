@@ -1,4 +1,4 @@
-/* Ensure registration creates Supabase Auth + profile (cross-device login) */
+/* Registration: profile + shared password store + Supabase Auth */
 (function(){
   function wrap(){
     if(typeof saveUser !== 'function') return false;
@@ -11,6 +11,9 @@
         if(window.HFDB){
           if(HFDB.upsertProfile){
             HFDB.upsertProfile({email:email, name:name||'', whatsapp:whatsapp||'', is_admin:false}).catch(function(){});
+          }
+          if(HFDB.registerAccount && pass){
+            HFDB.registerAccount(email, pass, name||'').catch(function(){});
           }
           if(HFDB.authSignup && pass){
             HFDB.authSignup(email, pass, name||'').catch(function(){});
