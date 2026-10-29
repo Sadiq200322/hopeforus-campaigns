@@ -18,32 +18,44 @@ a{color:#7C3AED;font-weight:600}
   var parts = path.split('/').filter(Boolean);
   var first = (parts[0] || '').toLowerCase();
   var second = parts[1] || '';
+  var q = location.search || '';
+  var h = location.hash || '';
 
+  // Always land on real .html files
   var pages = {
-    'admin': '/dashboard/#admin',
-    'login': '/login',
-    'dashboard': '/dashboard/',
-    'start': '/start',
-    'create': '/start',
-    'signup': '/signup',
-    'donate': '/donate',
-    'report': '/report'
+    'admin': '/dashboard/index.html#admin',
+    'login': '/login/index.html',
+    'dashboard': '/dashboard/index.html',
+    'start': '/start/index.html',
+    'create': '/start/index.html',
+    'signup': '/start/index.html',
+    'donate': '/donate/index.html',
+    'report': '/report/index.html',
+    'review': '/review/index.html',
+    'campaign': '/campaign/index.html',
+    'f': '/f.html'
   };
 
   if (pages[first] && !second) {
-    location.replace(pages[first] + (location.search || '') + (location.hash || ''));
+    location.replace(pages[first] + q + (first === 'admin' ? '' : h));
     return;
   }
 
-  // Short share links: /c/EEPBA7 or /f/EEPBA7 or /campaign/EEPBA7
-  if ((first === 'c' || first === 'campaign' || first === 'f') && second) {
-    location.replace('/f?c=' + encodeURIComponent(second.toUpperCase()));
+  // Short share links: /c/CODE or /f/CODE → f.html resolver
+  if ((first === 'c' || first === 'f') && second) {
+    location.replace('/f.html?c=' + encodeURIComponent(second.toUpperCase()));
+    return;
+  }
+
+  // /campaign/SOME-ID → campaign page
+  if (first === 'campaign' && second && second !== 'index.html') {
+    location.replace('/campaign/index.html?id=' + encodeURIComponent(second) + q.replace(/^\?/, '&').replace(/^&/, '?'));
     return;
   }
 
   // Bare code: /EEPBA7
   if (parts.length === 1 && first && first !== '404.html' && first.indexOf('.') === -1) {
-    location.replace('/f?c=' + encodeURIComponent(first.toUpperCase()));
+    location.replace('/f.html?c=' + encodeURIComponent(first.toUpperCase()));
     return;
   }
 
