@@ -1,1 +1,1 @@
-CONTENT_FROM_FILE:/home/workdir/artifacts/dash.js
+PLACEHOLDER_USE_ARTIFACT
