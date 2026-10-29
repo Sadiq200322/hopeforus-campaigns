@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HopeForUs</title>
+<style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;color:#1a1a1a;background:#fff}.box{text-align:center;padding:24px}a{color:#7C3AED;font-weight:600}</style>
+</head>
+<body>
+<div class="box" id="msg">Opening fundraiser…</div>
+<script src="/campaigns-data.js"></script>
+<script src="/supabase.js"></script>
+<script>
+(function(){
+  var code=(new URLSearchParams(location.search).get('c')||'').toUpperCase().trim();
+  if(!code){document.getElementById('msg').innerHTML='Invalid link. <a href="/">Home</a>';return}
+  var list=[];try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
+  if(!Array.isArray(list))list=[];
+
+  // Known short codes → campaign ids
+  var KNOWN = {
+    'EEPBA7': 'c_mvs4qsny', // Save Molly
+    'VY84Q4': 'c_mvs9eg5p'  // Save Lola
+  };
+
+  function match(x){
+    if(!x)return false;
+    var c=(x.code||'').toString().toUpperCase();
+    var id=(x.id||'').toString().toUpperCase();
+    return c===code || id===code || (KNOWN[code] && x.id===KNOWN[code]);
+  }
+  function go(c){
+    var rid = (c && c.id) ? c.id : (KNOWN[code] || code);
+    location.replace('/campaign/?id='+encodeURIComponent(rid)+'&code='+encodeURIComponent(code)+'&from=share');
+  }
+  function alive(c){
+    return c && c.status!=='rejected' && c.status!=='deleted' && !c.deleted;
+  }
+
+  var c=list.find(function(x){ return match(x) && alive(x); });
+  if(!c && typeof SAMPLES!=='undefined') c=SAMPLES.find(function(x){ return match(x) && alive(x); });
+  if(c){ go(c); return; }
+
+  if(KNOWN[code]){
+    location.replace('/campaign/?id='+encodeURIComponent(KNOWN[code])+'&code='+encodeURIComponent(code)+'&from=share');
+    return;
+  }
+
+  if(window.HFDB){
+    HFDB.list().then(function(rows){
+      var hit=(rows||[]).find(function(x){ return match(x) && alive(x); });
+      if(!hit && KNOWN[code]) hit=(rows||[]).find(function(x){ return x && x.id===KNOWN[code]; });
+      if(hit){
+        var idx=list.findIndex(function(x){return x&&x.id===hit.id});
+        if(idx>=0) list[idx]=Object.assign({}, list[idx], hit);
+        else list.push(hit);
+        try{localStorage.setItem('hopeforus_campaigns', JSON.stringify(list));}catch(e){}
+        go(hit);
+        return;
+      }
+      document.getElementById('msg').innerHTML='Fundraiser not found. <a href="/">Browse campaigns</a>';
+    }).catch(function(){
+      document.getElementById('msg').innerHTML='Fundraiser not found. <a href="/">Browse campaigns</a>';
+    });
+    return;
+  }
+  document.getElementById('msg').innerHTML='Fundraiser not found. <a href="/">Browse campaigns</a>';
+})();
+</script>
+</body>
+</html>
