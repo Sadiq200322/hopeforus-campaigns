@@ -58,6 +58,7 @@ input,textarea,select{width:100%;border:1px solid #e5e5e5;border-radius:12px;pad
 .mob{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid #eee;padding-bottom:env(safe-area-inset-bottom);z-index:40}
 .mob button{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;color:#6b6b6b;font-size:11px;font-weight:700;padding:8px 0 6px;cursor:pointer}
 .mob button.on{color:#4C1D95}
+.mob button span{font-size:1.25rem;line-height:1;display:block}
 .hide{display:none!important}
 .note{font-size:.8rem;color:#6b6b6b;margin-top:8px}
 .approve-card{background:#fff;border:1px solid #eee;border-radius:14px;padding:10px 12px}
@@ -101,15 +102,15 @@ input,textarea,select{width:100%;border:1px solid #e5e5e5;border-radius:12px;pad
   <main id="main"></main>
 </div>
 <nav class="mob">
-  <button type="button" data-tab="home" class="on">Home</button>
-  <button type="button" data-tab="donations">Donations</button>
-  <button type="button" data-tab="transfers">Transfers</button>
-  <button type="button" data-tab="updates">Updates</button>
+  <button type="button" data-tab="home" class="on"><span>⌂</span>Home</button>
+  <button type="button" data-tab="donations"><span>♡</span>Donations</button>
+  <button type="button" data-tab="transfers"><span>$</span>Transfers</button>
+  <button type="button" data-tab="updates"><span>☰</span>Updates</button>
 </nav>
-<script src="/supabase.js?v=27"></script>
-<script src="/shared-camps.js?v=27"></script>
-<script src="/campaigns-data.js?v=27"></script>
-<script src="/app.js?v=27"></script>
-<script src="/dashboard/dash.js?v=27"></script>
+<script src="/supabase.js?v=30"></script>
+<script src="/shared-camps.js?v=30"></script>
+<script src="/campaigns-data.js?v=30"></script>
+<script src="/app.js?v=30"></script>
+<script src="/dashboard/dash.js?v=30"></script>
 </body>
 </html>
