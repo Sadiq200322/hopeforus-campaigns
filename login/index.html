@@ -31,7 +31,6 @@ input:focus{outline:none;border-color:#4C1D95}
 .home a{color:#4C1D95;font-weight:700;text-decoration:none}
 .panel{display:none}
 .panel.on{display:block}
-code{font-size:.85rem}
 </style>
 </head>
 <body>
@@ -45,7 +44,6 @@ code{font-size:.85rem}
     <button type="button" data-view="code">Email code</button>
     <button type="button" data-view="reset">Reset</button>
   </div>
-
   <div class="panel on" id="pass">
     <label>Email</label>
     <input type="email" id="email" placeholder="you@email.com" autocomplete="username">
@@ -54,7 +52,6 @@ code{font-size:.85rem}
     <p class="err" id="perr"></p>
     <button type="button" class="pbtn" id="go">Sign in</button>
   </div>
-
   <div class="panel" id="code">
     <div class="steps"><i class="on" id="c1"></i><i id="c2"></i></div>
     <div id="codeStep1">
@@ -73,7 +70,6 @@ code{font-size:.85rem}
       <button type="button" class="back" id="codeBack">Use a different email</button>
     </div>
   </div>
-
   <div class="panel" id="reset">
     <div class="steps"><i class="on" id="r1"></i><i id="r2"></i></div>
     <div id="resetStep1">
@@ -95,20 +91,19 @@ code{font-size:.85rem}
       <button type="button" class="back" id="resetBack">Start over</button>
     </div>
   </div>
-
   <p class="home">New here? <a href="/start">Start a fundraiser</a></p>
 </div>
-<script src="/supabase.js?v=35"></script>
-<script src="/app.js?v=35"></script>
+<script src="/supabase.js?v=36"></script>
+<script src="/app.js?v=36"></script>
+<script src="/auth-store.js?v=36"></script>
+<script src="/login-core-patch.js?v=36"></script>
 <script src="/emailjs-config.js"></script>
-<script src="/login-async-patch.js?v=35"></script>
 <script>
 (function(){
   var params = new URLSearchParams(location.search);
   var returnTo = params.get('return') || '';
   var cfg = window.HOPEFORUS_EMAILJS || {};
   var pendingPass = '';
-
   function show(name){
     document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('on', p.id===name)});
     document.querySelectorAll('.tabs button').forEach(function(b){b.classList.toggle('on', b.getAttribute('data-view')===name)});
@@ -131,7 +126,6 @@ code{font-size:.85rem}
   }});
   if(location.hash==='#code') show('code');
   if(location.hash==='#reset') show('reset');
-
   function mail(email, code, kind){
     var note = kind==='reset'
       ? 'Use this code to confirm your new HopeForUs password. It expires in 15 minutes.'
@@ -150,7 +144,6 @@ code{font-size:.85rem}
   function setBusy(btn, on, label){
     btn.disabled=on; btn.textContent=on?'Sending…':label;
   }
-
   document.getElementById('go').onclick=function(){
     var email=document.getElementById('email').value.trim().toLowerCase();
     var pass=document.getElementById('passw').value;
@@ -168,7 +161,6 @@ code{font-size:.85rem}
     else done(HF.login(email,pass));
   };
   document.getElementById('passw').addEventListener('keydown', function(e){ if(e.key==='Enter') document.getElementById('go').click(); });
-
   document.getElementById('sendCode').onclick=function(){
     var btn=this;
     var email=document.getElementById('cemail').value.trim().toLowerCase();
@@ -200,7 +192,6 @@ code{font-size:.85rem}
     if(!r.ok){document.getElementById('cerr2').textContent=r.err;return}
     after(r.user);
   };
-
   document.getElementById('sendReset').onclick=function(){
     var btn=this;
     var email=document.getElementById('remail').value.trim().toLowerCase();
@@ -236,6 +227,7 @@ code{font-size:.85rem}
     var r=HF.resetPassword(email, document.getElementById('rcode').value.trim(), pendingPass);
     var err=document.getElementById('rerr2');
     if(!r.ok){err.textContent=r.err;return}
+    if(window.HFDB&&HFDB.registerAccount&&pendingPass){ HFDB.registerAccount(email, pendingPass, '').catch(function(){}); }
     document.getElementById('rok').textContent='Password changed. Opening your desk…';
     setTimeout(function(){after(r.user)}, 500);
   };
