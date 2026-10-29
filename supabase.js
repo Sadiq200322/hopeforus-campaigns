@@ -154,5 +154,21 @@
       });
     });
   }
-  w.HFDB={url:URL, save:save, update:update, remove:remove, list:list, one:one, upload:upload, campFrom:campFrom, rowFrom:rowFrom, findOwner:findOwner};
+  function publishDonors(id, donors){
+    var list=(donors||[]).slice(0,40).map(function(d){
+      return {name:d.name||d.donor||'Anonymous', amount:Number(d.amount)||0, note:d.note||'', giftId:d.giftId||d.id||'', time:d.time||''};
+    });
+    return fetch(URL+'/storage/v1/object/campaign-media/donors/'+encodeURIComponent(id)+'.json',{
+      method:'POST',
+      headers:headers({'Content-Type':'application/json','x-upsert':'true'}),
+      body:JSON.stringify(list)
+    });
+  }
+  function loadDonors(id){
+    return fetch(URL+'/storage/v1/object/public/campaign-media/donors/'+encodeURIComponent(id)+'.json?t='+Date.now(),{cache:'no-store'}).then(function(r){
+      if(!r.ok) return [];
+      return r.json().then(function(data){ return Array.isArray(data)?data:[]; }).catch(function(){ return []; });
+    }).catch(function(){ return []; });
+  }
+  w.HFDB={url:URL, save:save, update:update, remove:remove, list:list, one:one, upload:upload, campFrom:campFrom, rowFrom:rowFrom, findOwner:findOwner, publishDonors:publishDonors, loadDonors:loadDonors};
 })(window);
