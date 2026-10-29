@@ -104,6 +104,7 @@
   }
 
   function shortLink(codeOrId){
+    // Use .html — most reliable on GitHub Pages across all devices
     var origin = (typeof location !== 'undefined' && location.origin && location.protocol.indexOf('http')===0)
       ? location.origin : 'https://munowatchplus.watch';
     var raw = String(codeOrId||'').trim();
@@ -115,9 +116,9 @@
       if(String(c.code||'').toUpperCase() === raw.toUpperCase()) return true;
       return false;
     });
-    if(hit && hit.id) return origin + '/campaign?id=' + encodeURIComponent(hit.id);
-    if(/[-_]/.test(raw) || /^c_/i.test(raw)) return origin + '/campaign?id=' + encodeURIComponent(raw);
-    return origin + '/c/' + encodeURIComponent(raw.toUpperCase().replace(/\s+/g,''));
+    if(hit && hit.id) return origin + '/campaign.html?id=' + encodeURIComponent(hit.id);
+    if(/[-_]/.test(raw) || /^c_/i.test(raw)) return origin + '/campaign.html?id=' + encodeURIComponent(raw);
+    return origin + '/f.html?c=' + encodeURIComponent(raw.toUpperCase().replace(/\s+/g,''));
   }
   function realShareUrl(code){ return shortLink(code); }
   function trackClick(code,meta){
