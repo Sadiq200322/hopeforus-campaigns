@@ -2,9 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="refresh" content="0;url=/dashboard/">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dashboard – HopeForUs</title>
-<script>location.replace('/dashboard/'+(location.hash||''));</script>
+<script>
+(function(){
+  location.replace('/dashboard/index.html' + (location.search||'') + (location.hash||''));
+})();
+</script>
 </head>
-<body><p><a href="/dashboard/">Open your profile</a></p></body>
+<body>
+<p style="font-family:system-ui;text-align:center;margin-top:40px">
+  Opening… <a href="/dashboard/index.html" style="color:#7C3AED">tap here</a>
+</p>
+</body>
 </html>
