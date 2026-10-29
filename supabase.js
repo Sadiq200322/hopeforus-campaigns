@@ -191,14 +191,19 @@
   function listWithdrawals(){ return getJson('withdrawals/all.json').then(function(data){ return Array.isArray(data)?data:[]; }); }
   function saveWithdrawals(list){ return putJson('withdrawals/all.json', Array.isArray(list)?list:[]); }
   function requestWithdrawal(payload){
-    var row={ id:payload.id||('w_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)), email:String(payload.email||'').toLowerCase().trim(), amount:Number(payload.amount)||0, method:payload.method||'usdt', address:payload.address||payload.details||'', status:payload.status||'pending', at:payload.at||Date.now() };
+    var row={ id:payload.id||('w_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)), email:String(payload.email||'').toLowerCase().trim(), amount:Number(payload.amount)||0, method:payload.method||'usdt', address:payload.address||payload.details||'', receiverName:payload.receiverName||payload.receiver||'', status:payload.status||'pending', at:payload.at||Date.now() };
     return listWithdrawals().then(function(list){ list.unshift(row); if(list.length>300) list=list.slice(0,300); return saveWithdrawals(list).then(function(){ return row; }); });
   }
-  function processWithdrawal(id, status){
+  function processWithdrawal(id, status, reason){
     return listWithdrawals().then(function(list){
-      var w=list.find(function(x){return x&&x.id===id});
-      if(!w) throw new Error('not found');
-      w.status=status||'approved'; w.processedAt=Date.now();
+      var idx=list.findIndex(function(x){return x&&x.id===id});
+      if(idx<0) throw new Error('not found');
+      var w=list[idx];
+      status=String(status||'approved').toLowerCase();
+      if(status==='completed') status='paid';
+      w.status=status; w.processedAt=Date.now(); w.reason=String(reason||'').trim();
+      // Rejected requests are removed from the list
+      if(status==='rejected'){ list.splice(idx,1); }
       return saveWithdrawals(list).then(function(){ return w; });
     });
   }
