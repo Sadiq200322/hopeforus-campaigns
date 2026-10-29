@@ -21,13 +21,13 @@ a{color:#7C3AED;font-weight:600}
 
   var pages = {
     'admin': '/dashboard/#admin',
-    'login': '/login.html',
+    'login': '/login',
     'dashboard': '/dashboard/',
-    'start': '/create-campaign.html',
-    'create': '/create-campaign.html',
-    'signup': '/signup.html',
-    'donate': '/donate.html',
-    'report': '/report.html'
+    'start': '/start',
+    'create': '/start',
+    'signup': '/signup',
+    'donate': '/donate',
+    'report': '/report'
   };
 
   if (pages[first] && !second) {
@@ -37,13 +37,13 @@ a{color:#7C3AED;font-weight:600}
 
   // Short share links: /c/EEPBA7 or /f/EEPBA7 or /campaign/EEPBA7
   if ((first === 'c' || first === 'campaign' || first === 'f') && second) {
-    location.replace('/f.html?c=' + encodeURIComponent(second.toUpperCase()));
+    location.replace('/f?c=' + encodeURIComponent(second.toUpperCase()));
     return;
   }
 
   // Bare code: /EEPBA7
   if (parts.length === 1 && first && first !== '404.html' && first.indexOf('.') === -1) {
-    location.replace('/f.html?c=' + encodeURIComponent(first.toUpperCase()));
+    location.replace('/f?c=' + encodeURIComponent(first.toUpperCase()));
     return;
   }
 
