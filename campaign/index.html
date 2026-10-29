@@ -17,8 +17,19 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 .wrap{max-width:1100px;margin:0 auto;padding:20px 16px 160px;display:grid;gap:28px}
 @media(min-width:900px){.wrap{grid-template-columns:1fr 340px;align-items:start;padding-bottom:40px}}
 .main h1{font-size:clamp(1.45rem,3vw,1.9rem);font-weight:800;line-height:1.2;margin:0 0 14px}
-.hero-img{width:100%;border-radius:16px;overflow:hidden;margin-bottom:16px;background:#eee;aspect-ratio:16/10}
-.hero-img img,.hero-img video{width:100%;height:100%;object-fit:cover}
+.hero-img{width:100%;border-radius:16px;overflow:hidden;margin-bottom:16px;background:#eee;aspect-ratio:16/10;position:relative}
+.hero-img img,.hero-img video{width:100%;height:100%;object-fit:cover;display:block}
+.hero-slide{position:absolute;inset:0;opacity:0;transition:opacity .35s ease;pointer-events:none}
+.hero-slide.on{opacity:1;pointer-events:auto;position:relative}
+.hero-slide video{width:100%;height:100%;object-fit:cover;background:#000}
+.hero-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:#1a1a1a;font-size:1.25rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.hero-nav:active{transform:translateY(-50%) scale(.95)}
+.hero-prev{left:10px}
+.hero-next{right:10px}
+.hero-dots{position:absolute;left:0;right:0;bottom:10px;z-index:5;display:flex;gap:6px;justify-content:center;align-items:center}
+.hero-dots button{width:8px;height:8px;border-radius:50%;border:0;background:rgba(255,255,255,.55);padding:0;cursor:pointer}
+.hero-dots button.on{background:#fff;width:18px;border-radius:99px}
+.hero-count{position:absolute;top:10px;right:10px;z-index:5;background:rgba(0,0,0,.55);color:#fff;font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:999px}
 .section{margin:22px 0}.section h3{font-size:1.05rem;font-weight:800;margin-bottom:8px}
 .story{font-size:.98rem;color:#333;line-height:1.65;white-space:pre-wrap}
 .story.clamp{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
@@ -96,12 +107,11 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
   <div class="empty"><div class="spin"></div><div>Loading campaign…</div></div>
 </div>
 <div class="copy-toast" id="copyToast">Link copied</div>
-<script src="/campaigns-data.js?v=17"></script>
-<script src="/supabase.js?v=17"></script>
-<script src="/app.js?v=17"></script>
+<script src="/campaigns-data.js?v=19"></script>
+<script src="/supabase.js?v=19"></script>
+<script src="/app.js?v=19"></script>
 <script>
 (function(){
-  // Hard origin so share links never break on weird hosts / file:// / previews
   var ORIGIN = (location.protocol === 'https:' || location.protocol === 'http:')
     ? (location.origin || 'https://munowatchplus.watch')
     : 'https://munowatchplus.watch';
@@ -111,7 +121,6 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
   var shareCode = (params.get('code') || '').toUpperCase().trim();
   var KNOWN = { 'EEPBA7': 'c_mvs4qsny', 'VY84Q4': 'c_mvs9eg5p' };
 
-  // Accept short code in the id slot too
   if (KNOWN[id.toUpperCase()]) {
     shareCode = shareCode || id.toUpperCase();
     id = KNOWN[id.toUpperCase()];
@@ -142,10 +151,9 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
     return pre + n.toLocaleString();
   }
 
-  // ALWAYS use the reliable query form — works on every device, no 404 tricks
-  function buildShareUrl(campId, code){
+  function buildShareUrl(campId){
     campId = String(campId || id || '').trim();
-    return ORIGIN + '/campaign?id=' + encodeURIComponent(campId);
+    return ORIGIN + '/campaign/index.html?id=' + encodeURIComponent(campId);
   }
 
   function findLocal(){
@@ -196,8 +204,92 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 
   function showError(msg){
     app.innerHTML = '<div class="empty"><strong>' + esc(msg || 'Campaign not found') + '</strong><br><br>'
-      + '<a href="/">← Browse all fundraisers</a><br><br>'
-      + '<span style="font-size:.85rem;color:#999">Link: ' + esc(location.href) + '</span></div>';
+      + '<a href="/">← Browse all fundraisers</a></div>';
+  }
+
+  function buildHero(photos, videoSrc){
+    photos = (photos || []).filter(Boolean);
+    var slides = [];
+    if (videoSrc) slides.push({ type: 'video', src: videoSrc });
+    photos.forEach(function(src){ slides.push({ type: 'image', src: src }); });
+    if (!slides.length) return '';
+    var html = '<div class="hero-img" id="heroGallery" data-count="' + slides.length + '">';
+    slides.forEach(function(sl, i){
+      if (sl.type === 'video') {
+        html += '<div class="hero-slide' + (i === 0 ? ' on' : '') + '" data-i="' + i + '">' +
+          '<video src="' + esc(sl.src) + '" ' + (i === 0 ? 'autoplay ' : '') +
+          'muted playsinline loop controls preload="metadata"></video></div>';
+      } else {
+        html += '<div class="hero-slide' + (i === 0 ? ' on' : '') + '" data-i="' + i + '">' +
+          '<img src="' + esc(sl.src) + '" alt=""></div>';
+      }
+    });
+    if (slides.length > 1) {
+      html += '<button type="button" class="hero-nav hero-prev" id="heroPrev" aria-label="Previous">‹</button>' +
+        '<button type="button" class="hero-nav hero-next" id="heroNext" aria-label="Next">›</button>' +
+        '<div class="hero-dots" id="heroDots">';
+      slides.forEach(function(_, i){
+        html += '<button type="button" data-dot="' + i + '"' + (i === 0 ? ' class="on"' : '') + '></button>';
+      });
+      html += '</div><div class="hero-count"><span id="heroPos">1</span>/' + slides.length + '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function wireHero(){
+    var root = document.getElementById('heroGallery');
+    if (!root) return;
+    var slides = root.querySelectorAll('.hero-slide');
+    if (slides.length < 2) {
+      var v = root.querySelector('video');
+      if (v) { try { v.muted = true; v.play().catch(function(){}); } catch(e) {} }
+      return;
+    }
+    var idx = 0;
+    var userPaused = false;
+    var timer = null;
+    function show(n){
+      if (n < 0) n = slides.length - 1;
+      if (n >= slides.length) n = 0;
+      slides.forEach(function(sl, i){
+        sl.classList.toggle('on', i === n);
+        var vid = sl.querySelector('video');
+        if (vid) {
+          if (i === n) { try { vid.muted = true; vid.play().catch(function(){}); } catch(e) {} }
+          else { try { vid.pause(); } catch(e) {} }
+        }
+      });
+      idx = n;
+      root.querySelectorAll('#heroDots button').forEach(function(d, i){ d.classList.toggle('on', i === idx); });
+      var pos = document.getElementById('heroPos');
+      if (pos) pos.textContent = String(idx + 1);
+    }
+    function next(){ show(idx + 1); }
+    function prev(){ show(idx - 1); }
+    var nextBtn = document.getElementById('heroNext');
+    var prevBtn = document.getElementById('heroPrev');
+    if (nextBtn) nextBtn.onclick = function(){ userPaused = true; clearInterval(timer); next(); };
+    if (prevBtn) prevBtn.onclick = function(){ userPaused = true; clearInterval(timer); prev(); };
+    root.querySelectorAll('#heroDots button').forEach(function(d){
+      d.onclick = function(){ userPaused = true; clearInterval(timer); show(+d.getAttribute('data-dot')); };
+    });
+    var tx = 0;
+    root.addEventListener('touchstart', function(e){ tx = e.changedTouches[0].screenX; }, { passive: true });
+    root.addEventListener('touchend', function(e){
+      var dx = e.changedTouches[0].screenX - tx;
+      if (Math.abs(dx) < 40) return;
+      userPaused = true; clearInterval(timer);
+      if (dx < 0) next(); else prev();
+    }, { passive: true });
+    timer = setInterval(function(){
+      if (userPaused) return;
+      var cur = slides[idx];
+      var vid = cur && cur.querySelector('video');
+      if (vid && !vid.paused && !vid.ended) return;
+      next();
+    }, 5000);
+    show(0);
   }
 
   function paint(c){
@@ -206,13 +298,42 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
     var raised = Number(c.raised) || 0;
     var goal = Math.max(1, Number(c.goal) || 1);
     var p = Math.min(100, Math.round(raised / goal * 100));
-    var img = c.image || c.image_url || '';
+
+    var photos = [];
+    if (Array.isArray(c.images)) {
+      c.images.forEach(function(src){ if (src && photos.indexOf(src) < 0) photos.push(src); });
+    }
+    if (Array.isArray(c.media)) {
+      c.media.forEach(function(m){
+        if (!m) return;
+        var src = m.url || m.src || m.image || '';
+        var kind = (m.type || m.kind || '').toLowerCase();
+        if (src && (kind === 'image' || kind === 'photo' || (!kind && !/\.(mp4|webm|mov)/i.test(src)))) {
+          if (photos.indexOf(src) < 0) photos.push(src);
+        }
+      });
+    }
+    var cover = c.image || c.image_url || '';
+    if (cover && photos.indexOf(cover) < 0) photos.unshift(cover);
+    if (!photos.length && cover) photos = [cover];
+    var videoSrc = c.video || '';
+    if (!videoSrc && Array.isArray(c.media)) {
+      for (var mi = 0; mi < c.media.length; mi++) {
+        var mm = c.media[mi];
+        if (!mm) continue;
+        var ms = mm.url || mm.src || '';
+        var mk = (mm.type || mm.kind || '').toLowerCase();
+        if (mk === 'video' || /\.(mp4|webm|mov)/i.test(ms)) { videoSrc = ms; break; }
+      }
+    }
+    var img = photos[0] || cover || '';
+
     var org = c.organizer || 'Organizer';
     if (String(org).indexOf('@') >= 0) org = String(org).split('@')[0];
     var donors = Array.isArray(c.donors) ? c.donors : [];
-    var shareUrl = buildShareUrl(c.id, c.code || shareCode);
+    var shareUrl = buildShareUrl(c.id);
     var shareEnc = encodeURIComponent(shareUrl);
-    var donateHref = (c.donationLink || '').trim() || ('/donate?id=' + encodeURIComponent(c.id));
+    var donateHref = (c.donationLink || '').trim() || ('/donate/index.html?id=' + encodeURIComponent(c.id));
     var ring = 2 * Math.PI * 26, off = ring * (1 - Math.min(1, p / 100));
     var sc = 2 * Math.PI * 22, scOff = sc * (1 - Math.min(1, p / 100));
     var top = donors[0];
@@ -246,16 +367,14 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
     document.title = (c.title || 'Campaign') + ' – HopeForUs';
     app.innerHTML =
       '<div class="main">'
-      + (c.video
-          ? '<div class="hero-img"><video src="' + esc(c.video) + '" controls playsinline></video></div>'
-          : (img ? '<div class="hero-img"><img src="' + esc(img) + '" alt=""></div>' : ''))
+      + buildHero(photos, videoSrc)
       + '<h1>' + esc(c.title || 'Untitled') + '</h1>'
       + '<div class="org"><div class="av">' + esc(String(org).charAt(0).toUpperCase()) + '</div><div><strong>'
       + esc(org) + '</strong><div style="color:#6b7280;font-size:.85rem">' + esc(c.category || 'Fundraiser') + '</div></div></div>'
       + '<div class="section"><div class="story" id="story">' + esc(c.story || 'No story yet.') + '</div>'
       + ((c.story || '').length > 400 ? '<button type="button" class="read-more" id="readMore">Read more</button>' : '') + '</div>'
       + shareCard
-      + '<p class="report"><a href="/report?id=' + encodeURIComponent(c.id) + '">Report this campaign</a></p>'
+      + '<p class="report"><a href="/report/index.html?id=' + encodeURIComponent(c.id) + '">Report this campaign</a></p>'
       + (donorHtml ? '<div class="section"><h3>' + (Number(c.donations) || donors.length) + ' donations</h3><div class="donors">' + donorHtml + '</div></div>' : '')
       + '</div>'
       + '<aside class="side"><div class="card">'
@@ -281,7 +400,6 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
     function copyLink(){
       var t = document.getElementById('copyToast');
       function ok(){ if (!t) return; t.classList.add('on'); setTimeout(function(){ t.classList.remove('on'); }, 1600); }
-      // Fallback copy for older / restricted browsers
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(shareUrl).then(ok).catch(function(){
           try {
@@ -306,19 +424,17 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
     if (shareBtn) shareBtn.onclick = copyLink;
     var scCopy = document.getElementById('scCopy');
     if (scCopy) scCopy.onclick = copyLink;
+    try { wireHero(); } catch (e) {}
   }
 
-  // 1) Paint immediately from local / samples (no blink)
   var local = null;
   try { local = findLocal(); } catch (e) { local = null; }
   if (local) paint(local);
 
-  // 2) Soft timeout so we never stay on "Loading…" forever
   var timeoutId = setTimeout(function(){
     if (!painted) showError('This campaign could not be loaded. Check the link or try again.');
   }, 8000);
 
-  // 3) Enrich from remote (optional — never blocks the UI)
   var remoteJob = (window.HFDB && HFDB.one)
     ? HFDB.one(id).catch(function(){ return null; })
     : Promise.resolve(null);
@@ -343,6 +459,15 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
       donations: donations,
       donors: people,
       image: (remote && remote.image) || (local && local.image) || '',
+      images: (function(){
+        var a = [], seen = {};
+        function add(src){ if (src && !seen[src]) { seen[src] = 1; a.push(src); } }
+        ((local && local.images) || []).forEach(add);
+        ((remote && remote.images) || []).forEach(add);
+        add(local && local.image); add(remote && remote.image);
+        return a;
+      })(),
+      video: (remote && remote.video) || (local && local.video) || '',
       story: (local && local.story) || (remote && remote.story) || '',
       title: (local && local.title) || (remote && remote.title) || '',
       organizer: (local && local.organizer) || (remote && remote.organizer) || '',
