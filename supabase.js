@@ -54,13 +54,17 @@
     }
     var giftDonors=[];
     var giftSum=0;
+    var orgAv='';
     media.forEach(function(m){
-      if(!m || m.type!=='gift') return;
-      var amt=Number(m.amount)||0;
-      giftSum+=amt;
-      giftDonors.push({name:m.donor||m.name||'Anonymous', amount:amt, note:m.note||'', giftId:m.id||'', time:''});
+      if(!m) return;
+      if(m.type==='gift'){
+        var amt=Number(m.amount)||0;
+        giftSum+=amt;
+        giftDonors.push({name:m.donor||m.name||'Anonymous', amount:amt, note:m.note||'', giftId:m.id||'', time:''});
+      }
+      if(m.type==='avatar' && (m.url||m.dataUrl)) orgAv=m.url||m.dataUrl;
     });
-    media=media.filter(function(m){ return m && m.type!=='share' && m.kind!=='share' && m.type!=='gift'; });
+    media=media.filter(function(m){ return m && m.type!=='share' && m.kind!=='share' && m.type!=='gift' && m.type!=='avatar'; });
     var raised=Math.max(Number(r.raised)||0, giftSum);
     var donations=Math.max(Number(r.donations)||0, giftDonors.length);
     return {
@@ -70,6 +74,7 @@
       image:img, image_url:img,
       media:media,
       donors:giftDonors,
+      organizerAvatar:orgAv, ownerAvatar:orgAv,
       status:r.status||'pending', donationLink:r.donation_link||'',
       code:codeFromMedia(r.media)||'',
       createdAt:r.created_at||''
@@ -107,14 +112,14 @@
     }).then(function(r){
       return r.text().then(function(t){
         if(!r.ok) throw new Error(t||'save failed');
-        try{ return JSON.parse(t); }catch(e){ return row; }
+        try{ return JSON.parse(t); }catch(e){ return t; }
       });
     });
   }
   function update(id, patch){
     return fetch(URL+'/rest/v1/campaigns?id=eq.'+encodeURIComponent(id),{
       method:'PATCH',
-      headers:headers({'Content-Type':'application/json','Prefer':'return=representation'}),
+      headers:headers({'Content-Type':'application/json','Prefer':'return=minimal'}),
       body:JSON.stringify(patch)
     }).then(function(r){
       return r.text().then(function(t){ if(!r.ok) throw new Error(t||'update failed'); return t; });
