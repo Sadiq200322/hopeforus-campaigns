@@ -87,7 +87,7 @@
       });
       changed=true;
     }
-    addUser({id:'u_ijoga',email:'ijogasadiq11@gmail.com',name:'Sadiq Ijoga',pass:hash('ChangeMe@2026'),verified:true,isAdmin:false,created:Date.now()-86400000*3,donors:[],chats:[],clicks:0,avatar:''});
+    addUser({id:'u_ijoga',email:'ijogasadiq11@gmail.com',name:'Sadiq Ijoga',pass:hash('ChangeMe@2026'),whatsapp:'',verified:true,isAdmin:false,created:Date.now()-86400000*3,donors:[],chats:[],clicks:0,avatar:''});
     addUser({id:'u_dollar',email:'dollarprince@gmail.com',name:'Dollar Prince',pass:hash('ChangeMe@2026'),verified:true,isAdmin:false,created:Date.now()-86400000*2,donors:[],chats:[],clicks:0,avatar:''});
     addUser({id:'u_dollar2',email:'dollarprince@hopeforus.com',name:'Dollar Prince',pass:hash('ChangeMe@2026'),verified:true,isAdmin:false,created:Date.now()-86400000*2,donors:[],chats:[],clicks:0,avatar:''});
     if(changed) saveUsers(list);
@@ -312,17 +312,25 @@
     var donor=String(payload.donor||'Anonymous').trim()||'Anonymous';
     var owner=String(c.ownerEmail||c.organizerEmail||'').toLowerCase();
     var row={id:'g_'+Date.now().toString(36), campaignId:c.id, code:c.code||c.id, title:c.title, ownerEmail:owner, donor:donor, amount:amount, note:String(payload.note||'').trim(), at:Date.now()};
-    var gifts=load(GIFTS_KEY,[]); gifts.unshift(row); save(GIFTS_KEY,gifts);
+    var gifts=load(GIFTS_KEY,[]); if(!Array.isArray(gifts)) gifts=[]; gifts.unshift(row); save(GIFTS_KEY,gifts);
     ensureInStorage(c.id);
-    var list=load(CAMPS_KEY,[]);
+    var list=load(CAMPS_KEY,[]); if(!Array.isArray(list)) list=[];
     var idx=list.findIndex(function(x){return x&&x.id===c.id});
-    if(idx>=0){
-      list[idx].raised=(Number(list[idx].raised)||0)+amount;
-      list[idx].donations=(Number(list[idx].donations)||0)+1;
-      if(!Array.isArray(list[idx].donors)) list[idx].donors=[];
-      list[idx].donors.unshift({name:donor,amount:amount,time:'Just now',giftId:row.id});
-      save(CAMPS_KEY,list);
-    }
+    if(idx<0){ list.unshift(Object.assign({},c)); idx=0; }
+    list[idx].raised=(Number(list[idx].raised)||0)+amount;
+    list[idx].donations=(Number(list[idx].donations)||0)+1;
+    if(!Array.isArray(list[idx].donors)) list[idx].donors=[];
+    list[idx].donors.unshift({name:donor,amount:amount,time:'Just now',giftId:row.id});
+    save(CAMPS_KEY,list);
+    try{
+      if(window.HFDB){
+        var raised=Number(list[idx].raised)||0;
+        var donations=Number(list[idx].donations)||0;
+        if(HFDB.update) HFDB.update(c.id, {raised:raised, donations:donations}).catch(function(){});
+        if(HFDB.publishDonors) HFDB.publishDonors(c.id, list[idx].donors).catch(function(){});
+        if(HFDB.save) HFDB.save(Object.assign({}, list[idx])).catch(function(){});
+      }
+    }catch(e){}
     return {ok:true,gift:row};
   }
 
