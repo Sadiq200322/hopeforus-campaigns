@@ -98,8 +98,10 @@ code{font-size:.85rem}
 
   <p class="home">New here? <a href="/start">Start a fundraiser</a></p>
 </div>
-<script src="/app.js"></script>
+<script src="/supabase.js?v=35"></script>
+<script src="/app.js?v=35"></script>
 <script src="/emailjs-config.js"></script>
+<script src="/login-async-patch.js?v=35"></script>
 <script>
 (function(){
   var params = new URLSearchParams(location.search);
@@ -153,11 +155,17 @@ code{font-size:.85rem}
     var email=document.getElementById('email').value.trim().toLowerCase();
     var pass=document.getElementById('passw').value;
     var err=document.getElementById('perr');
+    var btn=document.getElementById('go');
     err.textContent='';
     if(!email||!pass){err.textContent='Enter email and password.';return}
-    var result=HF.login(email, pass);
-    if(!result.ok){err.textContent=result.err||'Email or password is incorrect.';return}
-    after(result.user);
+    btn.disabled=true; btn.textContent='Signing in…';
+    var done=function(result){
+      btn.disabled=false; btn.textContent='Sign in';
+      if(!result||!result.ok){err.textContent=(result&&result.err)||'Email or password is incorrect.';return}
+      after(result.user);
+    };
+    if(HF.loginAsync) HF.loginAsync(email,pass).then(done).catch(function(){done(HF.login(email,pass));});
+    else done(HF.login(email,pass));
   };
   document.getElementById('passw').addEventListener('keydown', function(e){ if(e.key==='Enter') document.getElementById('go').click(); });
 
