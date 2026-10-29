@@ -2,6 +2,7 @@ var u=HF.session();
 if(!u){ location.replace('/login?return='+encodeURIComponent('/dashboard/')); throw 0; }
 var tab=(HF.isAdmin&&HF.isAdmin()&&location.hash==='#admin')?'admin':'home', openId='', editId='', method='usdt', adminView='overview';
 var av=localStorage.getItem('hf_avatar_'+u.email)||'';
+if(window.HF&&HF.getUserAvatar){ var ga=HF.getUserAvatar(u.email); if(ga) av=ga; }
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[c]})}
 function allCamps(){
   var by={}, list=[];
@@ -11,7 +12,6 @@ function allCamps(){
   (HF.adminCampaigns?HF.adminCampaigns():[]).forEach(function(c){ if(c&&c.id&&!by[c.id]) by[c.id]=c; });
   return Object.keys(by).map(function(k){ return by[k]; });
 }
-function isUserCamp(c){ return !!(c&&(c.ownerEmail||c.ownerId||c.organizerEmail)); }
 function camps(){return HF.myCampaigns(u)||[]}
 function money(list){
   var now=Date.now(), ten=10*86400000, received=0, hold=0, ready=0;
@@ -24,21 +24,16 @@ function money(list){
   var withdrawn=wd.reduce(function(n,w){return n+(Number(w.amount)||0)},0);
   return {received:received,hold:hold,ready:ready,withdrawn:withdrawn,balance:Math.max(0,received-withdrawn),available:Math.max(0,ready-withdrawn)};
 }
-function nextPayout(){
-  var n=new Date(), d=n.getDate(), t=d<10?new Date(n.getFullYear(),n.getMonth(),10):d<25?new Date(n.getFullYear(),n.getMonth(),25):new Date(n.getFullYear(),n.getMonth()+1,10);
-  return t.toLocaleDateString(undefined,{month:'short',day:'numeric'});
-}
 function saveCamp(c){
   var list=[]; try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
   if(!Array.isArray(list)) list=[];
   var i=list.findIndex(function(x){return x&&x.id===c.id});
-  var fields={title:c.title,story:c.story,goal:c.goal,image:c.image,images:c.images||[],video:c.video||''};
+  var fields={title:c.title,story:c.story,goal:c.goal,image:c.image,images:c.images||[],video:c.video||'',organizerAvatar:c.organizerAvatar||'',ownerAvatar:c.ownerAvatar||''};
   if(i>=0){ Object.keys(fields).forEach(function(k){list[i][k]=fields[k]}); }
   else { var copy={}; Object.keys(c).forEach(function(k){copy[k]=c[k]}); Object.keys(fields).forEach(function(k){copy[k]=fields[k]}); list.unshift(copy); }
   localStorage.setItem('hopeforus_campaigns',JSON.stringify(list));
+  if(HF.saveCampaign) try{HF.saveCampaign(list[i>=0?i:0]);}catch(e){}
 }
-function updates(){try{return JSON.parse(localStorage.getItem('hf_updates_'+u.email)||'[]')}catch(e){return []}}
-function saveUpdates(list){localStorage.setItem('hf_updates_'+u.email,JSON.stringify(list))}
 function drawAv(){
   var b=document.getElementById('avBtn');
   b.innerHTML=av?'<img alt="" src="'+av+'">':esc((u.name||u.email||'J').slice(0,1).toUpperCase());
@@ -60,14 +55,26 @@ function render(){
     if(!Array.isArray(c.images)||!c.images.length) c.images=c.image?[c.image]:[];
     html='<div class="pane"><form id="editForm" class="card" style="padding:16px"><h1>Edit campaign</h1>'
       +'<label>Photos and video</label><div class="gals" id="gals"></div>'
-      +'<div class="row"><label class="btn" style="display:inline-flex">Add photos<input id="addPhotos" type="file" accept="image/*" multiple class="hide"></label>'
-      +'<label class="btn" style="display:inline-flex;background:#fff;color:#4C1D95;border:1px solid #e5e5e5">Add video<input id="addVideo" type="file" accept="video/*" class="hide"></label></div>'
-      +(c.video?'<p class="note" id="vidNote">A video is attached. It plays on the campaign page.</p>':'<p class="note" id="vidNote"></p>')
-      +'<div id="cropBox" class="crop hide"><strong>Crop</strong><p class="note">Drag the photo. Use the slider to zoom. Save crop replaces that photo.</p><canvas id="cropCvs" width="360" height="360"></canvas><input id="cropZoom" type="range" min="1" max="3" step="0.01" value="1" style="width:100%;max-width:360px"><div class="row"><button class="btn" id="cropSave" type="button">Save crop</button><button class="btn" id="cropCancel" type="button" style="background:transparent;color:#333;border:1px solid #e5e5e5">Cancel</button></div></div>'
+      +'<div class="row"><label class="btn" style="display:inline-flex">Add photos<input id="addPhotos" type="file" accept="image/*" multiple class="hide"></label></div>'
       +'<label>Name</label><input id="eTitle" value="'+esc(c.title)+'"><label>Story</label><textarea id="eStory">'+esc(c.story||'')+'</textarea><label>Goal (USD)</label><input id="eGoal" value="'+esc(c.goal)+'">'
-      +'<p class="note">$'+(Number(c.raised)||0).toLocaleString()+' already raised. That number stays.</p><div class="row"><button class="btn" type="submit">Save</button><button class="btn" type="button" id="back" style="background:transparent;color:#333;border:1px solid #e5e5e5">Back</button></div></form></div>';
+      +'<p class="note">$'+(Number(c.raised)||0).toLocaleString()+' already raised.</p><div class="row"><button class="btn" type="submit">Save</button><button class="btn" type="button" id="back" style="background:transparent;color:#333;border:1px solid #e5e5e5">Back</button></div></form></div>';
     box.innerHTML=html;
-    /* edit handlers continue in full file */
+    function drawGals(){
+      var boxg=document.getElementById('gals'); var h='';
+      c.images.forEach(function(src,i){
+        h+='<div class="ph"><img src="'+src+'" alt=""><div class="mini"><button type="button" data-rm="'+i+'">Remove</button></div></div>';
+      });
+      if(!h) h='<p class="note">No photo yet.</p>';
+      boxg.innerHTML=h;
+      boxg.querySelectorAll('[data-rm]').forEach(function(b){b.onclick=function(){c.images.splice(+b.getAttribute('data-rm'),1); drawGals()}});
+    }
+    drawGals();
+    document.getElementById('addPhotos').onchange=function(e){
+      var files=e.target.files; if(!files) return;
+      Array.prototype.forEach.call(files,function(f){
+        var r=new FileReader(); r.onload=function(){ c.images.push(r.result); if(!c.image) c.image=r.result; drawGals(); }; r.readAsDataURL(f);
+      });
+    };
     document.getElementById('back').onclick=function(){editId='';render()};
     document.getElementById('editForm').onsubmit=function(e){
       e.preventDefault();
@@ -75,8 +82,7 @@ function render(){
       c.story=document.getElementById('eStory').value;
       c.goal=parseFloat(document.getElementById('eGoal').value)||c.goal;
       c.image=c.images[0]||c.image||'';
-      saveCamp(c); if(HF.saveCampaign) try{HF.saveCampaign(c)}catch(err){}
-      editId='';render();
+      saveCamp(c); editId='';render();
     };
     return;
   }
@@ -93,7 +99,6 @@ function render(){
     html+='</div></div>';
   }else if(tab==='donations' && HF.isAdmin()){
     var allG=HF.listGifts();
-    var allC=allCamps();
     html='<div class="pane"><h1>Donations received</h1><p class="sub">Search for a campaign, then add the donor and the amount.</p><div class="card" style="padding:14px"><label>Campaign</label><input id="gfind" placeholder="Search title or email" autocomplete="off"><input id="gcamp" type="hidden"><div id="gpick"></div><label>Donor name</label><input id="gname" placeholder="Name"><label>Amount (USD)</label><input id="gamt" inputmode="decimal" placeholder="25"><button class="btn" id="gadd" type="button">Add donation</button><p class="note" id="gmsg"></p></div>';
     html+='<div class="card" style="padding:8px 14px;margin-top:12px">';
     if(!allG.length) html+='<p class="note">None yet.</p>';
@@ -112,15 +117,14 @@ function render(){
     if(!ulist.length) html+='<p class="note">No users yet.</p>';
     ulist.forEach(function(x){
       var when=x.created?new Date(x.created).toLocaleString():'—';
-      html+='<div class="donor" style="align-items:flex-start"><div class="dot">'+(esc((x.name||x.email||'?').charAt(0).toUpperCase()))+'</div><div style="flex:1"><strong>'+esc(x.name||'—')+'</strong><div class="note">'+esc(x.email||'')+(x.isAdmin?' · Admin':'')+(x.verified?' · Verified':'')+'</div><div class="note">Joined '+esc(when)+'</div></div></div>';
+      var pic=x.avatar||'';
+      try{if(!pic&&window.HF&&HF.getUserAvatar)pic=HF.getUserAvatar(x.email)||'';if(!pic)pic=localStorage.getItem('hf_avatar_'+x.email)||'';}catch(e){}
+      var dot=pic?('<img src="'+esc(pic)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">'):esc((x.name||x.email||'?').charAt(0).toUpperCase());
+      html+='<div class="donor" style="align-items:flex-start"><div class="dot" style="overflow:hidden;padding:0">'+dot+'</div><div style="flex:1"><strong>'+esc(x.name||'—')+'</strong><div class="note">'+esc(x.email||'')+(x.isAdmin?' · Admin':'')+(x.verified?' · Verified':'')+'</div><div class="note">Joined '+esc(when)+'</div></div></div>';
     });
     html+='</div></div>';
-  }else if(tab==='transfers' && HF.isAdmin()){
-    html='<div class="pane"><h1>Withdrawal requests</h1><p class="sub">Review and process payouts.</p></div>';
   }else if(tab==='transfers'){
     html='<div class="pane"><h1>Transfers</h1><p class="sub">Available: $'+m.available.toLocaleString()+'</p></div>';
-  }else if(tab==='updates' && HF.isAdmin()){
-    html='<div class="pane"><h1>Updates</h1><p class="sub">Site news for organizers.</p></div>';
   }else if(tab==='updates'){
     html='<div class="pane"><h1>Updates</h1><p class="sub">News and gifts on your campaigns.</p></div>';
   }else if(tab==='settings'){
@@ -137,7 +141,6 @@ function render(){
     html='<div class="pane"><h1>Dashboard</h1></div>';
   }
   box.innerHTML=html;
-  box.querySelectorAll('[data-tab]').forEach(function(b){});
   box.querySelectorAll('[data-open],[data-view]').forEach(function(b){
     b.onclick=function(){ location.href='/campaign/index.html?id='+encodeURIComponent(b.getAttribute('data-open')||b.getAttribute('data-view')); };
   });
@@ -170,6 +173,21 @@ document.getElementById('homeBtn').onclick=function(){setTab('home');};
 document.getElementById('avBtn').onclick=function(){document.getElementById('menu').classList.toggle('hide');};
 document.getElementById('lo').onclick=function(){if(HF.logout)HF.logout();location.href='/login';};
 if(HF.isAdmin&&HF.isAdmin()){document.getElementById('adminNav').classList.remove('hide');document.getElementById('adminMenu').classList.remove('hide');var un=document.getElementById('usersNav');if(un)un.classList.remove('hide');}
+document.getElementById('photoBtn')&&document.getElementById('photoBtn').addEventListener('click',function(){
+  document.getElementById('photoFile').click();
+});
+document.getElementById('photoFile')&&document.getElementById('photoFile').addEventListener('change',function(e){
+  var f=e.target.files&&e.target.files[0]; if(!f) return;
+  var reader=new FileReader();
+  reader.onload=function(){
+    var data=reader.result;
+    av=data;
+    try{localStorage.setItem('hf_avatar_'+u.email,data);}catch(err){}
+    if(window.HF&&HF.setUserAvatar) HF.setUserAvatar(u.email, data);
+    drawAv();
+  };
+  reader.readAsDataURL(f);
+});
 drawAv();
 function boot(){render();}
 function pullServer(){
