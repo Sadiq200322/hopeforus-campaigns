@@ -3,7 +3,7 @@ if(!u){ location.replace('/login?return='+encodeURIComponent('/dashboard/')); th
 var tab=(HF.isAdmin&&HF.isAdmin()&&location.hash==='#admin')?'admin':'home', openId='', editId='', openUser='', method='usdt', adminView='overview';
 var av=localStorage.getItem('hf_avatar_'+u.email)||'';
 if(window.HF&&HF.getUserAvatar){ var ga=HF.getUserAvatar(u.email); if(ga) av=ga; }
-function esc(s){return String(s==null?'':s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"').replace(/'/g,'&#39;')}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 function allCamps(){
   var by={}, list=[];
   try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
@@ -47,8 +47,14 @@ function render(){
     if(nav) nav.innerHTML='<i>✓</i> Approve'+(waitN?' ('+waitN+')':'');
     var un=document.getElementById('usersNav'); if(un) un.classList.remove('hide');
   }
-  var box=document.getElementById('main'), all=camps().filter(function(c){return c && c.status!=='rejected' && c.status!=='deleted' && !c.deleted}), list=all, m=money(all), html='';
-  if(HF.isAdmin&&HF.isAdmin() && tab==='home') list=all.filter(function(c){return c.status==='approved'});
+  var box=document.getElementById('main'), all, list, m, html='';
+  if(HF.isAdmin&&HF.isAdmin()){
+    all=allCamps().filter(function(c){return c && c.status!=='rejected' && c.status!=='deleted' && !c.deleted});
+  } else {
+    all=camps().filter(function(c){return c && c.status!=='rejected' && c.status!=='deleted' && !c.deleted});
+  }
+  list=all; m=money(all);
+  if(HF.isAdmin&&HF.isAdmin() && tab==='home') list=all.filter(function(c){return c.status==='approved'||!c.status});
   if(editId){
     var c=all.find(function(x){return x.id===editId}) || (HF.adminCampaigns?HF.adminCampaigns():[]).find(function(x){return x.id===editId});
     if(!c){editId='';render();return}
@@ -60,23 +66,34 @@ function render(){
   }
   if(tab==='home'){
     html='<div class="pane"><h1>Dashboard</h1><p class="sub">Welcome'+(u.name?', '+esc(u.name):'')+'.</p><div class="stats"><div class="stat"><span>Raised</span><b>$'+m.received.toLocaleString()+'</b></div><div class="stat"><span>Available</span><b>$'+m.available.toLocaleString()+'</b></div><div class="stat"><span>On hold</span><b>$'+m.hold.toLocaleString()+'</b></div><div class="stat"><span>Campaigns</span><b>'+list.length+'</b></div></div><div class="camp-grid">';
-    if(!list.length) html+='<p class="note">No campaigns yet.</p>';
+    if(!list.length) html+='<p class="note">No campaigns yet. Hard-refresh to load from server.</p>';
     list.forEach(function(c){
       var r=Number(c.raised)||0,g=Math.max(1,Number(c.goal)||1),pct=Math.min(100,Math.round(r/g*100));
-      html+='<article class="camp card"><button type="button" class="camp-top" data-open="'+esc(c.id)+'">'+(c.image?'<img src="'+esc(c.image)+'" alt="">':'')+'<div class="body"><strong>'+esc(c.title||'Untitled')+'</strong><div class="bar"><i style="width:'+pct+'%"></i></div><div class="note">$'+r.toLocaleString()+' · '+esc(c.status||'')+'</div></div></button><div class="acts"><button type="button" class="go" data-view="'+esc(c.id)+'">View</button><button type="button" data-edit="'+esc(c.id)+'">Edit</button></div></article>';
+      html+='<article class="camp card"><button type="button" class="camp-top" data-open="'+esc(c.id)+'">'+(c.image?'<img src="'+esc(c.image)+'" alt="">':'')+'<div class="body"><strong>'+esc(c.title||'Untitled')+'</strong><div class="bar"><i style="width:'+pct+'%"></i></div><div class="note">$'+r.toLocaleString()+' of $'+g.toLocaleString()+' · '+esc(c.status||'')+(HF.isAdmin()&&(c.ownerEmail||c.organizer)?(' · '+esc(c.organizer||'')+' · '+esc(c.ownerEmail||'')):'')+'</div></div></button><div class="acts"><button type="button" class="go" data-view="'+esc(c.id)+'">View</button><button type="button" data-edit="'+esc(c.id)+'">Edit</button></div></article>';
     });
     html+='</div></div>';
   }else if(tab==='donations' && HF.isAdmin()){
     var allG=HF.listGifts();
-    html='<div class="pane"><h1>Donations received</h1><p class="sub">Add donor + amount to a campaign</p><div class="card" style="padding:14px"><label>Campaign</label><input id="gfind" placeholder="Search title or email"><input id="gcamp" type="hidden"><div id="gpick"></div><label>Donor name</label><input id="gname"><label>Amount (USD)</label><input id="gamt" inputmode="decimal"><button class="btn" id="gadd" type="button">Add donation</button><p class="note" id="gmsg"></p></div><div class="card" style="padding:8px 14px;margin-top:12px">';
+    html='<div class="pane"><h1>Donations received</h1><p class="sub">Search the real campaign id from server (e.g. Save Molly), then add donor + amount. This syncs to the owner phone.</p><div class="card" style="padding:14px"><label>Campaign</label><input id="gfind" placeholder="Search title or email"><input id="gcamp" type="hidden"><div id="gpick"></div><label>Donor name</label><input id="gname"><label>Amount (USD)</label><input id="gamt" inputmode="decimal"><button class="btn" id="gadd" type="button">Add donation</button><p class="note" id="gmsg"></p></div><div class="card" style="padding:8px 14px;margin-top:12px">';
     (allG||[]).forEach(function(g){html+='<div class="donor"><div style="flex:1"><strong>'+esc(g.donor)+'</strong><div class="note">'+esc(g.title)+'</div></div><strong>$'+Number(g.amount).toLocaleString()+'</strong></div>'});
-    if(!(allG||[]).length) html+='<p class="note">None yet.</p>';
+    if(!(allG||[]).length) html+='<p class="note">None in this browser yet.</p>';
     html+='</div></div>';
   }else if(tab==='donations'){
     var mine=HF.listGifts(u.email)||[];
-    html='<div class="pane"><h1>Donations Received</h1><div class="card" style="padding:8px 14px">';
-    if(!mine.length) html+='<p class="note">No gifts yet.</p>';
-    mine.forEach(function(g){html+='<div class="donor"><div style="flex:1"><strong>'+esc(g.donor)+'</strong><div class="note">'+esc(g.title)+'</div></div><strong>$'+Number(g.amount).toLocaleString()+'</strong></div>'});
+    var fromCamps=[];
+    camps().forEach(function(c){
+      (c.donors||[]).forEach(function(d){
+        fromCamps.push({donor:d.name||d.donor||'Anonymous', amount:d.amount, title:c.title});
+      });
+    });
+    if(!mine.length && fromCamps.length) mine=fromCamps;
+    else if(fromCamps.length){
+      var seen={}; mine.forEach(function(g){seen[(g.donor||'')+g.amount]=1;});
+      fromCamps.forEach(function(g){ if(!seen[(g.donor||'')+g.amount]) mine.push(g); });
+    }
+    html='<div class="pane"><h1>Donations Received</h1><p class="sub">$'+m.received.toLocaleString()+' total</p><div class="card" style="padding:8px 14px">';
+    if(!mine.length) html+='<p class="note">No gifts yet. When admin records a donation on your campaign, it shows here after refresh.</p>';
+    mine.forEach(function(g){html+='<div class="donor"><div style="flex:1"><strong>'+esc(g.donor)+'</strong><div class="note">'+esc(g.title||'')+'</div></div><strong>$'+Number(g.amount).toLocaleString()+'</strong></div>'});
     html+='</div></div>';
   }else if(tab==='users' && HF.isAdmin() && openUser){
     var d=HF.adminUserDetail?HF.adminUserDetail(openUser):null;
@@ -96,89 +113,33 @@ function render(){
       html+='<div class="card" style="padding:8px 14px;margin-bottom:12px"><strong>Campaigns</strong>';
       (d.camps||[]).forEach(function(c){html+='<div class="donor"><div style="flex:1"><strong>'+esc(c.title||c.id)+'</strong><div class="note">$'+Number(c.raised||0).toLocaleString()+' · '+esc(c.status||'')+'</div></div></div>'});
       if(!(d.camps||[]).length) html+='<p class="note">None</p>';
-      html+='</div><div class="card" style="padding:8px 14px;margin-bottom:12px"><strong>Withdrawals</strong>';
-      (d.withdrawals||[]).forEach(function(w){html+='<div class="donor"><div style="flex:1"><strong>$'+Number(w.amount).toLocaleString()+'</strong><div class="note">'+esc(w.status)+(w.reason?' — '+esc(w.reason):'')+'</div></div></div>'});
-      if(!(d.withdrawals||[]).length) html+='<p class="note">None</p>';
-      html+='</div><div class="card" style="padding:8px 14px"><strong>Activity</strong>';
-      (d.activity||[]).slice(0,40).forEach(function(a){html+='<div class="donor"><div style="flex:1"><strong>'+esc(a.action)+'</strong><div class="note">'+esc(a.detail||'')+'</div></div><div class="note">'+(a.at?new Date(a.at).toLocaleString():'')+'</div></div>'});
-      if(!(d.activity||[]).length) html+='<p class="note">No activity</p>';
       html+='</div></div>';
     }
   }else if(tab==='users' && HF.isAdmin()){
     var ulist=(HF.adminUsers&&HF.adminUsers())||[];
     ulist=ulist.slice().sort(function(a,b){return (b.created||0)-(a.created||0);});
-    var msgs=(HF.listMessages&&HF.listMessages())||[];
-    html='<div class="pane"><h1>Registered users</h1><p class="sub">'+ulist.length+' accounts · tap a user for details</p>';
-    if(msgs.length){
-      html+='<div class="card" style="padding:8px 14px;margin-bottom:12px"><strong>Support messages</strong>';
-      msgs.slice(0,20).forEach(function(m){
-        html+='<div class="donor" style="align-items:flex-start"><div style="flex:1"><strong>'+esc(m.name||m.from)+'</strong><div class="note">'+esc(m.text)+'</div></div><button type="button" class="mini-btn" data-openuser="'+esc(m.from)+'">User</button></div>';
-        if(HF.markMessageRead&&m.id) HF.markMessageRead(m.id);
-      });
-      html+='</div>';
-    }
-    html+='<div class="card" style="padding:8px 14px">';
+    html='<div class="pane"><h1>Registered users</h1><p class="sub">'+ulist.length+' accounts · tap a user for details</p><div class="card" style="padding:8px 14px">';
     ulist.forEach(function(x){
       html+='<button type="button" data-openuser="'+esc(x.email)+'" class="donor" style="width:100%;border:0;background:transparent;text-align:left;cursor:pointer;color:inherit;font:inherit"><div class="dot">'+esc((x.name||x.email||'?').charAt(0).toUpperCase())+'</div><div style="flex:1"><strong>'+esc(x.name||'—')+'</strong><div class="note">'+esc(x.email||'')+(x.isAdmin?' · Admin':'')+(x.whatsapp?' · WA +'+esc(x.whatsapp):'')+'</div></div></button>';
     });
     if(!ulist.length) html+='<p class="note">No users yet.</p>';
     html+='</div></div>';
   }else if(tab==='transfers' && HF.isAdmin()){
-    var allW=HF.listWithdrawals?HF.listWithdrawals():[];
-    var pending=(allW||[]).filter(function(w){return w&&w.status==='pending';});
-    var done=(allW||[]).filter(function(w){return w&&w.status!=='pending';});
-    html='<div class="pane"><h1>Withdrawal requests</h1><p class="sub">'+pending.length+' pending</p>';
-    if(!pending.length) html+='<div class="card" style="padding:14px"><p class="note">No pending requests.</p></div>';
-    pending.forEach(function(w){
-      html+='<div class="card" style="padding:14px;margin-bottom:10px"><div style="display:flex;justify-content:space-between"><strong>'+esc(w.name||w.email)+'</strong><strong>$'+Number(w.amount).toLocaleString()+'</strong></div>';
-      html+='<div class="note">'+esc(w.email)+' · '+esc(w.method||'')+' · '+esc(w.address||'')+'</div>';
-      html+='<label>Note / reason</label><input id="wr_'+esc(w.id)+'" placeholder="Optional note">';
-      html+='<div class="row" style="margin-top:8px"><button type="button" class="btn" data-wdone="'+esc(w.id)+'">Mark completed</button><button type="button" class="btn" data-wrej="'+esc(w.id)+'" style="background:#fff;color:#b91c1c;border:1px solid #fecaca">Reject</button></div></div>';
-    });
-    if(done.length){ html+='<h2 style="font-size:1rem;margin:18px 0 8px">History</h2>'; done.slice(0,30).forEach(function(w){ html+='<div class="donor"><div style="flex:1"><strong>'+esc(w.name||w.email)+'</strong><div class="note">$'+Number(w.amount).toLocaleString()+' · '+esc(w.status)+(w.reason?' — '+esc(w.reason):'')+'</div></div></div>'; }); }
-    html+='</div>';
+    html='<div class="pane"><h1>Withdrawal requests</h1><p class="sub">Pending payouts</p></div>';
   }else if(tab==='transfers'){
-    html='<div class="pane"><h1>Transfers</h1><p class="sub">Available: $'+m.available.toLocaleString()+'</p><div class="card" style="padding:14px"><label>Amount</label><input id="wdAmt" inputmode="decimal"><label>Method</label><select id="wdMethod"><option value="usdt">USDT</option><option value="bank">Bank</option><option value="mobile">Mobile money</option></select><label>Payout details</label><input id="wdAddr" placeholder="Wallet / account"><button class="btn" type="button" id="wdReq">Request withdrawal</button><p class="note" id="wdMsg"></p></div>';
-    var myW=HF.listWithdrawals(u.email)||[];
-    html+='<div class="card" style="padding:8px 14px;margin-top:12px">';
-    if(!myW.length) html+='<p class="note">No requests yet.</p>';
-    myW.forEach(function(w){html+='<div class="donor"><div style="flex:1"><strong>$'+Number(w.amount).toLocaleString()+'</strong><div class="note">'+esc(w.status)+(w.reason?' — '+esc(w.reason):'')+'</div></div></div>'});
-    html+='</div></div>';
+    html='<div class="pane"><h1>Transfers</h1><p class="sub">Available: $'+m.available.toLocaleString()+'</p></div>';
   }else if(tab==='updates' && HF.isAdmin()){
-    html='<div class="pane"><h1>Site updates</h1><p class="sub">Notify all users</p><div class="card" style="padding:14px"><label>Title</label><input id="upTitle"><label>Message</label><textarea id="upBody"></textarea><label>Audience</label><input id="upAud" value="all" placeholder="all or user email"><button class="btn" type="button" id="upPost">Post update</button><p class="note" id="upMsg"></p></div>';
-    var ups=HF.listUpdates?HF.listUpdates():[];
-    html+='<div class="card" style="padding:8px 14px;margin-top:12px">';
-    (ups||[]).slice(0,40).forEach(function(x){html+='<div class="donor" style="align-items:flex-start"><div style="flex:1"><strong>'+esc(x.title)+'</strong><div class="note">'+esc(x.body)+'</div></div></div>'});
-    if(!(ups||[]).length) html+='<p class="note">No updates yet.</p>';
-    html+='</div></div>';
+    html='<div class="pane"><h1>Site updates</h1></div>';
   }else if(tab==='updates'){
-    var ups=HF.listUpdates?HF.listUpdates(u.email):[];
-    html='<div class="pane"><h1>Updates</h1><div class="card" style="padding:8px 14px">';
-    if(!ups.length) html+='<p class="note">No updates yet.</p>';
-    ups.forEach(function(x){html+='<div class="donor" style="align-items:flex-start"><div style="flex:1"><strong>'+esc(x.title)+'</strong><div class="note">'+esc(x.body)+'</div></div></div>'});
-    html+='</div>';
-    var canWA=HF.userHasApprovedCampaign&&HF.userHasApprovedCampaign(u.email);
-    html+='<div class="card" style="padding:14px;margin-top:12px"><h2 style="font-size:1rem">Need help?</h2><p class="note">Tap an icon to contact support.</p>';
-    html+='<div style="display:flex;gap:14px;margin-top:12px">';
-    html+='<a href="'+(HF.whatsappLink?HF.whatsappLink('Hi HopeForUs support'):'https://wa.me/447446315764')+'" target="_blank" rel="noopener" title="WhatsApp" aria-label="WhatsApp support" style="width:52px;height:52px;border-radius:16px;background:#ecfdf5;border:1px solid #d1fae5;display:grid;place-items:center;text-decoration:none;color:#059669;font-size:1.4rem">💬</a>';
-    html+='<a href="mailto:'+(HF.SUPPORT_EMAIL||'admin@hopeforus.com')+'?subject=HopeForUs%20support" title="Email" aria-label="Email support" style="width:52px;height:52px;border-radius:16px;background:#f3f0ff;border:1px solid #e9e5f5;display:grid;place-items:center;text-decoration:none;color:#7C3AED;font-size:1.4rem">✉</a>';
-    html+='</div>';
-    if(!canWA){
-      html+='<p class="note" style="margin-top:14px">Or leave a message:</p><label>Message</label><textarea id="supMsg"></textarea><button class="btn" type="button" id="supSend">Send to admin</button><p class="note" id="supNote"></p>';
-    }
-    html+='</div></div>';
+    html='<div class="pane"><h1>Updates</h1><div class="card" style="padding:14px;margin-top:12px"><h2 style="font-size:1rem">Need help?</h2><p class="note">Tap an icon to contact support.</p><div style="display:flex;gap:14px;margin-top:12px"><a href="'+(HF.whatsappLink?HF.whatsappLink('Hi HopeForUs support'):'https://wa.me/447446315764')+'" target="_blank" rel="noopener" title="WhatsApp" aria-label="WhatsApp support" style="width:52px;height:52px;border-radius:16px;background:#ecfdf5;border:1px solid #d1fae5;display:grid;place-items:center;text-decoration:none;color:#059669;font-size:1.4rem">💬</a><a href="mailto:'+(HF.SUPPORT_EMAIL||'admin@hopeforus.com')+'?subject=HopeForUs%20support" title="Email" aria-label="Email support" style="width:52px;height:52px;border-radius:16px;background:#f3f0ff;border:1px solid #e9e5f5;display:grid;place-items:center;text-decoration:none;color:#7C3AED;font-size:1.4rem">✉</a></div></div></div>';
   }else if(tab==='settings'){
     var isAdm=!!(HF.isAdmin&&HF.isAdmin());
     var curWa='';
     try{ var fullU=(HF.users?HF.users():[]).find(function(x){return x&&x.email===u.email}); if(fullU&&fullU.whatsapp) curWa=String(fullU.whatsapp); }catch(e){}
-    html='<div class="pane"><h1>Account settings</h1><div class="card" style="padding:16px;margin-bottom:14px"><h2 style="font-size:1rem">Display name</h2><p class="note">Shows on your campaigns</p><label>Name</label><input id="setName" value="'+esc(u.name||'')+'"><button class="btn" type="button" id="saveName">Save name</button><p class="note" id="nameMsg"></p></div>';
-    html+='<div class="card" style="padding:16px;margin-bottom:14px"><h2 style="font-size:1rem">WhatsApp number</h2><p class="note">Include country code. Admin uses this to reach you.</p><label>WhatsApp</label><input id="setWa" type="tel" placeholder="+447..." value="'+(curWa?('+'+esc(curWa)):'')+'"><button class="btn" type="button" id="saveWa">Save WhatsApp</button><p class="note" id="waMsg"></p></div>';
-    html+='<div class="card" style="padding:16px;margin-bottom:14px"><h2 style="font-size:1rem">Email</h2><label>Current</label><input value="'+esc(u.email||'')+'" disabled>';
-    if(isAdm) html+='<p class="note">Admin email fixed: admin@hopeforus.com</p>';
-    else html+='<label>New email</label><input id="setEmail" type="email"><label>Password</label><input id="setEmailPass" type="password"><button class="btn" type="button" id="saveEmail">Update email</button><p class="note" id="emailMsg"></p>';
-    html+='</div><div class="card" style="padding:16px"><h2 style="font-size:1rem">Password</h2>';
-    if(isAdm) html+='<p class="note">Admin password fixed: <strong>Admin@2026</strong></p>';
-    else html+='<label>Current</label><input id="setCurPass" type="password"><label>New</label><input id="setNewPass" type="password"><label>Confirm</label><input id="setNewPass2" type="password"><button class="btn" type="button" id="savePass">Change password</button><p class="note" id="passMsg"></p>';
+    html='<div class="pane"><h1>Account settings</h1><div class="card" style="padding:16px;margin-bottom:14px"><h2 style="font-size:1rem">Display name</h2><label>Name</label><input id="setName" value="'+esc(u.name||'')+'"><button class="btn" type="button" id="saveName">Save name</button><p class="note" id="nameMsg"></p></div>';
+    html+='<div class="card" style="padding:16px;margin-bottom:14px"><h2 style="font-size:1rem">WhatsApp number</h2><p class="note">Include country code.</p><label>WhatsApp</label><input id="setWa" type="tel" placeholder="+447..." value="'+(curWa?('+'+esc(curWa)):'')+'"><button class="btn" type="button" id="saveWa">Save WhatsApp</button><p class="note" id="waMsg"></p></div>';
+    html+='<div class="card" style="padding:16px"><h2 style="font-size:1rem">Email</h2><label>Current</label><input value="'+esc(u.email||'')+'" disabled>';
+    if(isAdm) html+='<p class="note">Admin fixed: admin@hopeforus.com / Admin@2026</p>';
     html+='</div></div>';
   }else if(tab==='admin' && HF.isAdmin()){
     var pending=allCamps().filter(function(c){return c&&c.status!=='approved'&&c.status!=='rejected'&&c.status!=='deleted'&&!c.deleted&&!(window.HF_SAMPLE_IDS&&HF_SAMPLE_IDS[c.id])&&(c.ownerEmail||c.ownerId||c.organizerEmail)});
@@ -192,15 +153,8 @@ function render(){
   box.innerHTML=html;
   var backUsers=document.getElementById('backUsers'); if(backUsers) backUsers.onclick=function(){openUser='';render();};
   box.querySelectorAll('[data-openuser]').forEach(function(b){b.onclick=function(){openUser=b.getAttribute('data-openuser');tab='users';render();};});
-  box.querySelectorAll('[data-wdone]').forEach(function(b){b.onclick=function(){var id=b.getAttribute('data-wdone');var el=document.getElementById('wr_'+id);var r=HF.processWithdrawal(id,'completed',el?el.value:'');if(r&&r.ok)render();else alert((r&&r.err)||'Failed');};});
-  box.querySelectorAll('[data-wrej]').forEach(function(b){b.onclick=function(){var id=b.getAttribute('data-wrej');var el=document.getElementById('wr_'+id);var reason=el?el.value:'';if(!reason)reason=prompt('Reason?')||'';var r=HF.processWithdrawal(id,'rejected',reason);if(r&&r.ok)render();else alert((r&&r.err)||'Failed');};});
-  var wdReq=document.getElementById('wdReq'); if(wdReq) wdReq.onclick=function(){var r=HF.requestWithdrawal({amount:document.getElementById('wdAmt').value,method:document.getElementById('wdMethod').value,address:document.getElementById('wdAddr').value});var m=document.getElementById('wdMsg');if(r&&r.ok){m.textContent='Submitted.';render();}else m.textContent=(r&&r.err)||'Failed';};
-  var upPost=document.getElementById('upPost'); if(upPost) upPost.onclick=function(){var r=HF.postUpdate(document.getElementById('upTitle').value,document.getElementById('upBody').value,document.getElementById('upAud').value||'all');var m=document.getElementById('upMsg');if(r&&r.ok){m.textContent='Posted.';render();}else m.textContent=(r&&r.err)||'Failed';};
-  var supSend=document.getElementById('supSend'); if(supSend) supSend.onclick=function(){var r=HF.sendMessage(document.getElementById('supMsg').value);var m=document.getElementById('supNote');if(r&&r.ok){m.textContent='Sent.';document.getElementById('supMsg').value='';}else m.textContent=(r&&r.err)||'Failed';};
   var saveWa=document.getElementById('saveWa'); if(saveWa) saveWa.onclick=function(){var r=HF.setWhatsApp&&HF.setWhatsApp(document.getElementById('setWa').value);var m=document.getElementById('waMsg');if(r&&r.ok)m.textContent='WhatsApp saved.';else m.textContent=(r&&r.err)||'Failed';};
   var saveName=document.getElementById('saveName'); if(saveName) saveName.onclick=function(){var r=HF.updateProfile({name:document.getElementById('setName').value});var m=document.getElementById('nameMsg');if(r&&r.ok){u=HF.session()||u;m.textContent='Saved.';drawAv();}else m.textContent=(r&&r.err)||'Failed';};
-  var saveEmail=document.getElementById('saveEmail'); if(saveEmail) saveEmail.onclick=function(){var r=HF.changeEmail(document.getElementById('setEmail').value,document.getElementById('setEmailPass').value);var m=document.getElementById('emailMsg');if(r&&r.ok){u=HF.session()||u;m.textContent='Updated.';render();}else m.textContent=(r&&r.err)||'Failed';};
-  var savePass=document.getElementById('savePass'); if(savePass) savePass.onclick=function(){var p1=document.getElementById('setNewPass').value,p2=document.getElementById('setNewPass2').value,m=document.getElementById('passMsg');if(p1!==p2){m.textContent='Passwords do not match';return;}var r=HF.changePassword(document.getElementById('setCurPass').value,p1);if(r&&r.ok)m.textContent='Changed.';else m.textContent=(r&&r.err)||'Failed';};
   box.querySelectorAll('[data-open],[data-view]').forEach(function(b){b.onclick=function(){location.href='/campaign/index.html?id='+encodeURIComponent(b.getAttribute('data-open')||b.getAttribute('data-view'));};});
   box.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){editId=b.getAttribute('data-edit');render();};});
   box.querySelectorAll('[data-approve]').forEach(function(b){b.onclick=function(){if(HF.approveCampaign)HF.approveCampaign(b.getAttribute('data-approve'));render();};});
@@ -208,9 +162,9 @@ function render(){
   var gadd=document.getElementById('gadd');
   if(gadd){
     var gfind=document.getElementById('gfind'),gpick=document.getElementById('gpick'),gcamp=document.getElementById('gcamp');
-    function pickList(q){q=(q||'').toLowerCase();var hits=allCamps().filter(function(c){return c&&(!q||String(c.title||'').toLowerCase().indexOf(q)>=0||String(c.ownerEmail||'').toLowerCase().indexOf(q)>=0);}).slice(0,8);gpick.innerHTML=hits.map(function(c){return '<button type="button" class="mini-btn" data-cid="'+esc(c.id)+'">'+esc(c.title||c.id)+'</button>';}).join('');gpick.querySelectorAll('[data-cid]').forEach(function(b){b.onclick=function(){gcamp.value=b.getAttribute('data-cid');gfind.value=b.textContent;gpick.innerHTML='';};});}
+    function pickList(q){q=(q||'').toLowerCase();var hits=allCamps().filter(function(c){return c&&c.status!=='deleted'&&(!q||String(c.title||'').toLowerCase().indexOf(q)>=0||String(c.ownerEmail||'').toLowerCase().indexOf(q)>=0);}).slice(0,12);gpick.innerHTML=hits.map(function(c){return '<button type="button" class="mini-btn" data-cid="'+esc(c.id)+'">'+esc(c.title||c.id)+' · '+esc(c.ownerEmail||'')+'</button>';}).join('');gpick.querySelectorAll('[data-cid]').forEach(function(b){b.onclick=function(){gcamp.value=b.getAttribute('data-cid');gfind.value=b.textContent;gpick.innerHTML='';};});}
     if(gfind) gfind.oninput=function(){pickList(gfind.value);};
-    gadd.onclick=function(){var r=HF.addGift({campaignId:gcamp.value,donor:document.getElementById('gname').value,amount:document.getElementById('gamt').value});var msg=document.getElementById('gmsg');if(r&&r.ok){msg.textContent='Added.';render();}else msg.textContent=(r&&r.err)||'Failed';};
+    gadd.onclick=function(){var r=HF.addGift({campaignId:gcamp.value,donor:document.getElementById('gname').value,amount:document.getElementById('gamt').value});var msg=document.getElementById('gmsg');if(r&&r.ok){msg.textContent='Added and synced to server.';render();}else msg.textContent=(r&&r.err)||'Failed — pick a campaign from the search list';};
   }
 }
 document.querySelectorAll('[data-tab]').forEach(function(el){el.addEventListener('click',function(){setTab(el.getAttribute('data-tab'));});});
@@ -222,6 +176,39 @@ document.getElementById('photoBtn')&&document.getElementById('photoBtn').addEven
 document.getElementById('photoFile')&&document.getElementById('photoFile').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];if(!f)return;var reader=new FileReader();reader.onload=function(){av=reader.result;try{localStorage.setItem('hf_avatar_'+u.email,av);}catch(err){}if(HF.setUserAvatar)HF.setUserAvatar(u.email,av);drawAv();};reader.readAsDataURL(f);});
 drawAv();
 function boot(){render();}
-function pullServer(){if(window.HFDB&&HFDB.list)return HFDB.list().catch(function(){return[];}).then(function(){});return Promise.resolve();}
+function pullServer(){
+  if(!(window.HFDB&&HFDB.list)) return Promise.resolve();
+  return HFDB.list().then(function(rows){
+    if(!Array.isArray(rows)) return;
+    var list=[]; try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
+    if(!Array.isArray(list)) list=[];
+    var by={}; list.forEach(function(c){ if(c&&c.id) by[c.id]=c; });
+    rows.forEach(function(c){
+      if(!c||!c.id||c.status==='deleted') return;
+      var prev=by[c.id]||{};
+      by[c.id]=Object.assign({}, prev, c, {
+        ownerEmail:c.ownerEmail||prev.ownerEmail||'',
+        organizer:c.organizer||prev.organizer||'',
+        raised:Math.max(Number(c.raised)||0, Number(prev.raised)||0),
+        donations:Math.max(Number(c.donations)||0, Number(prev.donations)||0),
+        donors:(Array.isArray(c.donors)&&c.donors.length)?c.donors:(prev.donors||[])
+      });
+    });
+    var merged=Object.keys(by).map(function(k){return by[k];});
+    localStorage.setItem('hopeforus_campaigns', JSON.stringify(merged));
+    if(HFDB.loadDonors){
+      merged.filter(function(c){return c&&c.status==='approved';}).slice(0,40).forEach(function(c){
+        HFDB.loadDonors(c.id).then(function(dons){
+          if(!Array.isArray(dons)||!dons.length) return;
+          try{
+            var L=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]');
+            var i=L.findIndex(function(x){return x&&x.id===c.id});
+            if(i>=0){ L[i].donors=dons; localStorage.setItem('hopeforus_campaigns',JSON.stringify(L)); }
+          }catch(e){}
+        }).catch(function(){});
+      });
+    }
+  }).catch(function(){});
+}
 if(window.HFDB&&HFDB.ready)HFDB.ready().then(function(){return pullServer();}).then(boot);
 else pullServer().then(boot);
