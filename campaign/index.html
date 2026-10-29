@@ -1,1 +1,201 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Campaign – HopeForUs</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--p:#4C1D95;--g:#02a95c;--bg:#f7f6f4}
+body{font-family:Inter,system-ui,sans-serif;background:#fff;color:#1c1c1c;line-height:1.5}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #eee;position:sticky;top:0;background:#fff;z-index:50}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;color:var(--p);text-decoration:none;font-size:1.1rem}
+.logo img{width:26px;height:26px}
+.back{font-weight:650;color:#555;text-decoration:none;font-size:.9rem}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 120px}
+.hero{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:0 0 18px 18px;background:#eee}
+.meta{padding:16px 0 8px}
+.meta h1{font-size:1.45rem;font-weight:800;line-height:1.25;margin-bottom:6px}
+.org{display:flex;align-items:center;gap:10px;margin:10px 0}
+.org img,.org .dot{width:40px;height:40px;border-radius:50%;object-fit:cover;background:#ede9fe;display:grid;place-items:center;font-weight:800;color:var(--p)}
+.bar{height:8px;background:#ececec;border-radius:99px;overflow:hidden;margin:12px 0 6px}
+.bar i{display:block;height:100%;background:var(--g);border-radius:99px}
+.stats{display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem;color:#555;margin-bottom:8px}
+.stats b{color:#1c1c1c}
+.ticker{background:#f8f5ff;border:1px solid #ede9fe;border-radius:12px;padding:10px 12px;margin:12px 0;font-size:.85rem;min-height:40px;display:flex;align-items:center}
+.ticker .t{animation:fade .4s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.story{margin:18px 0;font-size:.95rem;color:#333;white-space:pre-wrap}
+.story.clamp{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.more{background:none;border:0;color:var(--p);font-weight:700;cursor:pointer;padding:4px 0;font:inherit}
+.side{position:sticky;top:72px;z-index:30}
+.card{background:#fff;border:1px solid #e7e5e1;border-radius:18px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.04)}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.btn-d,.btn-s{height:48px;border-radius:999px;border:0;font-weight:800;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.btn-d{background:var(--p);color:#fff}
+.btn-s{background:#f3f0ff;color:var(--p);border:1px solid #e9e5f5}
+.share-card{display:none;margin-top:12px;padding-top:12px;border-top:1px solid #eee}
+.share-card.open{display:block}
+.share-title{font-size:.8rem;font-weight:700;color:#666;margin-bottom:8px}
+.share-icons{display:flex;gap:10px;justify-content:center}
+.si{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:0;font-weight:800;font-size:1.1rem;text-decoration:none;color:#fff;cursor:pointer}
+.si.wa{background:#25D366}.si.fb{background:#1877F2}.si.tw{background:#111}.si.cp{background:#4C1D95;color:#fff}
+.share-link{margin-top:8px;font-size:.75rem;color:#666;word-break:break-all;text-align:center}
+
+.empty{padding:48px 16px;color:#666;text-align:center;max-width:420px;margin:40px auto}
+.empty a{color:var(--p);font-weight:700}
+.spin{display:inline-block;width:28px;height:28px;border:3px solid #e5e5e5;border-top-color:var(--p);border-radius:50%;animation:sp .7s linear infinite;margin-bottom:12px}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <a href="/" class="logo"><img src="/logo-mark.svg" alt=""> HopeForUs</a>
+  <a href="/" class="back">Discover</a>
+</header>
+<div class="wrap" id="app"><div class="empty"><div class="spin"></div><div>Loading campaign…</div></div></div>
+<div class="toast" id="toast" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1c1c1c;color:#fff;padding:10px 18px;border-radius:999px;font-size:.85rem;z-index:100">Link copied</div>
+<script src="/campaigns-data.js?v=28"></script>
+<script src="/supabase.js?v=28"></script>
+<script src="/app.js?v=28"></script>
+<script>
+(function(){
+  var ORIGIN=(location.protocol==='https:'||location.protocol==='http:')?(location.origin||'https://munowatchplus.watch'):'https://munowatchplus.watch';
+  var params=new URLSearchParams(location.search);
+  var id=(params.get('id')||'').trim();
+  var shareCode=(params.get('code')||'').toUpperCase().trim();
+  var KNOWN={'EEPBA7':'c_mvsfhl1e','VY84Q4':'c_mvs9eg5p'};
+  if(KNOWN[id.toUpperCase()]){shareCode=shareCode||id.toUpperCase();id=KNOWN[id.toUpperCase()];}
+  var app=document.getElementById('app'), painted=false;
+  if(!id){app.innerHTML='<div class="empty"><strong>No campaign selected.</strong><br><br><a href="/">← Back</a></div>';return;}
+
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"').replace(/'/g,'&#39;');}
+  function money(n,c){n=Number(n)||0;var s=n.toLocaleString();return c==='EUR'?'€'+s:c==='GBP'?'£'+s:'$'+s;}
+  function moneyShort(n,c){n=Number(n)||0;var pre=c==='EUR'?'€':c==='GBP'?'£':'$';if(n>=1000)return pre+(n/1000).toFixed(n%1000===0?0:1).replace(/\.0$/,'')+'K';return pre+n.toLocaleString();}
+  function shareUrl(campId, code){ if(code) return ORIGIN+'/c/'+encodeURIComponent(String(code).toUpperCase()); return ORIGIN+'/campaign/index.html?id='+encodeURIComponent(campId||id); }
+
+  function findLocal(){
+    var list=[]; try{list=JSON.parse(localStorage.getItem('hopeforus_campaigns')||'[]')}catch(e){}
+    if(!Array.isArray(list)) list=[];
+    var hit=list.find(function(x){return x&&(x.id===id||String(x.code||'').toUpperCase()===id.toUpperCase()||(shareCode&&String(x.code||'').toUpperCase()===shareCode));});
+    if(hit) return hit;
+    if(typeof SAMPLES!=='undefined'&&Array.isArray(SAMPLES)){
+      hit=SAMPLES.find(function(x){return x&&(x.id===id||String(x.code||'').toUpperCase()===id.toUpperCase());});
+    }
+    return hit||null;
+  }
+
+  function donorsOf(c){
+    var d=(c&&c.donors)||[];
+    if(Array.isArray(d)&&d.length) return d;
+    var gifts=[]; try{gifts=JSON.parse(localStorage.getItem('hopeforus_gifts')||'[]')}catch(e){}
+    if(!Array.isArray(gifts))gifts=[];
+    return gifts.filter(function(g){return g&&(g.campaignId===id||(shareCode&&String(g.code||'').toUpperCase()===shareCode));}).map(function(g){return {name:g.donor||g.name||'Someone',amount:g.amount};});
+  }
+
+  function showError(msg){
+    app.innerHTML='<div class="empty"><strong>'+esc(msg||'Campaign not found')+'</strong><br><br><a href="/">← Browse campaigns</a></div>';
+  }
+
+  function paint(c){
+    if(!c||!c.id){showError();return;}
+    painted=true;
+    var raised=Number(c.raised)||0, goal=Math.max(1,Number(c.goal)||1), pct=Math.min(100,Math.round(raised/goal*100));
+    var currency=(c.currency||'USD').toUpperCase();
+    var donors=donorsOf(c);
+    var top=donors[0];
+    var orgName=c.organizer||c.ownerName||(c.ownerEmail||'').split('@')[0]||'Organizer';
+    var av=c.organizerAvatar||c.ownerAvatar||'';
+    var story=c.story||c.description||'';
+    var img=c.image||c.cover||'';
+    var url=shareUrl(c.id, c.code||shareCode);
+    var donateHref=(c.donationLink||'').trim()||('/donate/index.html?id='+encodeURIComponent(c.id));
+    var recent=top?(esc(top.name)+' donated '+money(top.amount,currency)):((Number(c.donations)||donors.length||0)+' donations');
+
+    var html='';
+    if(img) html+='<img class="hero" src="'+esc(img)+'" alt="">';
+    html+='<div class="meta"><h1>'+esc(c.title||'Untitled')+'</h1>';
+    html+='<div class="org">'+(av?'<img src="'+esc(av)+'" alt="">':'<div class="dot">'+esc(orgName.charAt(0).toUpperCase())+'</div>')+'<div><strong>'+esc(orgName)+'</strong><div style="font-size:.8rem;color:#666">Organizer</div></div></div>';
+    html+='<div class="bar"><i style="width:'+pct+'%"></i></div>';
+    html+='<div class="stats"><span><b>'+money(raised,currency)+'</b> raised</span><span><b>'+pct+'%</b> of '+moneyShort(goal,currency)+'</span><span><b>'+(Number(c.donations)||donors.length||0)+'</b> gifts</span></div>';
+    html+='<div class="ticker" id="ticker"><span class="t">'+recent+'</span></div>';
+
+    // sticky support card near top
+    html+='<div class="side"><div class="card">';
+    html+='<div class="btn-row"><a class="btn-d" href="'+esc(donateHref)+'"'+(c.donationLink?' target="_blank" rel="noopener"':'')+'>Donate</a>';
+    html+='<button type="button" class="btn-s" id="shareBtn">Share</button></div>';
+    html+='<div class="share-card" id="shareCard">';
+    html+='<div class="share-title">Share this fundraiser</div>';
+    html+='<div class="share-icons">';
+    html+='<a class="si wa" id="shWa" href="#" target="_blank" rel="noopener" title="WhatsApp">WA</a>';
+    html+='<a class="si fb" id="shFb" href="#" target="_blank" rel="noopener" title="Facebook">f</a>';
+    html+='<a class="si tw" id="shTw" href="#" target="_blank" rel="noopener" title="X">𝕏</a>';
+    html+='<button type="button" class="si cp" id="shCp" title="Copy link">⧉</button>';
+    html+='</div>';
+    html+='<div class="share-link" id="shareLinkText"></div>';
+    html+='</div></div></div>';
+
+    html+='<div class="story clamp" id="story">'+esc(story)+'</div>';
+    if(story.length>280) html+='<button type="button" class="more" id="moreBtn">Read more</button>';
+    html+='</div>';
+
+    app.innerHTML=html;
+
+    // share wiring
+    function copy(){ try{navigator.clipboard.writeText(url); var t=document.getElementById('toast'); if(t){t.style.display='block'; setTimeout(function(){t.style.display='none';},1800);} }catch(e){} }
+    var sb=document.getElementById('shareBtn');if(sb)sb.onclick=function(){var card=document.getElementById('shareCard');if(card)card.classList.toggle('open');copy();};
+    var sl=document.getElementById('shareLinkText'); if(sl) sl.textContent=url;
+    var wa=document.getElementById('shWa'); if(wa) wa.href='https://wa.me/?text='+encodeURIComponent((c.title||'Help')+' '+url);
+    var fb=document.getElementById('shFb'); if(fb) fb.href='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(url);
+    var tw=document.getElementById('shTw'); if(tw) tw.href='https://twitter.com/intent/tweet?url='+encodeURIComponent(url)+'&text='+encodeURIComponent(c.title||'');
+    var cp=document.getElementById('shCp'); if(cp) cp.onclick=copy;
+
+    var more=document.getElementById('moreBtn');
+    if(more) more.onclick=function(){ var s=document.getElementById('story'); if(s){ s.classList.remove('clamp'); more.remove(); } };
+
+    // donor ticker
+    if(donors.length>1){
+      var el=document.getElementById('ticker'), i=0;
+      function show(){var d=donors[i%donors.length];var t=(d.name||'Someone')+(d.amount?(' donated '+money(d.amount,currency)):'');el.innerHTML='<span class="t">'+esc(t)+'</span>';i++;}
+      setInterval(show, 3200);
+    }
+  }
+
+  var local=findLocal();
+  if(local) paint(local);
+
+  var timeoutId=setTimeout(function(){ if(!painted) showError('Campaign not found'); }, 8000);
+
+  function tryRemote(){
+    if(!window.HFDB||!HFDB.list) return Promise.resolve(null);
+    return HFDB.list().then(function(rows){
+      var hit=(rows||[]).find(function(x){ return x&&(x.id===id||String(x.code||'').toUpperCase()===id.toUpperCase()||(shareCode&&String(x.code||'').toUpperCase()===shareCode)); });
+      return hit||null;
+    }).catch(function(){return null;});
+  }
+
+  tryRemote().then(function(remote){
+    clearTimeout(timeoutId);
+    if(!remote){ if(!painted) showError('Campaign not found'); return; }
+    // merge + repaint
+    var base=local||remote;
+    paint(Object.assign({}, base, remote, {
+      raised: Math.max(Number(base.raised)||0, Number(remote.raised)||0),
+      donations: Math.max(Number(base.donations)||0, Number(remote.donations)||0),
+      donors: (remote.donors&&remote.donors.length)?remote.donors:((base.donors)||[]),
+      story: remote.story||base.story||'',
+      image: remote.image||base.image||'',
+      title: remote.title||base.title||'',
+      goal: Number(remote.goal)||Number(base.goal)||0,
+      code:(local&&local.code)||(remote&&remote.code)||shareCode||'',
+      organizerAvatar:(local&&local.organizerAvatar)||(remote&&remote.organizerAvatar)||'',
+      ownerAvatar:(local&&local.ownerAvatar)||(remote&&remote.ownerAvatar)||'',
+      ownerEmail:(local&&local.ownerEmail)||(remote&&remote.ownerEmail)||'',
+      id:(base&&base.id)||id
+    }));
+  }).catch(function(){clearTimeout(timeoutId);if(!painted)showError('Campaign not found');});
+})();
+</script>
+</body>
+</html>
