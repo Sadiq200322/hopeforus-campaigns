@@ -89,7 +89,7 @@
 /* Load hide-from-home filter for Discover */
 (function(){
   var s=document.createElement('script');
-  s.src='/hide-from-home.js?v=1';
+  s.src='/hide-from-home.js?v=2';
   s.async=true;
   document.head.appendChild(s);
 })();
