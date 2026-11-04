@@ -15,7 +15,7 @@
   document.head.appendChild(st);
 
   if(typeof money!=="function"){
-    window.money=function(n,c){n=Number(n)||0;var s=n.toLocaleString();if(c==="EUR")return"€"+s;if(c==="GBP")return"£"+s;return"$"+s};
+    window.money=function(n,c){n=Number(n)||0;var s=n.toLocaleString();if(c==="EUR")return"\u20ac"+s;if(c==="GBP")return"\u00a3"+s;return"$"+s};
   }
   if(typeof fmtDon!=="function"){
     window.fmtDon=function(n){n=Number(n)||0;if(n>=1000)return(Math.round(n/100)/10)+"K";return String(n)};
@@ -41,6 +41,8 @@
     var source=window.ALL||[];
     var filtered=source.filter(function(x){
       if(!x||!x.c)return false;
+      if(x.c.hiddenFromHome)return false;
+      if(window.HFHideHome&&HFHideHome.isHidden(x.c.id))return false;
       if(filter==="all")return true;
       var cat=(x.c.category||"").toLowerCase();
       return cat===filter||cat.indexOf(filter)!==-1;
@@ -50,7 +52,7 @@
     if(grid)grid.innerHTML="";
     if(!feat)return;
     if(!filtered.length){
-      feat.innerHTML="<p style='color:#5c5c5c;padding:24px 0;text-align:center'>No fundraisers in this category yet. <a href='create-campaign.html' style='color:#7C3AED;font-weight:600'>Start one →</a></p>";
+      feat.innerHTML="<p style='color:#5c5c5c;padding:24px 0;text-align:center'>No fundraisers in this category yet. <a href='create-campaign.html' style='color:#7C3AED;font-weight:600'>Start one \u2192</a></p>";
       return;
     }
     function badge(c){
@@ -82,4 +84,12 @@
     setTimeout(function(){ if(window.ALL&&window.ALL.length) window.renderCampaigns(); }, 50);
     setTimeout(function(){ if(window.ALL&&window.ALL.length) window.renderCampaigns(); }, 300);
   }
+})();
+
+/* Load hide-from-home filter for Discover */
+(function(){
+  var s=document.createElement('script');
+  s.src='/hide-from-home.js?v=1';
+  s.async=true;
+  document.head.appendChild(s);
 })();
