@@ -113,7 +113,7 @@ textarea{min-height:120px;resize:vertical}
   if(camp){
     document.getElementById('campBox').style.display='block';
     document.getElementById('campTitle').textContent=camp.title||'Campaign';
-    document.getElementById('campMeta').textContent=(camp.ownerEmail||camp.organizer||'')+(camp.code?(' \u00b7 '+camp.code):'');
+    document.getElementById('campMeta').textContent=camp.code?String(camp.code).toUpperCase():'';
   }
   function showErr(m){ var e=document.getElementById('err'); e.textContent=m||''; e.classList.add('show'); }
   document.getElementById('form').onsubmit=function(ev){

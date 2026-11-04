@@ -4,26 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Dashboard – HopeForUs</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--p:#7C3AED;--pd:#4C1D95;--font:Inter,system-ui,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font);background:#fafafa;color:#1a1a1a;min-height:100vh}
-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-index:20}
+body{font-family:Inter,system-ui,sans-serif;background:#f3f2ef;color:#1c1c1c;min-height:100vh;padding-bottom:72px}
+header{position:sticky;top:0;z-index:40;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:#fff;border-bottom:1px solid #eee}
+.search{height:36px;padding:0 14px;border-radius:999px;border:1px solid #e5e5e5;background:#fff;font-weight:600;cursor:pointer;font:inherit}
 .logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.05rem;border:0;background:none;cursor:pointer;color:inherit}
 .logo img{width:28px;height:28px}
-.search{height:36px;padding:0 14px;border-radius:999px;border:1px solid #e5e5e5;background:#fff;font-weight:600;cursor:pointer}
 .tools{display:flex;align-items:center;gap:8px;position:relative}
-.av{width:36px;height:36px;border-radius:50%;border:0;background:var(--pd);color:#E9D5FF;font-weight:800;cursor:pointer}
-.menu{position:absolute;right:0;top:44px;background:#fff;border:1px solid #eee;border-radius:12px;min-width:200px;box-shadow:0 12px 40px rgba(0,0,0,.1);padding:8px 0;z-index:30}
-.menu.hide{display:none}
+.av{width:36px;height:36px;border-radius:50%;border:0;background:#4C1D95;color:#E9D5FF;font-weight:800;cursor:pointer}
+.menu{position:absolute;right:0;top:46px;width:220px;background:#fff;border:1px solid #eee;border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.12);z-index:50;padding:6px 0}
 .menu button,.menu a{display:block;width:100%;text-align:left;padding:11px 16px;background:none;border:0;color:#1c1c1c;font:inherit;font-size:.95rem;text-decoration:none;cursor:pointer}
-.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 60px)}
-aside{background:#fff;border-right:1px solid #eee;padding:16px 10px}
-.side{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:11px 12px;border:0;border-radius:10px;background:none;color:#444;font:inherit;font-weight:600;cursor:pointer;margin-bottom:4px}
-.side.on{background:#EDE9FE;color:var(--pd)}
+.menu.hide{display:none}
+.layout{display:flex;max-width:1100px;margin:0 auto}
+.layout > aside{display:none;width:280px;flex:0 0 280px;padding:32px 20px}
+@media(min-width:800px){.layout > aside{display:block}body{padding-bottom:0}.mob{display:none!important}}
+.side{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:12px 14px;border:0;border-radius:12px;background:none;color:#444;font:inherit;font-weight:600;cursor:pointer;margin-bottom:4px}
+.side.on{background:#EDE9FE;color:#4C1D95}
 .side i{width:22px;text-align:center}
-main{padding:18px 22px 80px}
+main{flex:1;padding:18px 16px 40px;min-width:0}
 .pane h1{font-size:1.4rem;font-weight:800;margin-bottom:4px}
 .sub{color:#6b7280;font-size:.92rem;margin-bottom:14px}
 .card{background:#fff;border:1px solid #eee;border-radius:14px}
@@ -33,25 +33,19 @@ main{padding:18px 22px 80px}
 .stat b{font-size:1.15rem}
 .donor{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f3f3f3}
 .donor:last-child{border:0}
-.dot{width:36px;height:36px;border-radius:50%;background:#EDE9FE;color:var(--pd);display:flex;align-items:center;justify-content:center;font-weight:800}
+.dot{width:36px;height:36px;border-radius:50%;background:#EDE9FE;color:#4C1D95;display:flex;align-items:center;justify-content:center;font-weight:800}
 .note{font-size:.82rem;color:#6b7280}
-.btn,.mini-btn{height:40px;padding:0 16px;border-radius:999px;border:0;background:var(--pd);color:#E9D5FF;font-weight:800;cursor:pointer;font:inherit}
+.btn,.mini-btn{height:40px;padding:0 16px;border-radius:999px;border:0;background:#4C1D95;color:#E9D5FF;font-weight:800;cursor:pointer;font:inherit}
 .mini-btn{height:34px;font-size:.85rem}
 .mini-btn.bad,.btn.bad{background:#b91c1c;color:#fff}
 .approve-card{background:#fff;border:1px solid #eee;border-radius:12px;padding:12px}
 .approve-row{display:flex;align-items:center;gap:8px}
 label{display:block;font-size:.8rem;font-weight:600;color:#5c5c5c;margin:10px 0 6px}
-input,select,textarea{width:100%;border:1.5px solid #e5e5e5;border-radius:12px;padding:11px 12px;font:inherit}
-.mob{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;z-index:40}
-.mob button{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;color:#6b6b6b;font-size:11px;font-weight:700;padding:8px 0 6px;cursor:pointer;flex:1}
+input,select,textarea{width:100%;border:1.5px solid #e5e5e5;border-radius:12px;padding:11px 12px;font:inherit;background:#fff}
+.mob{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid #eee;padding-bottom:env(safe-area-inset-bottom);z-index:40}
+.mob button{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;color:#6b6b6b;font-size:11px;font-weight:700;padding:8px 0 6px;cursor:pointer}
 .mob button.on{color:#4C1D95}
 .mob button span{font-size:1.25rem;line-height:1;display:block}
-@media(max-width:800px){
-  .layout{grid-template-columns:1fr}
-  aside{display:none}
-  .mob{display:flex}
-  main{padding-bottom:90px}
-}
 </style>
 </head>
 <body>
@@ -99,8 +93,8 @@ input,select,textarea{width:100%;border:1.5px solid #e5e5e5;border-radius:12px;p
 <script src="/app-reports-patch.js?v=37"></script>
 <script src="/auth-store.js?v=36"></script>
 <script src="/login-core-patch.js?v=36"></script>
-<script src="/dashboard/dash.js?v=37"></script>
-<script src="/dashboard/dash-reports-patch.js?v=37"></script>
+<script src="/dashboard/dash.js?v=35"></script>
+<script src="/dashboard/dash-reports-patch.js?v=38"></script>
 <script src="/dashboard/dash-approve-patch.js?v=35"></script>
 <script src="/dashboard/dash-users-sync.js?v=35"></script>
 </body>
