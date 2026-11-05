@@ -159,7 +159,7 @@
     if(!row.campaignId||!row.amount) return {ok:false,err:'Campaign and amount required'};
     var list=load(GIFTS_KEY,[]); if(!Array.isArray(list)) list=[]; list.unshift(row); save(GIFTS_KEY,list);
     if(c){ c.raised=(Number(c.raised)||0)+row.amount; c.donations=(Number(c.donations)||0)+1; if(!Array.isArray(c.donors)) c.donors=[]; c.donors.unshift({name:row.donor,amount:row.amount,note:row.note,giftId:row.id,time:new Date().toISOString()}); save(CAMPS_KEY,camps); }
-    if(window.HFDB&&HFDB.addGift){ HFDB.addGift(row).catch(function(){}); }
+    if(!payload.skipServer && window.HFDB&&HFDB.addGift){ HFDB.addGift(row).catch(function(){}); }
     return {ok:true,gift:row};
   }
   function rejectedWdIds(){
