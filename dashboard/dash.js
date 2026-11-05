@@ -270,7 +270,7 @@ function render(){
   var job = (window.HFDB && HFDB.addGift) ? HFDB.addGift(payload) : Promise.resolve(payload);
   job.then(function(saved){
     // Also keep local copy
-    try{ HF.addGift(Object.assign({}, payload, saved||{})); }catch(e){}
+    try{ HF.addGift(Object.assign({}, payload, saved||{}, {skipServer:true})); }catch(e){}
     msg.textContent='Added and synced.'; adding=false;
     pullServer().then(function(){ render(); });
   }).catch(function(e){
