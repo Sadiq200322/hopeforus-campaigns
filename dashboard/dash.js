@@ -254,21 +254,24 @@ function render(){
     var gfind=document.getElementById('gfind'),gpick=document.getElementById('gpick'),gcamp=document.getElementById('gcamp');
     function pickList(q){ q=(q||'').toLowerCase(); var hits=allCamps().filter(function(c){return c&&c.status!=='deleted'&&(!q||String(c.title||'').toLowerCase().indexOf(q)>=0||String(c.ownerEmail||'').toLowerCase().indexOf(q)>=0);}).slice(0,12); gpick.innerHTML=hits.map(function(c){return '<button type="button" class="mini-btn" data-cid="'+esc(c.id)+'">'+esc(c.title||c.id)+' · '+esc(c.ownerEmail||'')+'</button>';}).join(''); gpick.querySelectorAll('[data-cid]').forEach(function(b){b.onclick=function(){gcamp.value=b.getAttribute('data-cid');gfind.value=b.textContent;gpick.innerHTML='';};}); }
     if(gfind) gfind.oninput=function(){pickList(gfind.value);};
+    var adding=false;
     gadd.onclick=function(){
+  if(adding) return;
+  adding=true;
   setBusy(gadd,true,'Adding…');
   var cid=gcamp.value;
   var msg=document.getElementById('gmsg');
-  if(!cid){ msg.textContent='Pick a campaign'; setBusy(gadd,false,'Add donation'); return; }
+  if(!cid){ msg.textContent='Pick a campaign'; setBusy(gadd,false,'Add donation'); adding=false; return; }
   var donor=document.getElementById('gname').value||'Anonymous';
   var amt=Number(document.getElementById('gamt').value)||0;
-  if(amt<=0){ msg.textContent='Enter a valid amount'; setBusy(gadd,false,'Add donation'); return; }
+  if(amt<=0){ msg.textContent='Enter a valid amount'; setBusy(gadd,false,'Add donation'); adding=false; return; }
   var payload={campaignId:cid, donor:donor, amount:amt, title:(allCamps().find(function(c){return c.id===cid;})||{}).title||''};
   // Write to server first so public pages see it
   var job = (window.HFDB && HFDB.addGift) ? HFDB.addGift(payload) : Promise.resolve(payload);
   job.then(function(saved){
     // Also keep local copy
     try{ HF.addGift(Object.assign({}, payload, saved||{})); }catch(e){}
-    msg.textContent='Added and synced.';
+    msg.textContent='Added and synced.'; adding=false;
     pullServer().then(function(){ render(); });
   }).catch(function(e){
     msg.textContent='Server error: '+(e&&e.message||'failed');
