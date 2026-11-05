@@ -7,7 +7,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{min-height:100vh;font-family:Inter,system-ui,sans-serif;background:#f4f2f8;display:flex;align-items:center;justify-content:center;padding:24px 16px;color:#1c1c1c}
+body{min-height:100vh;font-family:Inter,system-ui,sans-serif;background:#faf8f5;display:flex;align-items:center;justify-content:center;padding:24px 16px;color:#1c1c1c;position:relative;overflow:hidden}
+.bg{position:fixed;inset:0;pointer-events:none;z-index:0}
+.swirl{position:absolute;border-radius:50%;filter:blur(40px);opacity:.5}
+.s1{width:280px;height:280px;background:#f7c9a8;top:-60px;right:-40px}
+.s2{width:240px;height:240px;background:#f5d0e0;bottom:-40px;left:-60px}
+.s3{width:180px;height:180px;background:#e8d5f5;top:40%;right:10%}
+.card{position:relative;z-index:1}
 .card{background:#fff;border-radius:24px;padding:32px 26px 26px;width:100%;max-width:420px;box-shadow:0 18px 50px rgba(76,29,149,.12);position:relative}
 .x{position:absolute;top:14px;right:14px;width:36px;height:36px;border:0;background:#f4f2f8;border-radius:50%;font-size:1.2rem;color:#5c5c5c;cursor:pointer;text-decoration:none;display:grid;place-items:center}
 .mark{text-align:center;color:#4C1D95;margin-bottom:8px}
@@ -47,6 +53,7 @@ input:focus{outline:none;border-color:#4C1D95}
 </style>
 </head>
 <body>
+<div class="bg"><div class="swirl s1"></div><div class="swirl s2"></div><div class="swirl s3"></div></div>
 <div class="card">
   <a href="/" class="x" aria-label="Close">×</a>
   <div class="mark"><svg width="36" height="36" viewBox="0 0 32 32"><path fill="currentColor" d="M16 3c.6 2.4 1.4 4 3.2 5.2C21.4 9.6 24 10.2 27 10c-2.2 1.6-3.4 3.4-4 5.8-.6 2.6-.4 5 .8 7.4-2.6-.2-4.8.4-6.6 1.8-1.6 1.2-2.6 2.8-3.2 4.8-.6-2-1.6-3.6-3.2-4.8-1.8-1.4-4-2-6.6-1.8 1.2-2.4 1.4-4.8.8-7.4C4.4 13.4 3.2 11.6 1 10c3 .2 5.6-.4 7.8-1.8C10.6 7 11.4 5.4 12 3c.8 2.2 2 3.8 4 5.2z"/></svg></div>
