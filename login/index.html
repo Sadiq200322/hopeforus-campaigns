@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{min-height:100vh;font-family:Inter,system-ui,sans-serif;background:#faf8f5;display:flex;align-items:center;justify-content:center;padding:24px 16px;color:#1c1c1c;position:relative;overflow:hidden}
+body{min-height:100vh;font-family:Inter,system-ui,sans-serif;background:#faf8f5;display:flex;align-items:center;justify-content:center;padding:24px 16px;color:#1c1c1c;position:relative}
 .bg{position:fixed;inset:0;pointer-events:none;z-index:0}
 .swirl{position:absolute;border-radius:50%;filter:blur(40px);opacity:.5}
 .s1{width:280px;height:280px;background:#f7c9a8;top:-60px;right:-40px}
@@ -50,6 +50,13 @@ input:focus{outline:none;border-color:#4C1D95}
 @keyframes otpdraw{to{stroke-dashoffset:0}}
 .otp-title{font-size:1.2rem;font-weight:700;color:#067647}
 .otp-sub{color:#6b6575;font-size:.85rem;margin-top:2px}
+
+@media(max-width:480px){
+  body{padding:16px 12px;align-items:flex-start;padding-top:20px}
+  .card{padding:28px 18px 22px;border-radius:20px}
+  .tabs{font-size:.72rem}
+  .tabs button{font-size:.7rem;padding:0 4px}
+}
 </style>
 </head>
 <body>
