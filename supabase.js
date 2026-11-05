@@ -177,16 +177,24 @@
   function listGifts(){ return getJson('gifts/all.json').then(function(data){ return Array.isArray(data)?data:[]; }); }
   function addGift(payload){
     var row={ id:payload.id||('g_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)), campaignId:payload.campaignId||payload.campaign_id||'', title:payload.title||'', ownerEmail:String(payload.ownerEmail||payload.owner_email||'').toLowerCase(), donor:payload.donor||payload.name||'Anonymous', amount:Number(payload.amount)||0, note:payload.note||'', at:payload.at||Date.now() };
-    return listGifts().then(function(list){ list.unshift(row); if(list.length>500) list=list.slice(0,500); return putJson('gifts/all.json', list).then(function(){ return row; }); }).then(function(saved){
-      if(!saved.campaignId) return saved;
-      return one(saved.campaignId).then(function(c){
-        if(!c) return saved;
-        var raised=(Number(c.raised)||0)+saved.amount; var donations=(Number(c.donations)||0)+1;
-        var donors=Array.isArray(c.donors)?c.donors.slice():[];
-        donors.unshift({name:saved.donor, amount:saved.amount, note:saved.note||'', giftId:saved.id, time:new Date(saved.at).toISOString()});
-        return update(saved.campaignId,{raised:raised,donations:donations}).then(function(){ return publishDonors(saved.campaignId, donors).then(function(){ return saved; }); });
+    // Always write the gift into the campaign media (works even when storage JSON is blocked by RLS)
+    function writeToMedia(saved){
+      if(!saved.campaignId) return Promise.resolve(saved);
+      return fetch(URL+'/rest/v1/campaigns?id=eq.'+encodeURIComponent(saved.campaignId)+'&select=media,raised,donations',{headers:headers()}).then(function(r){
+        return r.json().then(function(data){
+          if(!r.ok || !data || !data[0]) return saved;
+          var rec=data[0];
+          var media=Array.isArray(rec.media)?rec.media.slice():[];
+          media=media.filter(function(m){ return !(m && m.type==='gift' && m.id===saved.id); });
+          media.push({type:'gift', donor:saved.donor, amount:saved.amount, id:saved.id, note:saved.note||''});
+          var raised=(Number(rec.raised)||0)+saved.amount;
+          var donations=(Number(rec.donations)||0)+1;
+          return update(saved.campaignId,{media:media, raised:raised, donations:donations}).then(function(){ return saved; });
+        });
       }).catch(function(){ return saved; });
-    });
+    }
+    // Try storage JSON too (best-effort)
+    return listGifts().then(function(list){ list.unshift(row); if(list.length>500) list=list.slice(0,500); return putJson('gifts/all.json', list).then(function(){ return row; }).catch(function(){ return row; }); }).then(writeToMedia);
   }
   function listWithdrawals(){ return getJson('withdrawals/all.json').then(function(data){ return Array.isArray(data)?data:[]; }); }
   function saveWithdrawals(list){ return putJson('withdrawals/all.json', Array.isArray(list)?list:[]); }
