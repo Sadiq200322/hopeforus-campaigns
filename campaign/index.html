@@ -235,6 +235,10 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
   Promise.all([remoteJob,donorJob]).then(function(parts){
     clearTimeout(timeoutId);
     var remote=parts[0],fileDonors=parts[1]||[],base=local||remote;
+    // Prefer server donors when available so admin adds appear for everyone
+    if(fileDonors && fileDonors.length){
+      fileDonors = fileDonors.map(function(d){ return {name:d.name||d.donor||'Anonymous', amount:Number(d.amount)||0, note:d.note||'', giftId:d.giftId||d.id||'', time:d.time||'Just now'}; });
+    }
     if(!base){if(!painted)showError('Campaign not found');return;}
     var raised=Math.max(Number(local&&local.raised)||0,Number(remote&&remote.raised)||0);
     var donations=Math.max(Number(local&&local.donations)||0,Number(remote&&remote.donations)||0);
@@ -264,3 +268,4 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 </script>
 </body>
 </html>
+
