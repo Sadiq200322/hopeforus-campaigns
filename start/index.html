@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--p:#7C3AED;--pd:#4C1D95;--soft:#EDE9FE;--ok:#00a964;--line:#e5e7eb;--muted:#6b7280;--panel:#f8fafc;--font:Inter,system-ui,sans-serif}
-*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font);background:#fff;color:#111;min-height:100vh}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font);background:#faf8f5;color:#111;min-height:100vh}
 .shell{display:grid;grid-template-columns:minmax(240px,340px) 1fr;min-height:100vh}
 .side{background:linear-gradient(165deg,#4C1D95,#7C3AED 55%,#a78bfa);color:#fff;padding:28px 24px;display:flex;flex-direction:column;gap:18px}
 .logo{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-weight:700;font-size:1.05rem}
@@ -27,7 +27,10 @@
 .cont{margin-left:auto;background:var(--p);color:#fff;border:0;border-radius:12px;padding:12px 22px;font-weight:700;font-size:1rem;cursor:pointer}
 .cont:disabled{opacity:.5;cursor:not-allowed}
 .f{display:block;font-size:.85rem;font-weight:600;margin:14px 0 6px;color:#374151}
-input,textarea,select{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font:inherit;background:#fff}
+input,textarea,select{width:100%;padding:12px 14px;border:1.5px solid #e8e4ed;border-radius:14px;font:inherit;background:#fff;transition:border-color .15s,box-shadow .15s}
+input:focus,textarea:focus,select:focus{outline:none;border-color:#4C1D95;box-shadow:0 0 0 3px rgba(76,29,149,.08)}
+input.pop,textarea.pop{animation:inpop .18s ease}
+@keyframes inpop{0%{transform:scale(1)}50%{transform:scale(1.015)}100%{transform:scale(1)}}
 textarea{min-height:120px;resize:vertical}
 .cats{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .cat{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font-size:.88rem;cursor:pointer}
@@ -77,5 +80,13 @@ textarea{min-height:120px;resize:vertical}
 <script src="/auth-store.js?v=36"></script>
 <script src="/start-auth-patch.js?v=36"></script>
 <script src="/login-core-patch.js?v=36"></script>
-</body>
+<script>
+document.addEventListener('input', function(e){
+  var t = e.target;
+  if(t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA') && t.type!=='file'){
+    t.classList.add('pop');
+    setTimeout(function(){ t.classList.remove('pop'); }, 180);
+  }
+});
+</script></body>
 </html>
