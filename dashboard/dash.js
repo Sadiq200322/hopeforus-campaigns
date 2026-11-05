@@ -267,6 +267,11 @@ function boot(){
   document.getElementById('lo').onclick=function(){ HF.logout(); location.href='/login/'; };
   document.querySelectorAll('[data-tab]').forEach(function(el){el.addEventListener('click',function(){setTab(el.getAttribute('data-tab'));});});
 }
-function start(){ boot(); var box=document.getElementById('main'); if(box){ var note=document.createElement('p'); note.id='syncNote'; note.className='note'; note.style.padding='8px 22px'; note.textContent='Syncing from server…'; box.parentNode.insertBefore(note, box); } function done(){ var n=document.getElementById('syncNote'); if(n) n.remove(); render(); drawAv(); } pullServer().then(done).catch(done); setInterval(function(){ pullServer().then(function(){ render(); }).catch(function(){}); }, 30000); }
+function start(){ boot(); var box=document.getElementById('main'); if(box){ var note=document.createElement('p'); note.id='syncNote'; note.className='note'; note.style.padding='8px 22px'; note.textContent='Syncing from server…'; box.parentNode.insertBefore(note, box); } function done(){ var n=document.getElementById('syncNote'); if(n) n.remove(); render(); drawAv(); } pullServer().then(done).catch(done); setInterval(function(){
+  // Don't wipe form fields if the user is typing
+  var active = document.activeElement;
+  if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
+  pullServer().then(function(){ render(); }).catch(function(){});
+}, 30000); }
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', start); else start();
 
