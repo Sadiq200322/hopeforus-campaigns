@@ -174,45 +174,55 @@
       return r.json().catch(function(){ return null; });
     }).catch(function(){ return null; });
   }
-  function listGifts(){ return getJson('gifts/all.json').then(function(data){ return Array.isArray(data)?data:[]; }); }
-  function addGift(payload){
-    var row={ id:payload.id||('g_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)), campaignId:payload.campaignId||payload.campaign_id||'', title:payload.title||'', ownerEmail:String(payload.ownerEmail||payload.owner_email||'').toLowerCase(), donor:payload.donor||payload.name||'Anonymous', amount:Number(payload.amount)||0, note:payload.note||'', at:payload.at||Date.now() };
-    // Always write the gift into the campaign media (works even when storage JSON is blocked by RLS)
-    function writeToMedia(saved){
-      if(!saved.campaignId) return Promise.resolve(saved);
-      return fetch(URL+'/rest/v1/campaigns?id=eq.'+encodeURIComponent(saved.campaignId)+'&select=media,raised,donations',{headers:headers()}).then(function(r){
-        return r.json().then(function(data){
-          if(!r.ok || !data || !data[0]) return saved;
-          var rec=data[0];
-          var media=Array.isArray(rec.media)?rec.media.slice():[];
-          media=media.filter(function(m){ return !(m && m.type==='gift' && m.id===saved.id); });
-          media.push({type:'gift', donor:saved.donor, amount:saved.amount, id:saved.id, note:saved.note||''});
-          var raised=(Number(rec.raised)||0)+saved.amount;
-          var donations=(Number(rec.donations)||0)+1;
-          return update(saved.campaignId,{media:media, raised:raised, donations:donations}).then(function(){ return saved; });
-        });
-      }).catch(function(){ return saved; });
-    }
-    // Try storage JSON too (best-effort)
-    return listGifts().then(function(list){ list.unshift(row); if(list.length>500) list=list.slice(0,500); return putJson('gifts/all.json', list).then(function(){ return row; }).catch(function(){ return row; }); }).then(writeToMedia);
+  function listGifts(){
+    return fetch(URL+'/rest/v1/gifts?select=*&order=created_at.desc',{headers:headers()}).then(function(r){
+      return r.json().then(function(data){ return Array.isArray(data)?data.map(function(g){ return {id:g.id,campaignId:g.campaign_id,title:g.title||'',ownerEmail:g.owner_email||'',donor:g.donor||'Anonymous',amount:Number(g.amount)||0,note:g.note||'',at:g.created_at?Date.parse(g.created_at):Date.now()}; }):[]; });
+    }).catch(function(){ return []; });
   }
-  function listWithdrawals(){ return getJson('withdrawals/all.json').then(function(data){ return Array.isArray(data)?data:[]; }); }
+  function addGift(payload){
+    var row={ id:payload.id||('g_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)), campaign_id:payload.campaignId||payload.campaign_id||'', title:payload.title||'', owner_email:String(payload.ownerEmail||payload.owner_email||'').toLowerCase(), donor:payload.donor||payload.name||'Anonymous', amount:Number(payload.amount)||0, note:payload.note||'' };
+    return fetch(URL+'/rest/v1/gifts',{ method:'POST', headers:headers({'Content-Type':'application/json','Prefer':'return=representation'}), body:JSON.stringify(row) }).then(function(r){
+      return r.json().then(function(data){
+        if(!r.ok) throw new Error((data&&data.message)||'gift save failed');
+        var saved=Array.isArray(data)?data[0]:data;
+        if(!saved||!saved.campaign_id) return saved;
+        // Also update campaign raised + media gift entry so public page sees it immediately
+        return fetch(URL+'/rest/v1/campaigns?id=eq.'+encodeURIComponent(saved.campaign_id)+'&select=media,raised,donations',{headers:headers()}).then(function(r2){
+          return r2.json().then(function(data2){
+            if(!r2.ok||!data2||!data2[0]) return saved;
+            var rec=data2[0];
+            var media=Array.isArray(rec.media)?rec.media.slice():[];
+            media=media.filter(function(m){ return !(m&&m.type==='gift'&&m.id===saved.id); });
+            media.push({type:'gift',donor:saved.donor,amount:saved.amount,id:saved.id,note:saved.note||''});
+            var raised=(Number(rec.raised)||0)+Number(saved.amount||0);
+            var donations=(Number(rec.donations)||0)+1;
+            return update(saved.campaign_id,{media:media,raised:raised,donations:donations}).then(function(){ return saved; });
+          });
+        }).catch(function(){ return saved; });
+      });
+    });
+  }
+  function listWithdrawals(){
+    return fetch(URL+'/rest/v1/withdrawals?select=*&order=created_at.desc',{headers:headers()}).then(function(r){
+      return r.json().then(function(data){ return Array.isArray(data)?data.map(function(w){ return {id:w.id,email:w.email||'',amount:Number(w.amount)||0,method:w.method||'',address:w.address||'',receiverName:w.receiver_name||'',status:w.status||'pending',reason:w.reason||'',at:w.created_at?Date.parse(w.created_at):Date.now()}; }):[]; });
+    }).catch(function(){ return []; });
+  }
   function saveWithdrawals(list){ return putJson('withdrawals/all.json', Array.isArray(list)?list:[]); }
   function requestWithdrawal(payload){
-    var row={ id:payload.id||('w_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)), email:String(payload.email||'').toLowerCase().trim(), amount:Number(payload.amount)||0, method:payload.method||'usdt', address:payload.address||payload.details||'', receiverName:payload.receiverName||payload.receiver||'', status:payload.status||'pending', at:payload.at||Date.now() };
-    return listWithdrawals().then(function(list){ list.unshift(row); if(list.length>300) list=list.slice(0,300); return saveWithdrawals(list).then(function(){ return row; }); });
+    var row={ id:payload.id||('w_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)), email:String(payload.email||'').toLowerCase().trim(), amount:Number(payload.amount)||0, method:payload.method||'usdt', address:payload.address||payload.details||'', receiver_name:payload.receiverName||payload.receiver||'', status:payload.status||'pending' };
+    return fetch(URL+'/rest/v1/withdrawals',{ method:'POST', headers:headers({'Content-Type':'application/json','Prefer':'return=representation'}), body:JSON.stringify(row) }).then(function(r){
+      return r.json().then(function(data){ if(!r.ok) throw new Error((data&&data.message)||'withdrawal save failed'); return Array.isArray(data)?data[0]:data; });
+    });
   }
   function processWithdrawal(id, status, reason){
-    return listWithdrawals().then(function(list){
-      var idx=list.findIndex(function(x){return x&&x.id===id});
-      if(idx<0) throw new Error('not found');
-      var w=list[idx];
-      status=String(status||'approved').toLowerCase();
-      if(status==='completed') status='paid';
-      w.status=status; w.processedAt=Date.now(); w.reason=String(reason||'').trim();
-      // Rejected requests are removed from the list
-      if(status==='rejected'){ list.splice(idx,1); }
-      return saveWithdrawals(list).then(function(){ return w; });
+    status=String(status||'approved').toLowerCase();
+    if(status==='completed') status='paid';
+    var patch={status:status, reason:String(reason||'').trim(), processed_at:new Date().toISOString()};
+    if(status==='rejected'){
+      return fetch(URL+'/rest/v1/withdrawals?id=eq.'+encodeURIComponent(id),{ method:'DELETE', headers:headers({'Prefer':'return=minimal'}) }).then(function(r){ if(!r.ok) throw new Error('delete failed'); return {id:id,status:'rejected'}; });
+    }
+    return fetch(URL+'/rest/v1/withdrawals?id=eq.'+encodeURIComponent(id),{ method:'PATCH', headers:headers({'Content-Type':'application/json','Prefer':'return=representation'}), body:JSON.stringify(patch) }).then(function(r){
+      return r.json().then(function(data){ if(!r.ok) throw new Error((data&&data.message)||'update failed'); return Array.isArray(data)?data[0]:data; });
     });
   }
   w.HFDB={url:URL, save:save, update:update, remove:remove, list:list, one:one, upload:upload, campFrom:campFrom, rowFrom:rowFrom, findOwner:findOwner, publishDonors:publishDonors, loadDonors:loadDonors, upsertProfile:upsertProfile, listProfiles:listProfiles, getProfile:getProfile, deleteProfile:deleteProfile, authSignup:authSignup, authLogin:authLogin, listGifts:listGifts, addGift:addGift, listWithdrawals:listWithdrawals, requestWithdrawal:requestWithdrawal, processWithdrawal:processWithdrawal, saveWithdrawals:saveWithdrawals};
