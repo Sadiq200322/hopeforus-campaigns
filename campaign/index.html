@@ -242,7 +242,9 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
     if(!base){if(!painted)showError('Campaign not found');return;}
     var raised=Math.max(Number(local&&local.raised)||0,Number(remote&&remote.raised)||0);
     var donations=Math.max(Number(local&&local.donations)||0,Number(remote&&remote.donations)||0);
-    var people=mergePeople([local&&local.donors,remote&&remote.donors,fileDonors,giftDonors()]);
+    // Prefer server media gifts (campFrom extracts them) so admin donations appear
+    var mediaDonors = (remote && remote.donors) || [];
+    var people = mediaDonors.length ? mediaDonors : mergePeople([local&&local.donors, fileDonors, giftDonors()]);
     if(donations<people.length)donations=people.length;
     var images=[];var seen={};function add(src){if(src&&!seen[src]){seen[src]=1;images.push(src);}}
     ((local&&local.images)||[]).forEach(add);((remote&&remote.images)||[]).forEach(add);add(local&&local.image);add(remote&&remote.image);
