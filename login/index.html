@@ -31,6 +31,19 @@ input:focus{outline:none;border-color:#4C1D95}
 .home a{color:#4C1D95;font-weight:700;text-decoration:none}
 .panel{display:none}
 .panel.on{display:block}
+
+.otp{display:flex;gap:8px;justify-content:center;margin:8px 0 12px}
+.otp-box{width:46px;height:54px;border:1.5px solid #e8e4ed;border-radius:14px;text-align:center;font-size:1.4rem;font-weight:700;font-family:inherit;background:#fff;color:#1c1c1c;caret-color:#1c1c1c;transition:border-color .15s,transform .12s}
+.otp-box:focus{outline:none;border-color:#1c1c1c;border-width:2px}
+.otp-box.pop{animation:otppop .18s ease}
+@keyframes otppop{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+.otp-success{display:none;flex-direction:column;align-items:center;padding:12px 0}
+.otp-success.show{display:flex}
+.otp-check{width:72px;height:72px;border-radius:50%;background:#ecfdf3;display:grid;place-items:center;margin-bottom:10px;position:relative}
+.otp-check svg{width:36px;height:36px;stroke:#067647;stroke-width:3.5;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:48;stroke-dashoffset:48;animation:otpdraw .5s .1s ease forwards}
+@keyframes otpdraw{to{stroke-dashoffset:0}}
+.otp-title{font-size:1.2rem;font-weight:700;color:#067647}
+.otp-sub{color:#6b6575;font-size:.85rem;margin-top:2px}
 </style>
 </head>
 <body>
@@ -63,11 +76,21 @@ input:focus{outline:none;border-color:#4C1D95}
       <button type="button" class="pbtn" id="sendCode">Send code</button>
     </div>
     <div id="codeStep2" style="display:none">
-      <label>Code from your email</label>
-      <input id="ccode" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code">
+      <div class="otp" id="otpBoxes">
+        <input maxlength="1" inputmode="numeric" autocomplete="one-time-code" class="otp-box">
+        <input maxlength="1" inputmode="numeric" class="otp-box">
+        <input maxlength="1" inputmode="numeric" class="otp-box">
+        <input maxlength="1" inputmode="numeric" class="otp-box">
+        <input maxlength="1" inputmode="numeric" class="otp-box">
+        <input maxlength="1" inputmode="numeric" class="otp-box">
+      </div>
       <p class="err" id="cerr2"></p>
-      <button type="button" class="pbtn" id="useCode">Sign in</button>
-      <button type="button" class="back" id="codeBack">Use a different email</button>
+      <button type="button" class="back" id="codeBack" style="display:none">Use a different email</button>
+      <div class="otp-success" id="otpSuccess">
+        <div class="otp-check"><svg viewBox="0 0 42 42"><polyline points="8,22 17,31 34,12"></polyline></svg></div>
+        <div class="otp-title">Verified</div>
+        <div class="otp-sub">Opening your dashboard…</div>
+      </div>
     </div>
   </div>
   <div class="panel" id="reset">
@@ -186,12 +209,54 @@ input:focus{outline:none;border-color:#4C1D95}
     document.getElementById('c2').classList.remove('on');
     document.getElementById('c1').classList.add('on');
   };
-  document.getElementById('useCode').onclick=function(){
-    var email=document.getElementById('cemail').value.trim().toLowerCase();
-    var r=HF.loginWithCode(email, document.getElementById('ccode').value.trim());
-    if(!r.ok){document.getElementById('cerr2').textContent=r.err;return}
-    after(r.user);
-  };
+  (function(){
+    var boxes = document.querySelectorAll('#otpBoxes .otp-box');
+    var err = document.getElementById('cerr2');
+    var back = document.getElementById('codeBack');
+    var success = document.getElementById('otpSuccess');
+    function code(){ return Array.from(boxes).map(function(b){return b.value}).join(''); }
+    function showSuccess(){
+      document.getElementById('otpBoxes').style.display='none';
+      err.textContent='';
+      success.classList.add('show');
+      setTimeout(function(){ after(HF.session&&HF.session()||{}); }, 1200);
+    }
+    boxes.forEach(function(box, i){
+      box.addEventListener('input', function(){
+        var v = box.value.replace(/\D/g,'').slice(0,1);
+        box.value = v;
+        if(v){
+          box.classList.add('pop');
+          setTimeout(function(){ box.classList.remove('pop'); }, 180);
+          if(i < boxes.length-1) boxes[i+1].focus();
+        }
+        err.textContent='';
+        back.style.display='none';
+        if(code().length===6){
+          var email=document.getElementById('cemail').value.trim().toLowerCase();
+          var r=HF.loginWithCode(email, code());
+          if(!r.ok){
+            err.textContent = r.err || 'Wrong code. Try again or use a different email.';
+            back.style.display='inline-block';
+            boxes.forEach(function(b){ b.disabled=false; });
+            boxes[0].focus();
+          } else {
+            showSuccess();
+          }
+        }
+      });
+      box.addEventListener('keydown', function(e){
+        if(e.key==='Backspace' && !box.value && i>0) boxes[i-1].focus();
+      });
+      box.addEventListener('paste', function(e){
+        e.preventDefault();
+        var paste = (e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);
+        paste.split('').forEach(function(ch, j){ if(boxes[j]) boxes[j].value = ch; });
+        if(paste.length) boxes[Math.min(paste.length, boxes.length-1)].focus();
+        if(code().length===6) boxes[boxes.length-1].dispatchEvent(new Event('input'));
+      });
+    });
+  })();
   document.getElementById('sendReset').onclick=function(){
     var btn=this;
     var email=document.getElementById('remail').value.trim().toLowerCase();
