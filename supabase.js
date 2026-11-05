@@ -193,7 +193,7 @@
             var rec=data2[0];
             var media=Array.isArray(rec.media)?rec.media.slice():[];
             media=media.filter(function(m){ return !(m&&m.type==='gift'&&m.id===saved.id); });
-            media.push({type:'gift',donor:saved.donor,amount:saved.amount,id:saved.id,note:saved.note||''});
+            media.unshift({type:'gift',donor:saved.donor,amount:saved.amount,id:saved.id,note:saved.note||''});
             var raised=(Number(rec.raised)||0)+Number(saved.amount||0);
             var donations=(Number(rec.donations)||0)+1;
             return update(saved.campaign_id,{media:media,raised:raised,donations:donations}).then(function(){ return saved; });
