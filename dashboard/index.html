@@ -68,6 +68,10 @@ input,select,textarea{width:100%;border:1.5px solid #e5e5e5;border-radius:12px;p
 .icon-btn.mail{background:#f3f0ff;color:#7C3AED;border:1px solid #e9e5f5}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+input:focus,textarea:focus,select:focus{outline:none;border-color:#4C1D95;box-shadow:0 0 0 3px rgba(76,29,149,.08)}
+input.pop,textarea.pop{animation:inpop .18s ease}
+@keyframes inpop{0%{transform:scale(1)}50%{transform:scale(1.015)}100%{transform:scale(1)}}
 </style>
 </head>
 <body>
@@ -121,5 +125,13 @@ input,select,textarea{width:100%;border:1.5px solid #e5e5e5;border-radius:12px;p
 <script src="/dashboard/dash-hide-home-patch.js?v=1"></script>
 <script src="/dashboard/dash-approve-patch.js?v=35"></script>
 <script src="/dashboard/dash-users-sync.js?v=35"></script>
-</body>
+<script>
+document.addEventListener('input', function(e){
+  var t = e.target;
+  if(t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA') && t.type!=='file'){
+    t.classList.add('pop');
+    setTimeout(function(){ t.classList.remove('pop'); }, 180);
+  }
+});
+</script></body>
 </html>
