@@ -8,8 +8,8 @@
 </head>
 <body>
 <div class="box" id="msg">Opening fundraiser…</div>
-<script src="/campaigns-data.js?v=28"></script>
-<script src="/supabase.js?v=28"></script>
+<script src="/campaigns-data.js?v=30"></script>
+<script src="/supabase.js?v=30"></script>
 <script>
 (function(){
   var code=(new URLSearchParams(location.search).get('c')||'').toUpperCase().trim();
@@ -27,7 +27,14 @@
     if(!x)return false;
     var c=(x.code||'').toString().toUpperCase();
     var id=(x.id||'').toString().toUpperCase();
-    return c===code || id===code || (KNOWN[code] && x.id===KNOWN[code]);
+    if(c===code || id===code || (KNOWN[code] && x.id===KNOWN[code])) return true;
+    // Also check media share codes
+    var media = x.media || [];
+    for(var i=0;i<media.length;i++){
+      var m=media[i];
+      if(m && (m.type==='share' || m.kind==='share') && String(m.code||'').toUpperCase()===code) return true;
+    }
+    return false;
   }
   function go(rid){
     rid = rid || KNOWN[code] || code;
@@ -41,11 +48,7 @@
   if(!c && typeof SAMPLES!=='undefined') c=SAMPLES.find(function(x){ return match(x) && alive(x); });
   if(c){ go(c.id); return; }
 
-  // Prefer known approved mapping even if local copy missing
-  if(KNOWN[code]){
-    go(KNOWN[code]);
-    return;
-  }
+  if(KNOWN[code]){ go(KNOWN[code]); return; }
 
   if(window.HFDB){
     HFDB.list().then(function(rows){
