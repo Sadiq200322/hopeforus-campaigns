@@ -193,7 +193,13 @@ function render(){
     if(!pending.length) html+='<p class="note">Nothing pending.</p>';
     html+='</div>';
   }else if(tab==='settings'){
-    html='<div class="pane"><h1>Account settings</h1><div class="card" style="padding:16px"><label>Name</label><input id="setName" value="'+esc(u.name||'')+'"><button class="btn" type="button" id="saveName">Save name</button><p class="note" id="nameMsg"></p><label>Email</label><input value="'+esc(u.email||'')+'" disabled></div>'+supportCard()+'</div>';
+    html='<div class="pane"><h1>Account settings</h1><div class="card" style="padding:16px">';
+    html+='<label>Profile picture</label>';
+    html+='<div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">';
+    html+='<div id="avPreview" style="width:64px;height:64px;border-radius:50%;background:#ede9fe;display:grid;place-items:center;overflow:hidden;font-weight:700;font-size:1.4rem;color:#4C1D95">'+(av?'<img src="'+esc(av)+'" style="width:100%;height:100%;object-fit:cover">':esc((u.name||u.email||'?').charAt(0).toUpperCase()))+'</div>';
+    html+='<input type="file" id="avFile" accept="image/*" style="display:none"><button type="button" class="btn ghost" id="avBtn2">Change photo</button>';
+    html+='</div>';
+    html+='<label>Name</label><input id="setName" value="'+esc(u.name||'')+'"><button class="btn" type="button" id="saveName">Save name</button><p class="note" id="nameMsg"></p><label>Email</label><input value="'+esc(u.email||'')+'" disabled></div>'+supportCard()+'</div>';
   }else html='<div class="pane"><h1>Dashboard</h1>'+supportCard()+'</div>';
   box.innerHTML=html;
   var backUsers=document.getElementById('backUsers'); if(backUsers) backUsers.onclick=function(){openUser='';render();};
@@ -215,6 +221,25 @@ function render(){
   };
   var saveName=document.getElementById('saveName');
   if(saveName) saveName.onclick=function(){ setBusy(saveName,true,'Saving…'); var r=HF.updateProfile({name:document.getElementById('setName').value}); var msg=document.getElementById('nameMsg'); if(r&&r.ok){ msg.textContent='Saved.'; u=HF.session()||u; setTimeout(function(){render();},300);} else { msg.textContent=(r&&r.err)||'Failed'; setBusy(saveName,false,'Save name'); } };
+  var avBtn2=document.getElementById('avBtn2');
+  var avFile=document.getElementById('avFile');
+  if(avBtn2&&avFile){
+    avBtn2.onclick=function(){ avFile.click(); };
+    avFile.onchange=function(){
+      var f=avFile.files&&avFile.files[0];
+      if(!f) return;
+      var reader=new FileReader();
+      reader.onload=function(){
+        var dataUrl=reader.result;
+        localStorage.setItem('hf_avatar_'+u.email, dataUrl);
+        if(HF.setUserAvatar) HF.setUserAvatar(u.email, dataUrl);
+        if(window.HFDB&&HFDB.upsertProfile) HFDB.upsertProfile({email:u.email, avatar_url:dataUrl}).catch(function(){});
+        av=dataUrl;
+        render();
+      };
+      reader.readAsDataURL(f);
+    };
+  }
   box.querySelectorAll('[data-open],[data-view]').forEach(function(b){b.onclick=function(){location.href='/campaign/?id='+encodeURIComponent(b.getAttribute('data-open')||b.getAttribute('data-view'));};});
   box.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){editId=b.getAttribute('data-edit');render();};});
   box.querySelectorAll('[data-approve]').forEach(function(b){b.onclick=function(){ var id=b.getAttribute('data-approve'); setBusy(b,true,'…'); var p=(window.HFDB&&HFDB.update)?HFDB.update(id,{status:'approved'}):Promise.resolve(); p.then(function(){ if(HF.approveCampaign) HF.approveCampaign(id); return pullServer(); }).then(function(){render();}).catch(function(){render();}); };});
