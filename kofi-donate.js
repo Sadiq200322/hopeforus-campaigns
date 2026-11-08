@@ -1,4 +1,39 @@
 (function() {
+  var SUPABASE_URL = 'https://dmvldmffdwzgqnjfrrww.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_hSBxsefa3AzA7sLngR07Vw_ruW60q_h';
+
+  function getCampaignId() {
+    try {
+      var params = new URLSearchParams(location.search);
+      var id = (params.get('id') || '').trim();
+      var code = (params.get('code') || '').toUpperCase().trim();
+      var KNOWN = {'EEPBA7':'c_mvsfhl1e','VY84Q4':'c_mvs9eg5p'};
+      if (KNOWN[id.toUpperCase()]) id = KNOWN[id.toUpperCase()];
+      if (id) return id;
+      if (code && KNOWN[code]) return KNOWN[code];
+      return id || code || '';
+    } catch(e) { return ''; }
+  }
+
+  function recordIntent(campaignId) {
+    if (!campaignId) return;
+    var row = {
+      id: 'int_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      campaign_id: campaignId,
+      created_at: new Date().toISOString()
+    };
+    fetch(SUPABASE_URL + '/rest/v1/donation_intents', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(row)
+    }).catch(function(){});
+  }
+
   var overlay = document.createElement('div');
   overlay.id = 'kofiOverlay';
   overlay.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center';
@@ -6,6 +41,8 @@
   document.body.appendChild(overlay);
 
   window.openKofi = function() {
+    var campId = getCampaignId();
+    recordIntent(campId);
     document.getElementById('kofiFrame').src = 'https://ko-fi.com/hopeforus0/?hidefeed=true&widget=true&embed=true';
     overlay.style.display = 'flex';
   };
@@ -29,7 +66,6 @@
   var obs = new MutationObserver(overrideButtons);
   obs.observe(document.body, { childList: true, subtree: true });
 
-  // Extra safety for late renders
   var tries = 0;
   var iv = setInterval(function() {
     overrideButtons();
