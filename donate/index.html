@@ -14,19 +14,13 @@ body{font-family:Inter,system-ui,sans-serif;background:#f8f7f4;color:#1c1c1c;min
 .back{color:#7C3AED;font-weight:600;text-decoration:none;font-size:.95rem;background:none;border:0;cursor:pointer;font:inherit}
 h1{font-size:1.5rem;font-weight:800;margin-bottom:4px}
 .sub{color:#6b6b6b;margin-bottom:18px}
-.banner{display:none;background:#fef9c3;border:1px solid #fde047;color:#854d0e;border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:.9rem;line-height:1.4}
-.banner.show{display:block}
-.banner strong{display:block;margin-bottom:4px}
-label{display:block;font-size:.8rem;font-weight:700;margin:12px 0 6px;color:#444}
-input{width:100%;border:1px solid #e5e5e5;border-radius:12px;padding:12px 14px;font:inherit;background:#fff}
-#chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 4px}
-#chips button{border:1px solid #ddd;background:#fff;color:#2563eb;font-weight:700;padding:8px 14px;border-radius:999px;cursor:pointer;font:inherit}
-#chips button.on{background:#4C1D95;color:#fff;border-color:#4C1D95}
 .go{display:block;width:100%;margin-top:20px;height:48px;border:0;border-radius:999px;background:#7C3AED;color:#fff;font-weight:800;font-size:1rem;cursor:pointer}
-.go:disabled{opacity:.6}
-.err{display:none;color:#b91c1c;font-size:.85rem;margin-top:10px}
-.err.show{display:block}
 .note{font-size:.8rem;color:#888;margin-top:14px;text-align:center;line-height:1.4}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.iframe-wrap{width:92%;max-width:480px;height:82vh;background:#fff;border-radius:12px;overflow:hidden;position:relative}
+.iframe-wrap iframe{width:100%;height:100%;border:none}
+.close-btn{position:absolute;top:8px;right:8px;background:#fff;border:1px solid #ddd;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:18px;z-index:2}
 </style>
 </head>
 <body>
@@ -37,28 +31,18 @@ input{width:100%;border:1px solid #e5e5e5;border-radius:12px;padding:12px 14px;f
   </div>
   <h1>Donate</h1>
   <p class="sub" id="campTitle">Loading…</p>
-  <div class="banner" id="shopBanner">
-    <strong>Tribute Shop required</strong>
-    Create a Shop in the Tribute mini-app (Settings or main menu → Shop / Create Shop). Then refresh this page. Dynamic amounts and card payments work only after a shop exists.
-  </div>
-  <label>Amount (USD)</label>
-  <div id="chips">
-    <button type="button" data-amt="10">$10</button>
-    <button type="button" data-amt="25">$25</button>
-    <button type="button" data-amt="50">$50</button>
-    <button type="button" data-amt="100">$100</button>
-  </div>
-  <input id="amount" inputmode="decimal" value="10">
-  <label>Email (for receipt)</label>
-  <input id="email" type="email" placeholder="you@email.com">
-  <label>Name (optional)</label>
-  <input id="name" placeholder="Your name">
-  <p class="err" id="err"></p>
-  <button type="button" class="go" id="goBtn">Continue to pay</button>
-  <p class="note">Payment by card (Apple Pay if available). After you pay, you will return to this campaign on HopeForUs.</p>
+  <button type="button" class="go" id="goBtn">Credit card / PayPal</button>
+  <p class="note">Pay with PayPal or card. Choose your amount on the next screen.</p>
 </div>
+
+<div class="overlay" id="kofiOverlay">
+  <div class="iframe-wrap">
+    <button class="close-btn" id="closeBtn">×</button>
+    <iframe id="kofiFrame" src=""></iframe>
+  </div>
+</div>
+
 <script src="/campaigns-data.js"></script>
-<script src="/tribute-config.js"></script>
 <script>
 (function(){
 var params = new URLSearchParams(location.search);
@@ -76,133 +60,24 @@ if (!c) {
   return;
 }
 var shortKey = (c.code || c.id || id).toString();
-var returnUrl = location.origin + "/c/" + encodeURIComponent(shortKey) + "?donated=1";
-var failUrl = location.origin + "/c/" + encodeURIComponent(shortKey) + "?donate_failed=1";
 document.getElementById("campTitle").textContent = c.title || "";
-// Prefer assigned Tribute donation link — skip shop API entirely
-var directLink = (c.donationLink || c.donation_link || "").trim();
-if (directLink && directLink.indexOf("http") === 0) {
-  var banner = document.getElementById("shopBanner");
-  if (banner) { banner.classList.remove("show"); banner.style.display = "none"; }
-  document.getElementById("goBtn").textContent = "Continue to Tribute";
-  document.getElementById("goBtn").onclick = function() {
-    location.href = directLink;
-  };
-}
 document.getElementById("backBtn").onclick = function() { location.href = "/c/" + encodeURIComponent(shortKey); };
 
-var u = null;
-try { u = JSON.parse(localStorage.getItem("hopeforus_user") || "null"); } catch(e) {}
-if (u && u.email) document.getElementById("email").value = u.email;
-if (u && u.name) document.getElementById("name").value = u.name;
+var overlay = document.getElementById("kofiOverlay");
+var frame = document.getElementById("kofiFrame");
+var closeBtn = document.getElementById("closeBtn");
 
-document.querySelectorAll("#chips button").forEach(function(b) {
-  b.onclick = function() {
-    document.querySelectorAll("#chips button").forEach(function(x) { x.classList.remove("on"); });
-    b.classList.add("on");
-    document.getElementById("amount").value = b.getAttribute("data-amt");
-  };
-});
+document.getElementById("goBtn").onclick = function() {
+  frame.src = "https://ko-fi.com/hopeforus0/?hidefeed=true&widget=true&embed=true";
+  overlay.classList.add("show");
+};
 
-var cachedShopId = null;
-
-async function getShopId(cfg) {
-  if (cfg.shopId) return cfg.shopId;
-  if (cachedShopId) return cachedShopId;
-  try {
-    var res = await fetch(cfg.apiBase + "/shops", {
-      headers: { "Api-Key": cfg.apiKey, "Accept": "application/json" }
-    });
-    if (!res.ok) {
-      console.warn("GET /shops failed", res.status);
-      return null;
-    }
-    var shops = await res.json();
-    if (Array.isArray(shops) && shops.length && shops[0].id) {
-      cachedShopId = shops[0].id;
-      return cachedShopId;
-    }
-  } catch (e) {
-    console.warn("shops fetch error", e);
-  }
-  return null;
-}
-
-(async function checkShop() {
-  var cfg = window.HOPEFORUS_TRIBUTE || {};
-  if (!cfg.apiKey) return;
-  if (directLink) return;
-  var sid = await getShopId(cfg);
-  var banner = document.getElementById("shopBanner");
-  if (banner && !sid) banner.classList.add("show");
-})();
-
-async function createTributeOrder(amountUsd, donorEmail, donorName) {
-  var cfg = window.HOPEFORUS_TRIBUTE || {};
-  if (!cfg.apiKey) {
-    alert("Tribute API key not configured.");
-    return null;
-  }
-  var shopId = await getShopId(cfg);
-  if (!shopId) {
-    alert("No Tribute Shop found.\n\nCreate a Shop in the Tribute mini-app first (look for Shop / Create Shop). Then try again.");
-    document.getElementById("shopBanner").classList.add("show");
-    return null;
-  }
-  var body = {
-    shopId: shopId,
-    amount: Math.round(amountUsd * 100),
-    currency: "USD",
-    description: ("Donation to campaign " + (c.id || "") + " — " + (c.title || "")).slice(0, 280),
-    successUrl: returnUrl,
-    failUrl: failUrl
-  };
-  if (donorEmail) body.customerEmail = donorEmail;
-  if (donorName) body.customerName = donorName;
-  try {
-    var res = await fetch(cfg.apiBase + "/shop/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Api-Key": cfg.apiKey, "Accept": "application/json" },
-      body: JSON.stringify(body)
-    });
-    if (!res.ok) {
-      var txt = await res.text();
-      console.warn("order failed", res.status, txt);
-      alert("Could not create payment (" + res.status + ").");
-      return null;
-    }
-    return await res.json();
-  } catch (e) {
-    console.error(e);
-    alert("Network / CORS error. Tribute may block direct browser requests from this domain.");
-    return null;
-  }
-}
-
-document.getElementById("goBtn").onclick = async function() {
-  var dl = (c.donationLink || c.donation_link || "").trim();
-  if (dl && dl.indexOf("http") === 0) { location.href = dl; return; }
-  var btn = this;
-  var amt = parseFloat(document.getElementById("amount").value);
-  var email = (document.getElementById("email").value || "").trim();
-  var name = (document.getElementById("name").value || "").trim();
-  var err = document.getElementById("err");
-  err.classList.remove("show");
-  if (isNaN(amt) || amt < 1) { err.textContent = "Enter at least $1."; err.classList.add("show"); return; }
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = "Enter a valid email or leave blank."; err.classList.add("show"); return; }
-  btn.disabled = true;
-  btn.textContent = "Creating payment…";
-  var order = await createTributeOrder(amt, email, name);
-  btn.disabled = false;
-  btn.textContent = "Continue to pay";
-  if (order && (order.paymentUrl || order.webappPaymentUrl)) {
-    try {
-      var pend = JSON.parse(localStorage.getItem("hopeforus_pending_donations") || "[]");
-      pend.push({ campaignId: c.id, orderUuid: order.uuid, amount: amt, email: email, name: name, at: Date.now() });
-      localStorage.setItem("hopeforus_pending_donations", JSON.stringify(pend));
-    } catch (e) {}
-    location.href = order.paymentUrl || order.webappPaymentUrl;
-  }
+closeBtn.onclick = function() {
+  overlay.classList.remove("show");
+  frame.src = "";
+};
+overlay.onclick = function(e) {
+  if (e.target === overlay) closeBtn.onclick();
 };
 })();
 </script>
