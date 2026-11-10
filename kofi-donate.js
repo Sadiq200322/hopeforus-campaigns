@@ -37,13 +37,16 @@
   var overlay = document.createElement('div');
   overlay.id = 'kofiOverlay';
   overlay.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center';
-  overlay.innerHTML = '<div style="width:92%;max-width:480px;height:82vh;background:#fff;border-radius:12px;overflow:hidden;position:relative"><button id="kofiClose" style="position:absolute;top:8px;right:8px;background:#fff;border:1px solid #ddd;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:18px;z-index:2">&times;</button><iframe id="kofiFrame" src="" style="width:100%;height:100%;border:none"></iframe></div>';
+  overlay.innerHTML = '<div style="width:92%;max-width:480px;height:82vh;background:#fff;border-radius:12px;overflow:hidden;position:relative"><button id="kofiClose" style="position:absolute;top:8px;right:8px;background:#fff;border:1px solid #ddd;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:18px;z-index:2">&times;</button><iframe id="kofiFrame" src="" style="width:100%;height:100%;border:none" allow="payment"></iframe></div>';
   document.body.appendChild(overlay);
 
   window.openKofi = function() {
     var campId = getCampaignId();
     recordIntent(campId);
-    document.getElementById('kofiFrame').src = 'https://ko-fi.com/hopeforus0/?hidefeed=true&widget=true&embed=true';
+    // Cache-bust so Ko-fi settings changes (goal, description, payment methods, etc.) appear immediately
+    var bust = Date.now();
+    var frame = document.getElementById('kofiFrame');
+    frame.src = 'https://ko-fi.com/hopeforus0/?hidefeed=true&widget=true&embed=true&_=' + bust;
     overlay.style.display = 'flex';
   };
   document.getElementById('kofiClose').onclick = function() {
