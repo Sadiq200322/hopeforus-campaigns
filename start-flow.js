@@ -116,8 +116,8 @@ function render(){
     body.innerHTML='<div class="acct"><label class="f">Verification code</label><input id="otp" inputmode="numeric" maxlength="6" placeholder="000000"><p class="note">Code sent to '+esc(pendingAuth.email||(user&&user.email)||'')+'</p><p class="err" id="err"></p></div>';
   } else {
     stitle.textContent="Almost done";
-    ssub.textContent="Review and publish.";
-    body.innerHTML='<p class="note">Your campaign will be reviewed before it goes live.</p><p class="err" id="err"></p>';
+    ssub.textContent="Your fundraiser will go live immediately.";
+    body.innerHTML='<p class="note">Campaigns are published automatically. No approval needed.</p><p class="err" id="err"></p>';
   }
 }
 function next(){
@@ -166,9 +166,9 @@ function next(){
     pendingAuth={email:email,pass:pass,name:name,whatsapp:waDigits,code:makeOtp(),sentAt:Date.now()};
     lastEmailSent=false;
     if(emailjsReady()){
-      sendEmailCode(email,pendingAuth.code,name).then(function(ok){ lastEmailSent=!!ok; if(!ok) showErr("Email send failed — code is "+pendingAuth.code); });
+      sendEmailCode(email,pendingAuth.code,name).then(function(ok){ lastEmailSent=!!ok; if(!ok) showErr("Email send failed \u2014 code is "+pendingAuth.code); });
     } else {
-      showErr("Email not configured — use code "+pendingAuth.code);
+      showErr("Email not configured \u2014 use code "+pendingAuth.code);
     }
     step=7; render(); return;
   }
@@ -183,10 +183,11 @@ function next(){
 }
 function finish(){
   var cont=$("cont");
-  if(cont){ cont.disabled=true; cont.textContent="Uploading…"; }
+  if(cont){ cont.disabled=true; cont.textContent="Uploading\u2026"; }
   showErr("");
   var id="c_"+Date.now().toString(36);
   var code=makeCode(6);
+  var TRIBUTE = "https://web.tribute.tg/d/T60";
   var raw=(draft.media||[]).slice(0,8);
   function upOne(m, i){
     var src=m.dataUrl||m.url||"";
@@ -216,7 +217,7 @@ function finish(){
       image:image, images:images, video:video, media:media,
       category:draft.category, country:draft.country, location:draft.zip,
       organizer:(user&&user.name)||"Organizer", ownerEmail:(user&&user.email)||"", organizerEmail:(user&&user.email)||"",
-      status:"pending", createdAt:new Date().toISOString(), donors:[], donationLink:""
+      status:"approved", createdAt:new Date().toISOString(), donors:[], donationLink:TRIBUTE, donation_link:TRIBUTE
     };
     var localCamp=Object.assign({}, camp);
     try{
@@ -239,7 +240,7 @@ function finish(){
     if(window.HF&&HF.saveCampaign) try{HF.saveCampaign(localCamp)}catch(e){}
     function go(){ location.href="/dashboard/"; }
     if(window.HFDB&&HFDB.save){
-      if(cont) cont.textContent="Saving…";
+      if(cont) cont.textContent="Saving\u2026";
       var serverCamp=Object.assign({}, camp);
       serverCamp.media=media.filter(function(m){return m&&String(m.url).indexOf("http")===0;});
       serverCamp.image=(String(image).indexOf("http")===0)?image:(serverCamp.media[0]&&serverCamp.media[0].url)||"";
