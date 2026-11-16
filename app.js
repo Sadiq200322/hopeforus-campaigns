@@ -252,11 +252,32 @@
     var s=session(); if(!s) return {ok:false,err:'Login required'};
     var list=users(); var u=list.find(function(x){return x&&x.email===s.email});
     if(!u) return {ok:false,err:'User not found'};
-    if(patch&&typeof patch.name==='string'&&patch.name.trim()) u.name=patch.name.trim();
+    var nameChanged=false;
+    if(patch&&typeof patch.name==='string'&&patch.name.trim()){ u.name=patch.name.trim(); nameChanged=true; }
     if(patch&&typeof patch.whatsapp==='string') u.whatsapp=patch.whatsapp.trim();
     if(patch&&typeof patch.avatar==='string') u.avatar=patch.avatar;
     saveUsers(list); setSession(u);
     if(window.HFDB&&HFDB.upsertProfile){ try{ HFDB.upsertProfile({email:u.email,name:u.name,whatsapp:u.whatsapp||'',avatar_url:u.avatar||'',is_admin:!!u.isAdmin}); }catch(e){} }
+    // Keep organizer name on campaigns in sync with profile name
+    if(nameChanged && u.name){
+      try{
+        var camps=load(CAMPS_KEY,[]);
+        if(Array.isArray(camps)){
+          var email=(u.email||'').toLowerCase();
+          camps.forEach(function(c){
+            if(!c) return;
+            var oe=String(c.ownerEmail||c.organizerEmail||'').toLowerCase();
+            if(oe===email){
+              c.organizer=u.name;
+              if(window.HFDB&&HFDB.update&&c.id){
+                HFDB.update(c.id,{organizer:u.name}).catch(function(){});
+              }
+            }
+          });
+          save(CAMPS_KEY,camps);
+        }
+      }catch(e){}
+    }
     return {ok:true,user:u};
   }
   function setWhatsApp(wa){ return updateProfile({whatsapp:wa}); }
