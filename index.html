@@ -238,15 +238,15 @@ window.renderCampaigns=renderCampaigns;
 (function(){
   var LANGS = {
     en: {flag:'🇺🇸', label:'United States · English',
-      hero:'Where successful fundraisers start', sub:'Tell your story, set a goal, with guidance at every step. No fee to start fundraising.', cta:'Start today', badge:'#1 crowdfunding platform'},
+      hero:'Where successful fundraisers start', sub:'Tell your story, set a goal, with guidance at every step. No fee to start fundraising.', cta:'Start today', badge:'#1 crowdfunding platform', statsBadge:'No fee to start fundraising', statsH2:'More than thousands raise support every week on HopeForUs', statsP:'Get started in just a few minutes — pick a title, set a goal, share your story, and start receiving support.', ft:{donate:'Donate',fundraise:'Fundraise',about:'About'}, ftLinks:{donate:['Categories','Crisis relief','How donations work','Supporter space'], fundraise:['How to start a HopeForUs','Fundraising categories','Team fundraising','How it works','Sign up'], about:['How HopeForUs works','Giving funds','Pricing','Report a fundraiser']} },
     es: {flag:'🇪🇸', label:'España · Español',
-      hero:'Donde empiezan las recaudaciones exitosas', sub:'Cuenta tu historia, fija una meta, con guía en cada paso. Sin costo para empezar.', cta:'Empieza hoy', badge:'Plataforma #1 de crowdfunding'},
+      hero:'Donde empiezan las recaudaciones exitosas', sub:'Cuenta tu historia, fija una meta, con guía en cada paso. Sin costo para empezar.', cta:'Empieza hoy', badge:'Plataforma #1 de crowdfunding', statsBadge:'Sin costo para empezar', statsH2:'Miles recaudan apoyo cada semana en HopeForUs', statsP:'Empieza en minutos: elige un título, fija una meta, comparte tu historia y recibe apoyo.', ft:{donate:'Donar',fundraise:'Recaudar',about:'Acerca de'}, ftLinks:{donate:['Categorías','Ayuda en crisis','Cómo funcionan las donaciones','Espacio de apoyo'], fundraise:['Cómo empezar en HopeForUs','Categorías de recaudación','Recaudación en equipo','Cómo funciona','Regístrate'], about:['Cómo funciona HopeForUs','Fondos de donación','Precios','Reportar una campaña']} },
     fr: {flag:'🇫🇷', label:'France · Français',
-      hero:'Là où commencent les collectes réussies', sub:'Racontez votre histoire, fixez un objectif, avec des conseils à chaque étape. Sans frais pour commencer.', cta:'Commencer', badge:'Plateforme n°1 de crowdfunding'},
+      hero:'Là où commencent les collectes réussies', sub:'Racontez votre histoire, fixez un objectif, avec des conseils à chaque étape. Sans frais pour commencer.', cta:'Commencer', badge:'Plateforme n°1 de crowdfunding', statsBadge:'Sans frais pour commencer', statsH2:'Des milliers collectent du soutien chaque semaine sur HopeForUs', statsP:'Commencez en quelques minutes : choisissez un titre, fixez un objectif, partagez votre histoire.', ft:{donate:'Donner',fundraise:'Collecter',about:'À propos'}, ftLinks:{donate:['Catégories','Aide d\'urgence','Comment fonctionnent les dons','Espace soutien'], fundraise:['Comment commencer','Catégories de collecte','Collecte en équipe','Comment ça marche','S\'inscrire'], about:['Comment fonctionne HopeForUs','Fonds de don','Tarifs','Signaler une collecte']} },
     pt: {flag:'🇵🇹', label:'Portugal · Português',
-      hero:'Onde começam as arrecadações de sucesso', sub:'Conte sua história, defina uma meta, com orientação em cada passo. Sem taxa para começar.', cta:'Comece hoje', badge:'Plataforma #1 de crowdfunding'},
+      hero:'Onde começam as arrecadações de sucesso', sub:'Conte sua história, defina uma meta, com orientação em cada passo. Sem taxa para começar.', cta:'Comece hoje', badge:'Plataforma #1 de crowdfunding', statsBadge:'Sin costo para empezar', statsH2:'Miles recaudan apoyo cada semana en HopeForUs', statsP:'Empieza en minutos: elige un título, fija una meta, comparte tu historia y recibe apoyo.', ft:{donate:'Donar',fundraise:'Recaudar',about:'Acerca de'}, ftLinks:{donate:['Categorías','Ayuda en crisis','Cómo funcionan las donaciones','Espacio de apoyo'], fundraise:['Cómo empezar en HopeForUs','Categorías de recaudación','Recaudación en equipo','Cómo funciona','Regístrate'], about:['Cómo funciona HopeForUs','Fondos de donación','Precios','Reportar una campaña']} },
     sw: {flag:'🇰🇪', label:'Kenya · Kiswahili',
-      hero:'Mahali ambapo michango yenye mafanikio huanza', sub:'Simulia hadithi yako, weka lengo, na mwongozo katika kila hatua. Hakuna ada kuanza.', cta:'Anza leo', badge:'Jukwaa #1 la crowdfunding'},
+      hero:'Mahali ambapo michango yenye mafanikio huanza', sub:'Simulia hadithi yako, weka lengo, na mwongozo katika kila hatua. Hakuna ada kuanza.', cta:'Anza leo', badge:'Jukwaa #1 la crowdfunding', statsBadge:'Hakuna ada kuanza', statsH2:'Maelfu huchangisha msaada kila wiki kwenye HopeForUs', statsP:'Anza kwa dakika chache: chagua kichwa, weka lengo, shiriki hadithi yako.', ft:{donate:'Changia',fundraise:'Changa',about:'Kuhusu'}, ftLinks:{donate:['Kategoria','Msaada wa dharura','Jinsi michango inavyofanya kazi','Eneo la wafuasi'], fundraise:['Jinsi ya kuanza HopeForUs','Kategoria za kuchanga','Kuchanga kwa timu','Jinsi inavyofanya kazi','Jisajili'], about:['Jinsi HopeForUs inavyofanya kazi','Fedha za kutoa','Bei','Ripoti kampeni']} },
     de: {flag:'🇩🇪', label:'Deutschland · Deutsch',
       hero:'Wo erfolgreiche Spendenaktionen beginnen', sub:'Erzählen Sie Ihre Geschichte, setzen Sie ein Ziel, mit Anleitung bei jedem Schritt. Keine Gebühr zum Starten.', cta:'Heute starten', badge:'#1 Crowdfunding-Plattform'}
   };
@@ -271,6 +271,36 @@ window.renderCampaigns=renderCampaigns;
     if(sub) sub.textContent = L.sub;
     if(cta) cta.textContent = L.cta;
     if(badge) badge.textContent = L.badge;
+    // Stats
+    var statsBadge = document.querySelector('.stats .badge');
+    var statsH2 = document.querySelector('.stats h2');
+    var statsP = document.querySelector('.stats p');
+    if(statsBadge && L.statsBadge) statsBadge.textContent = L.statsBadge;
+    if(statsH2 && L.statsH2) statsH2.textContent = L.statsH2;
+    if(statsP && L.statsP) statsP.textContent = L.statsP;
+    // Footer headings
+    var fts = document.querySelectorAll('.ft-grid h4');
+    if(fts.length>=4 && L.ft){
+      if(L.ft.donate) fts[0].textContent = L.ft.donate;
+      if(L.ft.fundraise) fts[1].textContent = L.ft.fundraise;
+      if(L.ft.about) fts[2].textContent = L.ft.about;
+    }
+    // Footer links (first column)
+    var donateLinks = document.querySelectorAll('.ft-grid > div:nth-child(1) a');
+    if(donateLinks.length>=4 && L.ftLinks){
+      var dl = L.ftLinks.donate || [];
+      donateLinks.forEach(function(a,i){ if(dl[i]) a.textContent = dl[i]; });
+    }
+    var fundLinks = document.querySelectorAll('.ft-grid > div:nth-child(2) a');
+    if(fundLinks.length>=5 && L.ftLinks){
+      var fl = L.ftLinks.fundraise || [];
+      fundLinks.forEach(function(a,i){ if(fl[i]) a.textContent = fl[i]; });
+    }
+    var aboutLinks = document.querySelectorAll('.ft-grid > div:nth-child(3) a');
+    if(aboutLinks.length>=4 && L.ftLinks){
+      var al = L.ftLinks.about || [];
+      aboutLinks.forEach(function(a,i){ if(al[i]) a.textContent = al[i]; });
+    }
     document.documentElement.lang = code;
   }
   var current = detect();
