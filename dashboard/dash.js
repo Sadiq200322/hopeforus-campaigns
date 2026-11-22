@@ -103,6 +103,20 @@ function render(){
     if(!c){editId='';render();return}
     html='<div class="pane"><form id="editForm" class="card" style="padding:16px"><h1>Edit campaign</h1><label>Name</label><input id="eTitle" value="'+esc(c.title)+'"><label>Story</label><textarea id="eStory">'+esc(c.story||'')+'</textarea><label>Goal</label><input id="eGoal" value="'+esc(c.goal)+'"><div class="row"><button class="btn" type="submit">Save</button><button class="btn ghost" type="button" id="back">Back</button></div></form></div>';
     box.innerHTML=html;
+  if(tab==='admin'&&HF.isAdmin()){
+    var KEY='sb_publishable_hSBxsefa3AzA7sLngR07Vw_ruW60q_h';
+    fetch('https://dmvldmffdwzgqnjfrrww.supabase.co/rest/v1/donation_intents?campaign_id=eq._view&select=created_at&order=created_at.desc&limit=500',{
+      headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}
+    }).then(function(r){return r.json();}).then(function(rows){
+      var el=document.getElementById('visitStatsBody'); if(!el) return;
+      if(!Array.isArray(rows)) { el.textContent='Could not load'; return; }
+      var today=new Date().toISOString().slice(0,10);
+      var yest=new Date(Date.now()-86400000).toISOString().slice(0,10);
+      var tCount=0,yCount=0;
+      rows.forEach(function(r){ var d=(r.created_at||'').slice(0,10); if(d===today)tCount++; if(d===yest)yCount++; });
+      el.innerHTML='Today: <b>'+tCount+'</b> · Yesterday: <b>'+yCount+'</b> · Last 500: <b>'+rows.length+'</b>';
+    }).catch(function(){ var el=document.getElementById('visitStatsBody'); if(el) el.textContent='Could not load'; });
+  }
     document.getElementById('back').onclick=function(){editId='';render();};
     document.getElementById('editForm').onsubmit=function(e){e.preventDefault();var btn=e.target.querySelector('[type=submit]');setBusy(btn,true,'Saving…');c.title=document.getElementById('eTitle').value.trim();c.story=document.getElementById('eStory').value;c.goal=parseFloat(document.getElementById('eGoal').value)||c.goal;saveCamp(c);setTimeout(function(){editId='';render();},400);};
     return;
@@ -189,6 +203,7 @@ function render(){
     var pending=allCamps().filter(function(c){return c&&c.status!=='approved'&&c.status!=='rejected'&&c.status!=='deleted'&&!c.deleted&&(c.ownerEmail||c.organizerEmail);});
     if(searchQ) pending=pending.filter(function(c){return matchSearch(searchQ,[c.title,c.ownerEmail,c.organizer]);});
     html='<div class="pane"><h1>Approve campaigns</h1><p class="sub">'+pending.length+' waiting</p>';
+    html+='<div class="card" id="visitStats" style="padding:14px;margin-bottom:16px"><strong>Site visits</strong><div class="note" id="visitStatsBody">Loading…</div></div>';
     pending.forEach(function(c){ html+='<div class="approve-card" style="margin-bottom:10px"><div class="approve-row"><div style="flex:1"><strong>'+esc(c.title)+'</strong><div class="note">'+esc(c.ownerEmail||c.organizer||'')+'</div></div><button type="button" class="mini-btn go" data-approve="'+esc(c.id)+'">Approve</button><button type="button" class="mini-btn bad" data-reject="'+esc(c.id)+'">Reject</button></div></div>'; });
     if(!pending.length) html+='<p class="note">Nothing pending.</p>';
     html+='</div>';
