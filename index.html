@@ -60,7 +60,18 @@
 <details class="ft-more"><summary>More resources <span>▾</span></summary><div class="ft-more-links"><a href="#disc">Discover</a><a href="/start">Start a fundraiser</a><a href="/report">Report a concern</a></div></details>
 <div class="ft-bar">
 <div>
-<a class="ft-locale" href="#how"><span class="ft-flag-emoji" aria-hidden="true">🇺🇸</span> United States · English</a>
+<div class="ft-locale" id="langBtn" style="cursor:pointer;position:relative">
+  <span class="ft-flag-emoji" id="langFlag">🇺🇸</span>
+  <span id="langLabel">United States · English</span>
+  <div id="langMenu" style="display:none;position:absolute;bottom:110%;left:0;background:#fff;border:1px solid #e4e4e7;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:200px;z-index:50;padding:6px 0">
+    <button type="button" data-lang="en" data-flag="🇺🇸" data-label="United States · English" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 14px;border:0;background:none;cursor:pointer;font-size:.9rem">🇺🇸 English</button>
+    <button type="button" data-lang="es" data-flag="🇪🇸" data-label="España · Español" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 14px;border:0;background:none;cursor:pointer;font-size:.9rem">🇪🇸 Español</button>
+    <button type="button" data-lang="fr" data-flag="🇫🇷" data-label="France · Français" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 14px;border:0;background:none;cursor:pointer;font-size:.9rem">🇫🇷 Français</button>
+    <button type="button" data-lang="pt" data-flag="🇵🇹" data-label="Portugal · Português" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 14px;border:0;background:none;cursor:pointer;font-size:.9rem">🇵🇹 Português</button>
+    <button type="button" data-lang="sw" data-flag="🇰🇪" data-label="Kenya · Kiswahili" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 14px;border:0;background:none;cursor:pointer;font-size:.9rem">🇰🇪 Kiswahili</button>
+    <button type="button" data-lang="de" data-flag="🇩🇪" data-label="Deutschland · Deutsch" style="display:flex;align-items:center;gap:8px;width:100%;padding:8px 14px;border:0;background:none;cursor:pointer;font-size:.9rem">🇩🇪 Deutsch</button>
+  </div>
+</div>
 <div class="ft-legal"><span>© 2026 HopeForUs</span><a href="#how">How it works</a><a href="/report">Report</a><a href="/login">Sign in</a><a href="/signup">Sign up</a></div>
 </div>
 <div class="ft-side">
@@ -222,30 +233,67 @@ window.renderCampaigns=renderCampaigns;
   else paint();
 })();
 </script><script src="fx.js"></script>
+
 <script>
 (function(){
-  var KEY='sb_publishable_hSBxsefa3AzA7sLngR07Vw_ruW60q_h';
-  var BASE='https://dmvldmffdwzgqnjfrrww.supabase.co/storage/v1/object/public/campaign-media/visits.json';
-  var UP='https://dmvldmffdwzgqnjfrrww.supabase.co/storage/v1/object/campaign-media/visits.json';
-  var today=new Date().toISOString().slice(0,10);
-  function show(n){
-    var el=document.getElementById('visitCount');
-    if(!el){
-      el=document.createElement('div');
-      el.id='visitCount';
-      el.style.cssText='position:fixed;bottom:12px;left:12px;background:#1a1a1a;color:#fff;padding:6px 10px;border-radius:999px;font-size:.75rem;font-weight:600;z-index:40;opacity:.85';
-      document.body.appendChild(el);
-    }
-    el.textContent=n+' visits today';
+  var LANGS = {
+    en: {flag:'🇺🇸', label:'United States · English',
+      hero:'Where successful fundraisers start', sub:'Tell your story, set a goal, with guidance at every step. No fee to start fundraising.', cta:'Start today', badge:'#1 crowdfunding platform'},
+    es: {flag:'🇪🇸', label:'España · Español',
+      hero:'Donde empiezan las recaudaciones exitosas', sub:'Cuenta tu historia, fija una meta, con guía en cada paso. Sin costo para empezar.', cta:'Empieza hoy', badge:'Plataforma #1 de crowdfunding'},
+    fr: {flag:'🇫🇷', label:'France · Français',
+      hero:'Là où commencent les collectes réussies', sub:'Racontez votre histoire, fixez un objectif, avec des conseils à chaque étape. Sans frais pour commencer.', cta:'Commencer', badge:'Plateforme n°1 de crowdfunding'},
+    pt: {flag:'🇵🇹', label:'Portugal · Português',
+      hero:'Onde começam as arrecadações de sucesso', sub:'Conte sua história, defina uma meta, com orientação em cada passo. Sem taxa para começar.', cta:'Comece hoje', badge:'Plataforma #1 de crowdfunding'},
+    sw: {flag:'🇰🇪', label:'Kenya · Kiswahili',
+      hero:'Mahali ambapo michango yenye mafanikio huanza', sub:'Simulia hadithi yako, weka lengo, na mwongozo katika kila hatua. Hakuna ada kuanza.', cta:'Anza leo', badge:'Jukwaa #1 la crowdfunding'},
+    de: {flag:'🇩🇪', label:'Deutschland · Deutsch',
+      hero:'Wo erfolgreiche Spendenaktionen beginnen', sub:'Erzählen Sie Ihre Geschichte, setzen Sie ein Ziel, mit Anleitung bei jedem Schritt. Keine Gebühr zum Starten.', cta:'Heute starten', badge:'#1 Crowdfunding-Plattform'}
+  };
+  function detect(){
+    var saved = localStorage.getItem('hf_lang');
+    if(saved && LANGS[saved]) return saved;
+    var nav = (navigator.language || 'en').slice(0,2).toLowerCase();
+    return LANGS[nav] ? nav : 'en';
   }
-  fetch(BASE+'?t='+Date.now()).then(function(r){return r.ok?r.json():{total:0,days:{}};}).catch(function(){return {total:0,days:{}};})
-  .then(function(data){
-    data.days=data.days||{};
-    data.days[today]=(data.days[today]||0)+1;
-    data.total=(data.total||0)+1;
-    show(data.days[today]);
-    fetch(UP,{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','x-upsert':'true'},body:JSON.stringify(data)}).catch(function(){});
-  });
+  function apply(code){
+    var L = LANGS[code] || LANGS.en;
+    localStorage.setItem('hf_lang', code);
+    var flag = document.getElementById('langFlag');
+    var label = document.getElementById('langLabel');
+    if(flag) flag.textContent = L.flag;
+    if(label) label.textContent = L.label;
+    var h1 = document.querySelector('.hero h1');
+    var sub = document.querySelector('.hero .sub');
+    var cta = document.querySelector('.hero .cta');
+    var badge = document.querySelector('.hero .badge');
+    if(h1) h1.textContent = L.hero;
+    if(sub) sub.textContent = L.sub;
+    if(cta) cta.textContent = L.cta;
+    if(badge) badge.textContent = L.badge;
+    document.documentElement.lang = code;
+  }
+  var current = detect();
+  apply(current);
+  var btn = document.getElementById('langBtn');
+  var menu = document.getElementById('langMenu');
+  if(btn && menu){
+    btn.onclick = function(e){ e.stopPropagation(); menu.style.display = menu.style.display==='block'?'none':'block'; };
+    menu.querySelectorAll('button').forEach(function(b){
+      b.onclick = function(e){ e.stopPropagation(); apply(b.getAttribute('data-lang')); menu.style.display='none'; };
+    });
+    document.addEventListener('click', function(){ menu.style.display='none'; });
+  }
+  // Silent visit tracking (no public display)
+  try{
+    var KEY='sb_publishable_hSBxsefa3AzA7sLngR07Vw_ruW60q_h';
+    var id='view_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    fetch('https://dmvldmffdwzgqnjfrrww.supabase.co/rest/v1/donation_intents',{
+      method:'POST',
+      headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({id:id, campaign_id:'_view', campaign_title:location.pathname||'/'})
+    }).catch(function(){});
+  }catch(e){}
 })();
 </script>
 </body></html>
