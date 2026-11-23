@@ -1,18 +1,15 @@
 (function() {
-  var TRIBUTE_LINK = 'https://web.tribute.tg/d/T60';
+  var KOFI_URL = 'https://ko-fi.com/hope1forus/?hidefeed=true&widget=true&embed=true';
   var SUPABASE_URL = 'https://dmvldmffdwzgqnjfrrww.supabase.co';
   var SUPABASE_KEY = 'sb_publishable_hSBxsefa3AzA7sLngR07Vw_ruW60q_h';
 
   function getCampaignId() {
     try {
       var params = new URLSearchParams(location.search);
-      var id = (params.get('id') || '').trim();
-      var code = (params.get('code') || '').toUpperCase().trim();
-      var KNOWN = {'EEPBA7':'c_mvsfhl1e','VY84Q4':'c_mvs9eg5p'};
-      if (KNOWN[id.toUpperCase()]) id = KNOWN[id.toUpperCase()];
-      if (id) return id;
-      if (code && KNOWN[code]) return KNOWN[code];
-      return id || code || '';
+      var id = (params.get('id') || params.get('c') || '').trim();
+      var path = location.pathname.replace(/^\//,'').split('/')[0];
+      if (!id && path && path.length > 3 && path.indexOf('.') < 0) id = path;
+      return id || '';
     } catch(e) { return ''; }
   }
 
@@ -42,22 +39,43 @@
     }).catch(function(){});
   }
 
-  window.openTribute = function() {
+  function ensureOverlay() {
+    if (document.getElementById('kofiOverlay')) return;
+    var style = document.createElement('style');
+    style.textContent = '.kofi-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center}.kofi-ov.show{display:flex}.kofi-box{width:92%;max-width:480px;height:82vh;background:#fff;border-radius:12px;overflow:hidden;position:relative}.kofi-box iframe{width:100%;height:100%;border:none}.kofi-x{position:absolute;top:8px;right:8px;background:#fff;border:1px solid #ddd;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:18px;z-index:2}';
+    document.head.appendChild(style);
+    var ov = document.createElement('div');
+    ov.id = 'kofiOverlay';
+    ov.className = 'kofi-ov';
+    ov.innerHTML = '<div class="kofi-box"><button class="kofi-x" id="kofiClose">×</button><iframe id="kofiFrame" src=""></iframe></div>';
+    document.body.appendChild(ov);
+    document.getElementById('kofiClose').onclick = function() {
+      ov.classList.remove('show');
+      document.getElementById('kofiFrame').src = '';
+    };
+    ov.onclick = function(e) { if (e.target === ov) document.getElementById('kofiClose').onclick(); };
+  }
+
+  window.openKofi = function() {
     var campId = getCampaignId();
     var title = getCampaignTitle();
     recordIntent(campId, title);
-    window.open(TRIBUTE_LINK, '_blank', 'noopener');
+    ensureOverlay();
+    var frame = document.getElementById('kofiFrame');
+    var ov = document.getElementById('kofiOverlay');
+    frame.src = KOFI_URL;
+    ov.classList.add('show');
   };
 
   function overrideButtons() {
     document.querySelectorAll('a.btn-d').forEach(function(a) {
-      if (a.dataset.tribute) return;
-      a.dataset.tribute = '1';
+      if (a.dataset.kofi) return;
+      a.dataset.kofi = '1';
       a.href = 'javascript:void(0)';
       a.removeAttribute('target');
       a.onclick = function(e) {
         e.preventDefault();
-        openTribute();
+        openKofi();
       };
     });
   }
@@ -65,7 +83,6 @@
   overrideButtons();
   var obs = new MutationObserver(overrideButtons);
   obs.observe(document.body, { childList: true, subtree: true });
-
   var tries = 0;
   var iv = setInterval(function() {
     overrideButtons();
