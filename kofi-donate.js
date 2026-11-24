@@ -57,7 +57,7 @@
             recordIntent(getCampaignId(), getCampaignTitle());
           });
         }
-      }, 500);
+      }, 600);
     }
     if (window.kofiWidgetOverlay) { draw(); return; }
     var s = document.createElement('script');
@@ -67,8 +67,8 @@
   }
 
   if (document.readyState === 'complete') {
-    setTimeout(initWidget, 300);
+    setTimeout(initWidget, 400);
   } else {
-    window.addEventListener('load', function(){ setTimeout(initWidget, 300); });
+    window.addEventListener('load', function(){ setTimeout(initWidget, 400); });
   }
 })();
