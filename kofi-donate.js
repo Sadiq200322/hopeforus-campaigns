@@ -1,6 +1,5 @@
 (function() {
-  var PROXY_BASE = 'https://kofi-proxy.ijogasadiq11.workers.dev';
-  var KOFI_URL = PROXY_BASE + '/hope1forus/?hidefeed=true&widget=true&embed=true';
+  var KOFI_URL = 'https://ko-fi.com/hope1forus';
   var SUPABASE_URL = 'https://dmvldmffdwzgqnjfrrww.supabase.co';
   var SUPABASE_KEY = 'sb_publishable_hSBxsefa3AzA7sLngR07Vw_ruW60q_h';
 
@@ -40,30 +39,14 @@
     }).catch(function(){});
   }
 
-  function ensureOverlay() {
-    if (document.getElementById('kofiOverlay')) return;
-    var style = document.createElement('style');
-    style.textContent = '.kofi-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center}.kofi-ov.show{display:flex}.kofi-box{width:92%;max-width:480px;height:85vh;background:#fff;border-radius:16px;overflow:hidden;position:relative}.kofi-box iframe{width:100%;height:100%;border:none}.kofi-x{position:absolute;top:10px;right:10px;background:#fff;border:1px solid #ddd;border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:18px;z-index:3}';
-    document.head.appendChild(style);
-    var ov = document.createElement('div');
-    ov.id = 'kofiOverlay';
-    ov.className = 'kofi-ov';
-    ov.innerHTML = '<div class="kofi-box"><button class="kofi-x" id="kofiClose">×</button><iframe id="kofiFrame" src="" allow="payment"></iframe></div>';
-    document.body.appendChild(ov);
-    document.getElementById('kofiClose').onclick = function() {
-      ov.classList.remove('show');
-      document.getElementById('kofiFrame').src = '';
-    };
-    ov.onclick = function(e) { if (e.target === ov) document.getElementById('kofiClose').onclick(); };
-  }
-
   window.openKofi = function() {
     var campId = getCampaignId();
     var title = getCampaignTitle();
     recordIntent(campId, title);
-    ensureOverlay();
-    document.getElementById('kofiFrame').src = KOFI_URL;
-    document.getElementById('kofiOverlay').classList.add('show');
+    var w = 480, h = 720;
+    var left = Math.max(0, (screen.width - w) / 2);
+    var top = Math.max(0, (screen.height - h) / 2);
+    window.open(KOFI_URL, 'kofiDonate', 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',resizable=yes,scrollbars=yes');
   };
 
   function overrideButtons() {
