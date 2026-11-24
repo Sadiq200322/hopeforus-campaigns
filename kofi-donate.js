@@ -44,7 +44,7 @@
     if (!style) {
       style = document.createElement('style');
       style.id = 'kofiHideStyle';
-      style.textContent = '.kofi-button, .floatingchat-donate-button, #kofi-widget-overlay > button, [class*="floatingchat"] > button { display: none !important; }';
+      style.textContent = '.kofi-button, .floatingchat-donate-button, #kofi-widget-overlay, .floatingchat-container, [id*="kofi"], [class*="kofi-button"], [class*="floatingchat"] { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }';
       document.head.appendChild(style);
     }
   }
