@@ -66,8 +66,12 @@
     }
   }
 
+  function widgetOn() {
+    return document.querySelector('#kofi-widget-overlay, .floatingchat-container, .floatingchat-container-wrap, [class*="floatingchat"]');
+  }
+
   function realButton() {
-    return document.querySelector('.floatingchat-donate-button, .kofi-button, #kofi-widget-overlay button');
+    return document.querySelector('.floatingchat-donate-button, .kofi-button, #kofi-widget-overlay button, #kofi-widget-overlay a, .floatingchat-container button, .floatingchat-container a');
   }
 
   function openKofi() {
@@ -89,8 +93,10 @@
   }
 
   function hideFallback() {
+    if (!widgetOn() && !realButton()) return;
+    document.documentElement.classList.add('kofi-on');
     var btn = document.getElementById('donateBtn');
-    if (btn && realButton()) btn.classList.add('hide');
+    if (btn) btn.classList.add('hide');
   }
 
   function draw() {
@@ -131,11 +137,14 @@
   // holds that until every image finishes, so Donate never appeared.
   loadWidget();
   document.addEventListener('DOMContentLoaded', wireFallback);
-  var tries = 0;
-  var timer = setInterval(function() {
+  var watch = new MutationObserver(function() {
+    wireFallback();
+    hideFallback();
+  });
+  watch.observe(document.documentElement, { childList: true, subtree: true });
+  setInterval(function() {
     wireFallback();
     if (window.kofiWidgetOverlay) draw();
-    if (realButton()) hideFallback();
-    if (++tries > 40) clearInterval(timer);
-  }, 250);
+    hideFallback();
+  }, 400);
 })();
