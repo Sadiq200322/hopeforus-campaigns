@@ -1,5 +1,6 @@
 (function() {
   var KOFI_USER = 'hope1forus';
+  var KOFI_PAGE = 'https://ko-fi.com/' + KOFI_USER;
   var SUPABASE_URL = 'https://dmvldmffdwzgqnjfrrww.supabase.co';
   var SUPABASE_KEY = 'sb_publishable_hSBxsefa3AzA7sLngR07Vw_ruW60q_h';
 
@@ -30,10 +31,10 @@
     fetch(SUPABASE_URL + '/rest/v1/donation_intents', {
       method: 'POST',
       headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        apikey: SUPABASE_KEY,
+        Authorization: 'Bearer ' + SUPABASE_KEY,
         'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
+        Prefer: 'return=minimal'
       },
       body: JSON.stringify(row)
     }).catch(function(){});
@@ -65,10 +66,36 @@
     }
   }
 
-  function initWidget() {
-    positionWidget();
-    function draw() {
-      if (window.__kofiDrawn) return;
+  function realButton() {
+    return document.querySelector('.floatingchat-donate-button, .kofi-button, #kofi-widget-overlay button');
+  }
+
+  function openKofi() {
+    recordIntent(getCampaignId(), getCampaignTitle());
+    var real = realButton();
+    if (real) { real.click(); return; }
+    var w = 420, h = 680;
+    var left = Math.max(0, (screen.width - w) / 2);
+    var top = Math.max(0, (screen.height - h) / 2);
+    var pop = window.open(KOFI_PAGE, 'kofi', 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top);
+    if (!pop) location.href = KOFI_PAGE;
+  }
+
+  function wireFallback() {
+    var btn = document.getElementById('donateBtn');
+    if (!btn || btn.dataset.wired) return;
+    btn.dataset.wired = '1';
+    btn.addEventListener('click', openKofi);
+  }
+
+  function hideFallback() {
+    var btn = document.getElementById('donateBtn');
+    if (btn && realButton()) btn.classList.add('hide');
+  }
+
+  function draw() {
+    if (!window.kofiWidgetOverlay) return;
+    if (!window.__kofiDrawn) {
       window.kofiWidgetOverlay.draw(KOFI_USER, {
         type: 'floating-chat',
         'floating-chat.donateButton.text': 'Donate',
@@ -76,26 +103,39 @@
         'floating-chat.donateButton.text-color': '#ffffff'
       });
       window.__kofiDrawn = true;
-      setTimeout(function() {
-        var btn = document.querySelector('.kofi-button, .floatingchat-donate-button, #kofi-widget-overlay button');
-        if (btn && !btn.dataset.logged) {
-          btn.dataset.logged = '1';
-          btn.addEventListener('click', function() {
-            recordIntent(getCampaignId(), getCampaignTitle());
-          });
-        }
-      }, 600);
     }
+    setTimeout(function() {
+      var btn = realButton();
+      if (btn && !btn.dataset.logged) {
+        btn.dataset.logged = '1';
+        btn.addEventListener('click', function() {
+          recordIntent(getCampaignId(), getCampaignTitle());
+        });
+      }
+      hideFallback();
+    }, 400);
+  }
+
+  function loadWidget() {
+    positionWidget();
+    wireFallback();
     if (window.kofiWidgetOverlay) { draw(); return; }
     var s = document.createElement('script');
     s.src = 'https://storage.ko-fi.com/cdn/scripts/overlay-widget.js';
+    s.async = true;
     s.onload = draw;
     document.head.appendChild(s);
   }
 
-  if (document.readyState === 'complete') {
-    setTimeout(initWidget, 400);
-  } else {
-    window.addEventListener('load', function(){ setTimeout(initWidget, 400); });
-  }
+  // Start now. Do not wait for window load — Instagram's browser
+  // holds that until every image finishes, so Donate never appeared.
+  loadWidget();
+  document.addEventListener('DOMContentLoaded', wireFallback);
+  var tries = 0;
+  var timer = setInterval(function() {
+    wireFallback();
+    if (window.kofiWidgetOverlay) draw();
+    if (realButton()) hideFallback();
+    if (++tries > 40) clearInterval(timer);
+  }, 250);
 })();
