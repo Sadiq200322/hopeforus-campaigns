@@ -39,8 +39,39 @@
     }).catch(function(){});
   }
 
+  function clickKofiButton() {
+    var selectors = [
+      '.kofi-button',
+      '.floatingchat-donate-button',
+      '#kofi-widget-overlay button',
+      '[class*="kofi"] button',
+      '.floating-chat-kofi-popup-iframe',
+      'iframe[src*="ko-fi"]'
+    ];
+    for (var i = 0; i < selectors.length; i++) {
+      var el = document.querySelector(selectors[i]);
+      if (el) { el.click(); return true; }
+    }
+    // Try any visible button that looks like the widget
+    var buttons = document.querySelectorAll('button, a, div[role="button"]');
+    for (var j = 0; j < buttons.length; j++) {
+      var b = buttons[j];
+      if (b.offsetParent && /donate|kofi|coffee|support/i.test(b.textContent || b.className || '')) {
+        b.click();
+        return true;
+      }
+    }
+    return false;
+  }
+
   function loadAndOpen() {
-    function openPanel() {
+    function tryOpen(attempts) {
+      if (clickKofiButton()) return;
+      if (attempts > 8) return;
+      setTimeout(function(){ tryOpen(attempts + 1); }, 300);
+    }
+
+    function draw() {
       if (!window.kofiWidgetOverlay) return;
       if (!window.__kofiDrawn) {
         window.kofiWidgetOverlay.draw(KOFI_USER, {
@@ -51,16 +82,13 @@
         });
         window.__kofiDrawn = true;
       }
-      setTimeout(function() {
-        var btn = document.querySelector('.kofi-button, .floatingchat-donate-button, [class*="kofi"] button');
-        if (btn) btn.click();
-      }, 400);
+      setTimeout(function(){ tryOpen(0); }, 200);
     }
 
-    if (window.kofiWidgetOverlay) { openPanel(); return; }
+    if (window.kofiWidgetOverlay) { draw(); return; }
     var s = document.createElement('script');
     s.src = 'https://storage.ko-fi.com/cdn/scripts/overlay-widget.js';
-    s.onload = openPanel;
+    s.onload = draw;
     document.head.appendChild(s);
   }
 
