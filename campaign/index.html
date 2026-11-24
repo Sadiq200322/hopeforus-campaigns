@@ -32,7 +32,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 .read-more{background:none;border:none;color:var(--p);font-weight:700;font-size:.9rem;margin-top:8px;padding:0}
 .org{display:flex;align-items:center;gap:12px;margin:8px 0 16px}
 .av{width:44px;height:44px;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center;font-weight:800;overflow:hidden}
-.side{position:sticky;top:72px;z-index:30}
+.side{margin-bottom:140px;position:sticky;top:72px;z-index:30}
 .card{border:1px solid var(--line);border-radius:20px;padding:18px;background:#fff;box-shadow:0 8px 28px rgba(0,0,0,.08)}
 .raise-row{display:flex;align-items:center;gap:14px;margin-bottom:10px}
 .ring{width:64px;height:64px;flex-shrink:0;position:relative}
@@ -44,12 +44,11 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 @keyframes tin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
 .float-share{position:fixed;bottom:20px;right:20px;z-index:9998;background:#7C3AED;color:#fff;border:none;border-radius:999px;padding:14px 24px;font-weight:800;font-size:1rem;box-shadow:0 4px 16px rgba(124,58,237,.35);cursor:pointer}
-.share-float{position:fixed;bottom:90px;right:16px;z-index:9998;background:#fff;color:#7C3AED;border:none;border-radius:999px;padding:12px 22px;font-weight:700;font-size:.95rem;box-shadow:0 4px 16px rgba(0,0,0,.12);cursor:pointer}
 .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .btn-d,.btn-s{display:block;width:100%;border:none;font-weight:800;padding:14px 12px;border-radius:999px;font-size:1rem;text-align:center}
 .btn-d{background:var(--p);color:#fff}.btn-s{background:var(--pd);color:#E9D5FF}
 @media(max-width:899px){
-  .side{position:fixed;left:14px;right:14px;bottom:calc(12px + env(safe-area-inset-bottom));top:auto;z-index:60}
+  .side{margin-bottom:140px;position:fixed;left:14px;right:14px;bottom:calc(12px + env(safe-area-inset-bottom));top:auto;z-index:60}
   .card{border-radius:20px;box-shadow:0 12px 40px rgba(0,0,0,.18);padding:12px 14px}
   .ring{width:48px;height:48px}.ring svg{width:48px;height:48px}.ring-pct{font-size:.72rem}
   .raised{font-size:1rem}.raised span{font-size:.85rem}
@@ -215,7 +214,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
       '<div><div class="raised">'+money(raised,c.currency)+' raised <span>of '+moneyShort(goal,c.currency)+'</span></div></div></div>'+
       '<div class="ticker" id="ticker"><span class="t">'+recent+'</span></div>'+
       '</div></aside>'+
-      '<button type="button" class="share-float" id="shareBtn">Share</button>';
+      '<button type="button" class="btn-s float-share" id="shareBtn">Share</button>';
 
     var rm=document.getElementById('rm');
     if(rm){var st=document.getElementById('story');st.classList.add('clamp');rm.onclick=function(){st.classList.toggle('clamp');rm.textContent=st.classList.contains('clamp')?'Read more':'Show less';};}
@@ -273,6 +272,6 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
   }).catch(function(){clearTimeout(timeoutId);if(!painted)showError('Campaign not found');});
 })();
 </script>
-<script src="/kofi-donate.js?v=32"></script>
+<script src="/kofi-donate.js?v=33"></script>
 </body>
 </html>
