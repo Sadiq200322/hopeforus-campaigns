@@ -1,5 +1,5 @@
 (function() {
-  var KOFI_URL = 'https://ko-fi.com/hope1forus';
+  var KOFI_USER = 'hope1forus';
   var SUPABASE_URL = 'https://dmvldmffdwzgqnjfrrww.supabase.co';
   var SUPABASE_KEY = 'sb_publishable_hSBxsefa3AzA7sLngR07Vw_ruW60q_h';
 
@@ -39,51 +39,36 @@
     }).catch(function(){});
   }
 
-  function applyStyles() {
-    var style = document.getElementById('btnStyle');
-    if (!style) {
-      style = document.createElement('style');
-      style.id = 'btnStyle';
-      document.head.appendChild(style);
+  function initWidget() {
+    function draw() {
+      if (window.__kofiDrawn) return;
+      window.kofiWidgetOverlay.draw(KOFI_USER, {
+        type: 'floating-chat',
+        'floating-chat.donateButton.text': 'Donate',
+        'floating-chat.donateButton.background-color': '#7C3AED',
+        'floating-chat.donateButton.text-color': '#ffffff'
+      });
+      window.__kofiDrawn = true;
+      setTimeout(function() {
+        var btn = document.querySelector('.kofi-button, .floatingchat-donate-button, #kofi-widget-overlay button');
+        if (btn && !btn.dataset.logged) {
+          btn.dataset.logged = '1';
+          btn.addEventListener('click', function() {
+            recordIntent(getCampaignId(), getCampaignTitle());
+          });
+        }
+      }, 500);
     }
-    style.textContent = [
-      '.btn-row { display: flex !important; gap: 10px !important; align-items: stretch !important; }',
-      'a.btn-d, a.btn-s { flex: 1 1 50% !important; background: #7C3AED !important; color: #fff !important; border-radius: 999px !important; padding: 14px 12px !important; font-weight: 800 !important; font-size: 1rem !important; text-align: center !important; text-decoration: none !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; margin: 0 !important; border: none !important; }'
-    ].join('');
+    if (window.kofiWidgetOverlay) { draw(); return; }
+    var s = document.createElement('script');
+    s.src = 'https://storage.ko-fi.com/cdn/scripts/overlay-widget.js';
+    s.onload = draw;
+    document.head.appendChild(s);
   }
 
-  window.openKofi = function() {
-    var campId = getCampaignId();
-    var title = getCampaignTitle();
-    recordIntent(campId, title);
-    var w = Math.min(480, screen.width - 20);
-    var h = Math.min(740, screen.height - 40);
-    var left = Math.max(0, (screen.width - w) / 2);
-    var top = Math.max(0, (screen.height - h) / 2);
-    var popup = window.open(KOFI_URL, 'kofiDonate', 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',resizable=yes,scrollbars=yes');
-    if (popup) popup.focus();
-  };
-
-  function wireButtons() {
-    applyStyles();
-    document.querySelectorAll('a.btn-d').forEach(function(a) {
-      if (a.dataset.kofi) return;
-      a.dataset.kofi = '1';
-      a.href = 'javascript:void(0)';
-      a.removeAttribute('target');
-      a.onclick = function(e) {
-        e.preventDefault();
-        openKofi();
-      };
-    });
+  if (document.readyState === 'complete') {
+    setTimeout(initWidget, 300);
+  } else {
+    window.addEventListener('load', function(){ setTimeout(initWidget, 300); });
   }
-
-  wireButtons();
-  var obs = new MutationObserver(wireButtons);
-  obs.observe(document.body, { childList: true, subtree: true });
-  var tries = 0;
-  var iv = setInterval(function() {
-    wireButtons();
-    if (++tries > 15) clearInterval(iv);
-  }, 400);
 })();
