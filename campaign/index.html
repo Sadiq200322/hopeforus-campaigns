@@ -216,7 +216,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
       '<div><div class="raised">'+money(raised,c.currency)+' raised <span>of '+moneyShort(goal,c.currency)+'</span></div></div></div>'+
       '<div class="ticker" id="ticker"><span class="t">'+recent+'</span></div>'+
       '</div></aside>'+
-      '<button type="button" class="btn-s float-share" id="shareBtn">Share</button>';
+      '<button type="button" class="share-float" id="shareBtn">Share</button>';
 
     var rm=document.getElementById('rm');
     if(rm){var st=document.getElementById('story');st.classList.add('clamp');rm.onclick=function(){st.classList.toggle('clamp');rm.textContent=st.classList.contains('clamp')?'Read more':'Show less';};}
