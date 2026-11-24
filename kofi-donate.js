@@ -47,8 +47,8 @@
       document.head.appendChild(style);
     }
     style.textContent = [
-      '.btn-row { display: flex !important; gap: 10px !important; }',
-      'a.btn-d, a.btn-s { flex: 1 1 50% !important; background: #7C3AED !important; color: #fff !important; border-radius: 999px !important; padding: 14px 12px !important; font-weight: 800 !important; font-size: 1rem !important; text-align: center !important; text-decoration: none !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; margin: 0 !important; }'
+      '.btn-row { display: flex !important; gap: 10px !important; align-items: stretch !important; }',
+      'a.btn-d, a.btn-s { flex: 1 1 50% !important; background: #7C3AED !important; color: #fff !important; border-radius: 999px !important; padding: 14px 12px !important; font-weight: 800 !important; font-size: 1rem !important; text-align: center !important; text-decoration: none !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; margin: 0 !important; border: none !important; }'
     ].join('');
   }
 
