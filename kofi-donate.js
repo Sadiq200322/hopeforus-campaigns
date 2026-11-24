@@ -1,5 +1,5 @@
 (function() {
-  var TRIBUTE_LINK = 'https://web.tribute.tg/d/T60';
+  var KOFI_URL = 'https://ko-fi.com/hope1forus';
   var SUPABASE_URL = 'https://dmvldmffdwzgqnjfrrww.supabase.co';
   var SUPABASE_KEY = 'sb_publishable_hSBxsefa3AzA7sLngR07Vw_ruW60q_h';
 
@@ -39,22 +39,25 @@
     }).catch(function(){});
   }
 
-  window.openTribute = function() {
+  window.openKofi = function() {
     var campId = getCampaignId();
     var title = getCampaignTitle();
     recordIntent(campId, title);
-    window.open(TRIBUTE_LINK, '_blank', 'noopener');
+    var w = 480, h = 720;
+    var left = Math.max(0, (screen.width - w) / 2);
+    var top = Math.max(0, (screen.height - h) / 2);
+    window.open(KOFI_URL, 'kofiDonate', 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',resizable=yes,scrollbars=yes');
   };
 
   function overrideButtons() {
     document.querySelectorAll('a.btn-d').forEach(function(a) {
-      if (a.dataset.tribute) return;
-      a.dataset.tribute = '1';
+      if (a.dataset.kofi) return;
+      a.dataset.kofi = '1';
       a.href = 'javascript:void(0)';
       a.removeAttribute('target');
       a.onclick = function(e) {
         e.preventDefault();
-        openTribute();
+        openKofi();
       };
     });
   }
