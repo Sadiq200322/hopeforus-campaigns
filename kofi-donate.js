@@ -44,8 +44,24 @@
     if (!style) {
       style = document.createElement('style');
       style.id = 'kofiPos';
-      style.textContent = '#kofi-widget-overlay, .floatingchat-container { bottom: 16px !important; left: 16px !important; right: auto !important; z-index: 9997 !important; }';
       document.head.appendChild(style);
+    }
+    function place() {
+      var card = document.querySelector('.side .card') || document.querySelector('.card');
+      var bottom = 8, left = 18;
+      if (card) {
+        var r = card.getBoundingClientRect();
+        left = Math.max(8, Math.round(r.left + 6));
+        bottom = Math.max(6, Math.round(window.innerHeight - r.bottom - 18));
+      }
+      style.textContent = '#kofi-widget-overlay, .floatingchat-container, .floatingchat-container-wrap { bottom: ' + bottom + 'px !important; left: ' + left + 'px !important; right: auto !important; top: auto !important; z-index: 70 !important; }';
+    }
+    place();
+    if (!window.__kofiPlace) {
+      window.__kofiPlace = 1;
+      window.addEventListener('resize', place);
+      window.addEventListener('scroll', place, {passive:true});
+      setInterval(place, 700);
     }
   }
 
