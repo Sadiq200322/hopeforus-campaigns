@@ -1,6 +1,5 @@
 (function() {
-  // Point this to your deployed proxy worker URL once live
-  var PROXY_BASE = 'https://kofi-proxy.hopeforus.workers.dev'; // replace after deploy
+  var PROXY_BASE = 'https://kofi-proxy.ijogasadiq11.workers.dev';
   var KOFI_URL = PROXY_BASE + '/hope1forus/?hidefeed=true&widget=true&embed=true';
   var SUPABASE_URL = 'https://dmvldmffdwzgqnjfrrww.supabase.co';
   var SUPABASE_KEY = 'sb_publishable_hSBxsefa3AzA7sLngR07Vw_ruW60q_h';
