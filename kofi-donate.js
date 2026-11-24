@@ -1,5 +1,5 @@
 (function() {
-  var KOFI_USER = 'hope1forus';
+  var KOFI_URL = 'https://ko-fi.com/hope1forus';
   var SUPABASE_URL = 'https://dmvldmffdwzgqnjfrrww.supabase.co';
   var SUPABASE_KEY = 'sb_publishable_hSBxsefa3AzA7sLngR07Vw_ruW60q_h';
 
@@ -39,34 +39,14 @@
     }).catch(function(){});
   }
 
-  function loadWidget(cb) {
-    if (window.kofiWidgetOverlay) { cb(); return; }
-    var s = document.createElement('script');
-    s.src = 'https://storage.ko-fi.com/cdn/scripts/overlay-widget.js';
-    s.onload = function() { cb(); };
-    document.head.appendChild(s);
-  }
-
   window.openKofi = function() {
     var campId = getCampaignId();
     var title = getCampaignTitle();
     recordIntent(campId, title);
-    loadWidget(function() {
-      if (window.kofiWidgetOverlay && !window.__kofiDrawn) {
-        window.kofiWidgetOverlay.draw(KOFI_USER, {
-          'type': 'floating-chat',
-          'floating-chat.donateButton.text': 'Donate',
-          'floating-chat.donateButton.background-color': '#7C3AED',
-          'floating-chat.donateButton.text-color': '#ffffff'
-        });
-        window.__kofiDrawn = true;
-      }
-      // Click the floating button to open the panel
-      setTimeout(function() {
-        var btn = document.querySelector('.kofi-button') || document.querySelector('[id*="kofi"] button') || document.querySelector('.floatingchat-container button');
-        if (btn) btn.click();
-      }, 300);
-    });
+    var w = 480, h = 720;
+    var left = Math.max(0, (screen.width - w) / 2);
+    var top = Math.max(0, (screen.height - h) / 2);
+    window.open(KOFI_URL, 'kofiDonate', 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',resizable=yes,scrollbars=yes');
   };
 
   function overrideButtons() {
